@@ -532,6 +532,12 @@
         .coming-soon { text-align: center; padding: 80px 40px; color: var(--text-secondary); }
         .coming-soon .icon { font-size: 48px; margin-bottom: 16px; }
         .coming-soon h3 { color: var(--text-primary); margin-bottom: 8px; }
+        
+        /* Drag and Drop */
+        .kanban-card[draggable="true"] { cursor: grab; }
+        .kanban-card:active { cursor: grabbing; }
+        .kanban-cards.drag-over { background: rgba(35,131,226,0.1); border: 2px dashed var(--accent); border-radius: 6px; min-height: 100px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
     <script src="audit-logger.js"></script>
 </head>
@@ -951,6 +957,98 @@
             }
         }
         
+        // ==================== 看板拖拽功能 ====================
+        let draggedCard = null;
+        
+        function initKanban() {
+            const cards = document.querySelectorAll('.kanban-card');
+            const columns = document.querySelectorAll('.kanban-cards');
+            
+            cards.forEach(card => {
+                card.draggable = true;
+                
+                card.addEventListener('dragstart', (e) => {
+                    draggedCard = card;
+                    card.style.opacity = '0.5';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                card.addEventListener('dragend', () => {
+                    card.style.opacity = '1';
+                    draggedCard = null;
+                    document.querySelectorAll('.kanban-cards').forEach(col => {
+                        col.classList.remove('drag-over');
+                    });
+                });
+            });
+            
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    column.classList.add('drag-over');
+                });
+                
+                column.addEventListener('dragleave', () => {
+                    column.classList.remove('drag-over');
+                });
+                
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    column.classList.remove('drag-over');
+                    
+                    if (draggedCard) {
+                        // 移動卡片
+                        column.appendChild(draggedCard);
+                        
+                        // 更新計數
+                        updateKanbanCounts();
+                        
+                        // 取得新狀態
+                        const newStatus = column.parentElement.querySelector('.kanban-header').textContent.trim().split(' ')[0];
+                        const orderNo = draggedCard.querySelector('.card-title').textContent;
+                        
+                        // 記錄日誌
+                        if (window.AuditLogger) {
+                            AuditLogger.logUpdate('orders', `訂單 ${orderNo} 狀態變更為 ${newStatus}`);
+                        }
+                        
+                        // 顯示提示
+                        showToast(`✅ ${orderNo} 已移動到「${newStatus}」`);
+                    }
+                });
+            });
+        }
+        
+        function updateKanbanCounts() {
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                const count = col.querySelectorAll('.kanban-card').length;
+                const countEl = col.querySelector('.count');
+                if (countEl) countEl.textContent = count;
+                
+                // 如果沒有卡片，顯示空狀態
+                const cardsContainer = col.querySelector('.kanban-cards');
+                const emptyState = cardsContainer.querySelector('.empty-state');
+                if (count === 0 && !emptyState) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.textContent = '暫無訂單';
+                    cardsContainer.appendChild(empty);
+                } else if (count > 0 && emptyState) {
+                    emptyState.remove();
+                }
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#37352f;color:white;padding:12px 20px;border-radius:8px;z-index:9999;animation:fadeIn 0.3s';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
         // Tab 切換功能
         function switchTab(tabId, element) {
             // 移除所有 tab 的 active
@@ -975,6 +1073,9 @@
         
         // 頁面載入時執行
         loadUserInfo();
+        
+        // 初始化看板拖拽
+        initKanban();
         
         // 確保初始 tab 顯示
         document.getElementById('tab-list').style.display = 'block';
