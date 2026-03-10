@@ -1621,31 +1621,79 @@
         }
         
         async function changeStatus() {
-            const statuses = ['草稿', '已確認', '生產中', '待驗貨', '已出貨'];
-            const newStatus = prompt('選擇新狀態:\\n1. 草稿\\n2. 已確認\\n3. 生產中\\n4. 待驗貨\\n5. 已出貨\\n\\n輸入數字 1-5:');
+            const orderIndex = currentActionRow - 2;
+            const currentStatus = ordersData[orderIndex]?.[6] || '草稿';
+            const orderNo = ordersData[orderIndex]?.[0] || '';
             
-            if (newStatus && parseInt(newStatus) >= 1 && parseInt(newStatus) <= 5) {
-                const status = statuses[parseInt(newStatus) - 1];
+            const statusOptions = [
+                { value: '草稿', icon: '📝', color: '#94a3b8' },
+                { value: '已確認', icon: '✅', color: '#3b82f6' },
+                { value: '生產中', icon: '🔨', color: '#f59e0b' },
+                { value: '待驗貨', icon: '🔍', color: '#8b5cf6' },
+                { value: '已出貨', icon: '🚚', color: '#22c55e' }
+            ];
+            
+            const optionsHTML = statusOptions.map(s => `
+                <label style="display:flex;align-items:center;padding:14px 16px;border:2px solid ${currentStatus === s.value ? s.color : 'var(--border)'};border-radius:10px;cursor:pointer;background:${currentStatus === s.value ? s.color + '15' : 'transparent'};transition:all 0.2s;" onmouseover="this.style.borderColor='${s.color}'" onmouseout="this.style.borderColor='${currentStatus === s.value ? s.color : 'var(--border)'}'"">
+                    <input type="radio" name="new-status" value="${s.value}" ${currentStatus === s.value ? 'checked' : ''} style="margin-right:12px;accent-color:${s.color};">
+                    <span style="background:${s.color};color:white;padding:6px 14px;border-radius:14px;font-size:13px;font-weight:500;">${s.icon} ${s.value}</span>
+                </label>
+            `).join('');
+            
+            const modalHTML = `
+                <div id="status-modal" class="modal-overlay" onclick="if(event.target===this)closeStatusModal()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;">
+                    <div style="background:var(--bg-primary);border-radius:16px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                            <h3 style="margin:0;font-size:18px;">📋 變更訂單狀態</h3>
+                            <button onclick="closeStatusModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-secondary);">×</button>
+                        </div>
+                        <div style="padding:24px;">
+                            <p style="margin:0 0 20px;color:var(--text-secondary);font-size:14px;">訂單：<strong style="color:var(--text-primary);">${orderNo}</strong></p>
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                ${optionsHTML}
+                            </div>
+                        </div>
+                        <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;">
+                            <button onclick="closeStatusModal()" style="padding:10px 20px;border:1px solid var(--border);background:transparent;border-radius:8px;cursor:pointer;font-size:14px;">取消</button>
+                            <button onclick="confirmStatusChange(${orderIndex})" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;">確認變更</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+        }
+        
+        function closeStatusModal() {
+            document.getElementById('status-modal')?.remove();
+        }
+        
+        async function confirmStatusChange(orderIndex) {
+            const selected = document.querySelector('input[name="new-status"]:checked');
+            if (selected) {
+                const newStatus = selected.value;
+                ordersData[orderIndex][6] = newStatus;
                 
-                if (window.erpApi) {
+                // 嘗試同步到 API
+                if (window.erpApi && !erpApi.forceOffline) {
                     try {
-                        // 更新第 7 欄（狀態）
-                        const order = ordersData[currentActionRow - 2];
-                        order[6] = status;
-                        await erpApi.updateSheetRow('orders', currentActionRow, order);
-                        showToast(`✅ 狀態已更新為「${status}」`);
-                        loadOrders();
+                        await erpApi.updateSheetRow('orders', orderIndex + 2, ordersData[orderIndex]);
                     } catch (e) {
-                        console.error(e);
-                        showToast('⚠️ 更新失敗');
+                        console.log('API 同步失敗，僅更新本地');
                     }
                 }
                 
+                renderOrdersTable(ordersData);
+                renderKanban(ordersData);
+                updateStats(ordersData);
+                showToast(`✅ 狀態已變更為「${newStatus}」`);
+                
                 if (window.AuditLogger) {
-                    AuditLogger.logUpdate('orders', `訂單狀態變更為 ${status}`);
+                    AuditLogger.logUpdate('orders', `訂單狀態變更為 ${newStatus}`);
                 }
             }
-            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+            closeStatusModal();
         }
         
         async function deleteOrder() {
