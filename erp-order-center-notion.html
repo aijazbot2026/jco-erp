@@ -538,6 +538,26 @@
         .kanban-card:active { cursor: grabbing; }
         .kanban-cards.drag-over { background: rgba(35,131,226,0.1); border: 2px dashed var(--accent); border-radius: 6px; min-height: 100px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal { background: white; border-radius: 12px; width: 480px; max-width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+        .modal-header h3 { margin: 0; font-size: 18px; }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .close-btn:hover { color: var(--text-primary); }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(35,131,226,0.1); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); }
+        
+        /* Action Menu */
+        .menu-item { padding: 10px 16px; cursor: pointer; font-size: 14px; }
+        .menu-item:hover { background: var(--bg-secondary); }
+        .menu-item.danger { color: #eb5757; }
+        .menu-item.danger:hover { background: #fee2e2; }
     </style>
     <script src="audit-logger.js"></script>
 </head>
@@ -665,8 +685,8 @@
                             </select>
                         </div>
                         <div class="toolbar-right">
-                            <button class="btn btn-secondary">📤 匯出</button>
-                            <button class="btn btn-primary">+ 新增訂單</button>
+                            <button class="btn btn-secondary" onclick="exportOrders()">📤 匯出</button>
+                            <button class="btn btn-primary" onclick="showNewOrderModal()">+ 新增訂單</button>
                         </div>
                     </div>
                     
@@ -710,7 +730,7 @@
                                         <div class="fill complete" style="width: 100%"></div>
                                     </div>
                                 </td>
-                                <td><button class="action-btn">⋯</button></td>
+                                <td><button class="action-btn" onclick="showActionMenu(this)">⋯</button></td>
                             </tr>
                             <tr>
                                 <td><span class="order-id">PO-2026-002</span></td>
@@ -734,7 +754,7 @@
                                         <div class="fill" style="width: 20%"></div>
                                     </div>
                                 </td>
-                                <td><button class="action-btn">⋯</button></td>
+                                <td><button class="action-btn" onclick="showActionMenu(this)">⋯</button></td>
                             </tr>
                             <tr>
                                 <td><span class="order-id">PO-2026-003</span></td>
@@ -759,7 +779,7 @@
                                         <div class="fill" style="width: 0%"></div>
                                     </div>
                                 </td>
-                                <td><button class="action-btn">⋯</button></td>
+                                <td><button class="action-btn" onclick="showActionMenu(this)">⋯</button></td>
                             </tr>
                             <tr>
                                 <td><span class="order-id">PO-2026-004</span></td>
@@ -783,7 +803,7 @@
                                         <div class="fill" style="width: 80%"></div>
                                     </div>
                                 </td>
-                                <td><button class="action-btn">⋯</button></td>
+                                <td><button class="action-btn" onclick="showActionMenu(this)">⋯</button></td>
                             </tr>
                             <tr>
                                 <td><span class="order-id">PO-2026-005</span></td>
@@ -807,7 +827,7 @@
                                         <div class="fill complete" style="width: 100%"></div>
                                     </div>
                                 </td>
-                                <td><button class="action-btn">⋯</button></td>
+                                <td><button class="action-btn" onclick="showActionMenu(this)">⋯</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -957,6 +977,174 @@
             }
         }
         
+        // ==================== 按鈕功能 ====================
+        
+        // 新增訂單 Modal
+        function showNewOrderModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>📦 新增訂單</h3>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>客戶</label>
+                            <select id="new-customer">
+                                <option value="CI">CI</option>
+                                <option value="Other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>產品型號</label>
+                            <input type="text" id="new-product" placeholder="例：B36, W3030">
+                        </div>
+                        <div class="form-group">
+                            <label>數量</label>
+                            <input type="number" id="new-qty" placeholder="數量">
+                        </div>
+                        <div class="form-group">
+                            <label>交期</label>
+                            <input type="date" id="new-date">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="createOrder()">建立訂單</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            if (window.AuditLogger) AuditLogger.logView('orders', '打開新增訂單視窗');
+        }
+        
+        function closeModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) modal.remove();
+        }
+        
+        function createOrder() {
+            const customer = document.getElementById('new-customer').value;
+            const product = document.getElementById('new-product').value;
+            const qty = document.getElementById('new-qty').value;
+            const date = document.getElementById('new-date').value;
+            
+            if (!product || !qty) {
+                alert('請填寫產品和數量');
+                return;
+            }
+            
+            const orderNo = 'PO-2026-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
+            
+            if (window.AuditLogger) {
+                AuditLogger.logCreate('orders', `新增訂單 ${orderNo}`, { customer, product, qty, date });
+            }
+            
+            showToast(`✅ 訂單 ${orderNo} 已建立（Demo）`);
+            closeModal();
+        }
+        
+        // 匯出功能
+        function exportOrders() {
+            const csv = '訂單號,客戶,產品,數量,金額,交期,狀態\\nPO-2026-001,CI,B36,200,$15600,2026-02-28,已出貨\\nPO-2026-002,CI,W3030,150,$9750,2026-02-25,已確認';
+            const blob = new Blob(['\\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'JCO-訂單-' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            
+            if (window.AuditLogger) AuditLogger.log('EXPORT', 'orders', '匯出訂單列表');
+            showToast('📥 訂單已匯出');
+        }
+        
+        // Action Menu
+        function showActionMenu(btn) {
+            // 移除舊的 menu
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+            
+            const menu = document.createElement('div');
+            menu.className = 'action-menu';
+            menu.innerHTML = `
+                <div class="menu-item" onclick="viewOrder(this)">👁️ 查看詳情</div>
+                <div class="menu-item" onclick="editOrder(this)">✏️ 編輯</div>
+                <div class="menu-item" onclick="duplicateOrder(this)">📋 複製</div>
+                <div class="menu-item danger" onclick="deleteOrder(this)">🗑️ 刪除</div>
+            `;
+            
+            const rect = btn.getBoundingClientRect();
+            menu.style.cssText = `position:fixed;top:${rect.bottom + 5}px;right:${window.innerWidth - rect.right}px;background:white;border:1px solid #e9e9e7;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:140px;`;
+            
+            document.body.appendChild(menu);
+            
+            // 點其他地方關閉
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 10);
+        }
+        
+        function viewOrder(item) {
+            const row = item.closest('.action-menu').previousElementSibling;
+            showToast('👁️ 查看訂單詳情（功能開發中）');
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+        }
+        
+        function editOrder(item) {
+            showToast('✏️ 編輯訂單（功能開發中）');
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+        }
+        
+        function duplicateOrder(item) {
+            showToast('📋 複製訂單（功能開發中）');
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+        }
+        
+        function deleteOrder(item) {
+            if (confirm('確定要刪除此訂單？')) {
+                if (window.AuditLogger) AuditLogger.logDelete('orders', '刪除訂單');
+                showToast('🗑️ 訂單已刪除（Demo）');
+            }
+            document.querySelectorAll('.action-menu').forEach(m => m.remove());
+        }
+        
+        // 搜尋功能
+        function initSearch() {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const keyword = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#tab-list tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(keyword) ? '' : 'none';
+                    });
+                });
+            }
+            
+            const filterSelect = document.querySelector('.filter-select');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', (e) => {
+                    const status = e.target.value;
+                    const rows = document.querySelectorAll('#tab-list tbody tr');
+                    rows.forEach(row => {
+                        if (status === '全部狀態') {
+                            row.style.display = '';
+                        } else {
+                            const rowStatus = row.querySelector('.status-tag')?.textContent || '';
+                            row.style.display = rowStatus.includes(status) ? '' : 'none';
+                        }
+                    });
+                });
+            }
+        }
+        
         // ==================== 看板拖拽功能 ====================
         let draggedCard = null;
         
@@ -1076,6 +1264,9 @@
         
         // 初始化看板拖拽
         initKanban();
+        
+        // 初始化搜尋和篩選
+        initSearch();
         
         // 確保初始 tab 顯示
         document.getElementById('tab-list').style.display = 'block';
