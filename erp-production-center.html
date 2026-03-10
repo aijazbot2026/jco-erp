@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 生產中心 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JCO API 連接器 -->
+    <script src="api-connector.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* API 連線狀態指示器 */
+        #connection-indicator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🏭</span>
+                <h1 class="text-xl font-bold text-gray-800">生產中心</h1>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">JCO ERP</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500" id="current-time"></span>
+                <button onclick="exportReport()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+                    📥 匯出報表
+                </button>
+            </div>
+        </div>
+        <!-- Sub Tabs -->
+        <div class="max-w-7xl mx-auto px-4 flex gap-6 border-t">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3 px-1 text-sm font-medium tab-active">📊 生產儀表板</button>
+            <button onclick="switchTab('kanban')" id="tab-kanban" class="py-3 px-1 text-sm font-medium text-gray-500">📋 生產看板</button>
+            <button onclick="switchTab('schedule')" id="tab-schedule" class="py-3 px-1 text-sm font-medium text-gray-500">📅 排程管理</button>
+            <button onclick="switchTab('workorder')" id="tab-workorder" class="py-3 px-1 text-sm font-medium text-gray-500">📝 工單管理</button>
+            <button onclick="switchTab('daily')" id="tab-daily" class="py-3 px-1 text-sm font-medium text-gray-500">📈 日報表</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- 生產儀表板 -->
+        <div id="panel-dashboard" class="tab-panel">
+            <!-- 即時統計 -->
+            <div class="grid grid-cols-5 gap-4 mb-6">
+                <div class="card p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600" id="stat-today-target">500</div>
+                            <div class="text-xs text-gray-500">今日目標</div>
+                        </div>
+                        <div class="text-3xl">🎯</div>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-green-600" id="stat-today-done">328</div>
+                            <div class="text-xs text-gray-500">已完成</div>
+                        </div>
+                        <div class="text-3xl">✅</div>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-yellow-600" id="stat-in-progress">45</div>
+                            <div class="text-xs text-gray-500">進行中</div>
+                        </div>
+                        <div class="text-3xl">🔄</div>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600" id="stat-efficiency">65.6%</div>
+                            <div class="text-xs text-gray-500">達成率</div>
+                        </div>
+                        <div class="text-3xl">📊</div>
+                    </div>
+                </div>
+                <div class="card p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-red-600" id="stat-defect">2.1%</div>
+                            <div class="text-xs text-gray-500">不良率</div>
+                        </div>
+                        <div class="text-3xl">⚠️</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+                <!-- 產線狀態 -->
+                <div class="col-span-2 card p-6">
+                    <h2 class="text-lg font-semibold mb-4">🏭 產線即時狀態</h2>
+                    <div class="space-y-4" id="line-status">
+                        <!-- 產線 1 -->
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                    <span class="font-medium">產線 1 - 開料</span>
+                                </div>
+                                <span class="text-sm text-green-600">運轉中</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">工單：</span>WO-2026-089</div>
+                                <div><span class="text-gray-500">產品：</span>B36</div>
+                                <div><span class="text-gray-500">進度：</span>156/200</div>
+                                <div>
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 產線 2 -->
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                    <span class="font-medium">產線 2 - 封邊</span>
+                                </div>
+                                <span class="text-sm text-green-600">運轉中</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">工單：</span>WO-2026-087</div>
+                                <div><span class="text-gray-500">產品：</span>W3030</div>
+                                <div><span class="text-gray-500">進度：</span>89/150</div>
+                                <div>
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 59%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 產線 3 -->
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                                    <span class="font-medium">產線 3 - 組裝</span>
+                                </div>
+                                <span class="text-sm text-yellow-600">換線中</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">工單：</span>-</div>
+                                <div><span class="text-gray-500">產品：</span>-</div>
+                                <div><span class="text-gray-500">進度：</span>-</div>
+                                <div><span class="text-xs text-yellow-600">預計 10 分鐘</span></div>
+                            </div>
+                        </div>
+                        <!-- 產線 4 -->
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                    <span class="font-medium">產線 4 - 油漆</span>
+                                </div>
+                                <span class="text-sm text-green-600">運轉中</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-4 text-sm">
+                                <div><span class="text-gray-500">工單：</span>WO-2026-085</div>
+                                <div><span class="text-gray-500">產品：</span>門片</div>
+                                <div><span class="text-gray-500">進度：</span>320/400</div>
+                                <div>
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側面板 -->
+                <div class="space-y-6">
+                    <!-- 今日待處理 -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold mb-4">📋 今日待處理</h2>
+                        <div class="space-y-3" id="today-tasks">
+                            <div class="flex items-center justify-between py-2 border-b">
+                                <span class="text-sm">WO-2026-090</span>
+                                <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">急件</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b">
+                                <span class="text-sm">WO-2026-091</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">待排</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2">
+                                <span class="text-sm">WO-2026-092</span>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">備料</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 本週產能 -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold mb-4">📈 本週產能</h2>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-xs text-gray-500">週一</span>
+                                <div class="flex-1 bg-gray-200 rounded h-4">
+                                    <div class="bg-blue-500 h-4 rounded" style="width: 92%"></div>
+                                </div>
+                                <span class="text-xs w-10">460</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-xs text-gray-500">週二</span>
+                                <div class="flex-1 bg-gray-200 rounded h-4">
+                                    <div class="bg-blue-500 h-4 rounded" style="width: 88%"></div>
+                                </div>
+                                <span class="text-xs w-10">440</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-xs text-gray-500">週三</span>
+                                <div class="flex-1 bg-gray-200 rounded h-4">
+                                    <div class="bg-blue-500 h-4 rounded" style="width: 95%"></div>
+                                </div>
+                                <span class="text-xs w-10">475</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-xs text-gray-500">週四</span>
+                                <div class="flex-1 bg-gray-200 rounded h-4">
+                                    <div class="bg-green-500 h-4 rounded" style="width: 66%"></div>
+                                </div>
+                                <span class="text-xs w-10">328</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-xs text-gray-500">週五</span>
+                                <div class="flex-1 bg-gray-200 rounded h-4">
+                                    <div class="bg-gray-300 h-4 rounded" style="width: 0%"></div>
+                                </div>
+                                <span class="text-xs w-10 text-gray-400">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 生產看板 -->
+        <div id="panel-kanban" class="tab-panel hidden">
+            <div class="grid grid-cols-5 gap-4">
+                <!-- 待生產 -->
+                <div class="bg-gray-100 rounded-xl p-4 min-h-[600px]">
+                    <h3 class="font-semibold text-gray-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-gray-400 rounded-full"></span>
+                        待生產 <span class="text-xs bg-gray-300 px-2 rounded-full">3</span>
+                    </h3>
+                    <div class="space-y-2" id="kanban-pending">
+                        <div class="bg-white rounded-lg p-3 shadow-sm border-l-4 border-red-500">
+                            <div class="font-medium text-sm">WO-2026-090</div>
+                            <div class="text-xs text-gray-500">B36 × 100</div>
+                            <div class="text-xs text-red-600 mt-1">🔴 急件</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm border-l-4 border-yellow-500">
+                            <div class="font-medium text-sm">WO-2026-091</div>
+                            <div class="text-xs text-gray-500">W3030 × 80</div>
+                            <div class="text-xs text-gray-400 mt-1">交期: 2/15</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm border-l-4 border-blue-500">
+                            <div class="font-medium text-sm">WO-2026-092</div>
+                            <div class="text-xs text-gray-500">VB36 × 50</div>
+                            <div class="text-xs text-gray-400 mt-1">交期: 2/20</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 開料 -->
+                <div class="bg-blue-50 rounded-xl p-4 min-h-[600px]">
+                    <h3 class="font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        開料 <span class="text-xs bg-blue-200 px-2 rounded-full">2</span>
+                    </h3>
+                    <div class="space-y-2" id="kanban-cutting">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="font-medium text-sm">WO-2026-089</div>
+                            <div class="text-xs text-gray-500">B36 × 200</div>
+                            <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-blue-500 h-1.5 rounded-full" style="width: 78%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">156/200</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 封邊/加工 -->
+                <div class="bg-yellow-50 rounded-xl p-4 min-h-[600px]">
+                    <h3 class="font-semibold text-yellow-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                        封邊加工 <span class="text-xs bg-yellow-200 px-2 rounded-full">1</span>
+                    </h3>
+                    <div class="space-y-2" id="kanban-edge">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="font-medium text-sm">WO-2026-087</div>
+                            <div class="text-xs text-gray-500">W3030 × 150</div>
+                            <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 59%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">89/150</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 組裝 -->
+                <div class="bg-purple-50 rounded-xl p-4 min-h-[600px]">
+                    <h3 class="font-semibold text-purple-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-purple-500 rounded-full"></span>
+                        組裝 <span class="text-xs bg-purple-200 px-2 rounded-full">1</span>
+                    </h3>
+                    <div class="space-y-2" id="kanban-assembly">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="font-medium text-sm">WO-2026-086</div>
+                            <div class="text-xs text-gray-500">B30 × 120</div>
+                            <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                            <div class="text-xs text-green-600 mt-1">✅ 完成，待轉油漆</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 油漆/完工 -->
+                <div class="bg-green-50 rounded-xl p-4 min-h-[600px]">
+                    <h3 class="font-semibold text-green-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        油漆完工 <span class="text-xs bg-green-200 px-2 rounded-full">2</span>
+                    </h3>
+                    <div class="space-y-2" id="kanban-paint">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="font-medium text-sm">WO-2026-085</div>
+                            <div class="text-xs text-gray-500">門片 × 400</div>
+                            <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-green-500 h-1.5 rounded-full" style="width: 80%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">320/400</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm border-2 border-green-500">
+                            <div class="font-medium text-sm">WO-2026-084</div>
+                            <div class="text-xs text-gray-500">B24 × 80</div>
+                            <div class="text-xs text-green-600 mt-2">✅ 完工待驗</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 排程管理 -->
+        <div id="panel-schedule" class="tab-panel hidden">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">📅 甘特圖排程</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left py-2 px-3 w-32">工單</th>
+                                <th class="text-left py-2 px-3 w-24">產品</th>
+                                <th class="py-2 px-1 w-8 text-xs">6</th>
+                                <th class="py-2 px-1 w-8 text-xs">7</th>
+                                <th class="py-2 px-1 w-8 text-xs">8</th>
+                                <th class="py-2 px-1 w-8 text-xs">9</th>
+                                <th class="py-2 px-1 w-8 text-xs">10</th>
+                                <th class="py-2 px-1 w-8 text-xs">11</th>
+                                <th class="py-2 px-1 w-8 text-xs">12</th>
+                                <th class="py-2 px-1 w-8 text-xs">13</th>
+                                <th class="py-2 px-1 w-8 text-xs">14</th>
+                                <th class="py-2 px-1 w-8 text-xs">15</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="py-2 px-3 font-medium">WO-089</td>
+                                <td class="py-2 px-3">B36</td>
+                                <td colspan="3" class="py-2"><div class="bg-blue-500 h-6 rounded text-white text-xs flex items-center justify-center">開料</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-yellow-500 h-6 rounded text-white text-xs flex items-center justify-center">封邊</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-purple-500 h-6 rounded text-white text-xs flex items-center justify-center">組裝</div></td>
+                                <td colspan="3" class="py-2"><div class="bg-green-500 h-6 rounded text-white text-xs flex items-center justify-center">油漆</div></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2 px-3 font-medium">WO-090</td>
+                                <td class="py-2 px-3">B36</td>
+                                <td colspan="1"></td>
+                                <td colspan="3" class="py-2"><div class="bg-blue-300 h-6 rounded text-white text-xs flex items-center justify-center">開料</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-yellow-300 h-6 rounded text-white text-xs flex items-center justify-center">封邊</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-purple-300 h-6 rounded text-white text-xs flex items-center justify-center">組裝</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-green-300 h-6 rounded text-white text-xs flex items-center justify-center">油漆</div></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2 px-3 font-medium">WO-091</td>
+                                <td class="py-2 px-3">W3030</td>
+                                <td colspan="2"></td>
+                                <td colspan="2" class="py-2"><div class="bg-blue-300 h-6 rounded text-white text-xs flex items-center justify-center">開料</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-yellow-300 h-6 rounded text-white text-xs flex items-center justify-center">封邊</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-purple-300 h-6 rounded text-white text-xs flex items-center justify-center">組裝</div></td>
+                                <td colspan="2" class="py-2"><div class="bg-green-300 h-6 rounded text-white text-xs flex items-center justify-center">油漆</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工單管理 -->
+        <div id="panel-workorder" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">📝 工單列表</h2>
+                    <button onclick="openNewWorkOrder()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">+ 新增工單</button>
+                </div>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">工單號</th>
+                            <th class="text-left py-3 px-4">訂單號</th>
+                            <th class="text-left py-3 px-4">產品</th>
+                            <th class="text-right py-3 px-4">數量</th>
+                            <th class="text-left py-3 px-4">開始日</th>
+                            <th class="text-left py-3 px-4">預計完成</th>
+                            <th class="text-left py-3 px-4">狀態</th>
+                            <th class="text-left py-3 px-4">進度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workorder-table">
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-medium">WO-2026-089</td>
+                            <td class="py-3 px-4">PO-2026-001</td>
+                            <td class="py-3 px-4">B36</td>
+                            <td class="py-3 px-4 text-right">200</td>
+                            <td class="py-3 px-4">2026-02-06</td>
+                            <td class="py-3 px-4">2026-02-10</td>
+                            <td class="py-3 px-4"><span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">開料中</span></td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 78%"></div>
+                                    </div>
+                                    <span class="text-xs">78%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-medium">WO-2026-090</td>
+                            <td class="py-3 px-4">PO-2026-001</td>
+                            <td class="py-3 px-4">B36</td>
+                            <td class="py-3 px-4 text-right">100</td>
+                            <td class="py-3 px-4">-</td>
+                            <td class="py-3 px-4">2026-02-12</td>
+                            <td class="py-3 px-4"><span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">急件待排</span></td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <span class="text-xs">0%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 日報表 -->
+        <div id="panel-daily" class="tab-panel hidden">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📈 今日生產統計</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between py-3 border-b">
+                            <span>目標產量</span>
+                            <span class="font-bold">500 pcs</span>
+                        </div>
+                        <div class="flex justify-between py-3 border-b">
+                            <span>實際產量</span>
+                            <span class="font-bold text-blue-600">328 pcs</span>
+                        </div>
+                        <div class="flex justify-between py-3 border-b">
+                            <span>達成率</span>
+                            <span class="font-bold text-yellow-600">65.6%</span>
+                        </div>
+                        <div class="flex justify-between py-3 border-b">
+                            <span>不良品數</span>
+                            <span class="font-bold text-red-600">7 pcs</span>
+                        </div>
+                        <div class="flex justify-between py-3">
+                            <span>不良率</span>
+                            <span class="font-bold">2.1%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">⚠️ 異常記錄</h2>
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-yellow-500 bg-yellow-50 p-3 rounded-r">
+                            <div class="font-medium text-sm">產線3 換線延遲</div>
+                            <div class="text-xs text-gray-500">10:30 - 設備調整，延遲 20 分鐘</div>
+                        </div>
+                        <div class="border-l-4 border-red-500 bg-red-50 p-3 rounded-r">
+                            <div class="font-medium text-sm">封邊機故障</div>
+                            <div class="text-xs text-gray-500">14:15 - 已維修，停機 45 分鐘</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 資料
+        // === JCO_API 安全檢查 ===
+        if (typeof JCO_API === 'undefined') {
+            console.warn('JCO_API 未載入，使用本地模式');
+            window.JCO_API = {
+                isOnline: false,
+                async getSheetData(key) { 
+                    return JSON.parse(localStorage.getItem('jco-' + key) || '[]'); 
+                },
+                async appendToSheet(key, data) { 
+                    const arr = JSON.parse(localStorage.getItem('jco-' + key) || '[]');
+                    arr.push(data);
+                    localStorage.setItem('jco-' + key, JSON.stringify(arr));
+                    return { status: 'ok' };
+                },
+                async apiCall(action, params) { 
+                    console.log('離線模式:', action, params);
+                    return { status: 'ok' }; 
+                }
+            };
+        }
+        let productionData = [];
+        let orders = [];
+        
+        // 載入生產資料
+        async function loadProductionData() {
+            try {
+                [productionData, orders] = await Promise.all([
+                    JCO_API.getSheetData('production') || [],
+                    JCO_API.getSheetData('orders') || []
+                ]);
+                
+                updateDashboard();
+            } catch (error) {
+                console.error('載入生產資料失敗:', error);
+                // fallback 到 localStorage
+                productionData = JSON.parse(localStorage.getItem('jco-production') || '[]');
+                orders = JSON.parse(localStorage.getItem('jco-orders') || '[]');
+                updateDashboard();
+            }
+        }
+        
+        // 儲存生產資料
+        async function saveProductionData() {
+            try {
+                await JCO_API.apiCall('clearSheet', { sheet: '工作表3' });
+                for (const record of productionData) {
+                    await JCO_API.appendToSheet('production', record);
+                }
+            } catch (error) {
+                console.warn('儲存生產資料失敗:', error);
+                localStorage.setItem('jco-production', JSON.stringify(productionData));
+            }
+        }
+        
+        // 更新儀表板統計
+        function updateDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayProduction = productionData.filter(p => p.date === today);
+            
+            const todayTarget = 500; // 預設目標
+            const todayOutput = todayProduction.reduce((sum, p) => sum + (p.output || 0), 0);
+            const efficiency = todayTarget > 0 ? Math.round((todayOutput / todayTarget) * 100) : 65.6;
+            
+            // 更新統計卡片
+            document.getElementById('stat-today-target').textContent = todayTarget;
+            document.getElementById('stat-today-done').textContent = todayOutput;
+            document.getElementById('stat-efficiency').textContent = efficiency + '%';
+            
+            // 計算進行中數量（假設）
+            const inProgress = Math.max(0, todayTarget - todayOutput);
+            document.getElementById('stat-in-progress').textContent = Math.min(inProgress, 50);
+            
+            // 不良率（模擬）
+            const defectRate = Math.random() * 3; // 0-3%
+            document.getElementById('stat-defect').textContent = defectRate.toFixed(1) + '%';
+        }
+        
+        // 更新時間
+        function updateTime() {
+            document.getElementById('current-time').textContent = new Date().toLocaleString('zh-TW');
+        }
+        
+        // Tab 切換
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+        }
+
+        async function exportReport() {
+            try {
+                const data = productionData.map(p => ({
+                    日期: p.date,
+                    產品: p.product,
+                    目標: p.target,
+                    產量: p.output,
+                    效率: `${Math.round((p.output / p.target) * 100)}%`,
+                    備註: p.notes || ''
+                }));
+                
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, '生產報表');
+                XLSX.writeFile(wb, `生產報表_${new Date().toISOString().split('T')[0]}.xlsx`);
+            } catch (error) {
+                alert('匯出失敗: ' + error.message);
+            }
+        }
+
+        function openNewWorkOrder() {
+            // 這裡可以擴展為完整的工單建立功能
+            alert('工單功能開發中...\n\n將整合：\n• 工單建立與分派\n• 生產進度追蹤\n• 物料需求計算\n• 品質檢查記錄');
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // 等待 API 連接器載入
+            setTimeout(loadProductionData, 100);
+        });
+    </script>
+</body>
+</html>

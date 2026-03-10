@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單中心 - JCO ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f6f3;
+            --bg-hover: #efefef;
+            --text-primary: #37352f;
+            --text-secondary: #787774;
+            --text-light: #9b9a97;
+            --border: #e9e9e7;
+            --accent: #2383e2;
+            --accent-light: #e8f4fd;
+            --success: #0f7b6c;
+            --warning: #d9730d;
+            --error: #e03e3e;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        /* Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-header .logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #2383e2, #0f7b6c);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        
+        .sidebar-header .title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .sidebar-nav {
+            padding: 8px;
+            flex: 1;
+        }
+        
+        .nav-section {
+            margin-bottom: 16px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 8px 4px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-hover);
+        }
+        
+        .nav-item.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .nav-item .icon {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .page-header {
+            padding: 40px 60px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title .emoji {
+            font-size: 36px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .page-body {
+            padding: 24px 60px 60px;
+        }
+        
+        /* Stats Cards - Notion Style */
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px 20px;
+            min-width: 140px;
+            flex: 1;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .stat-card.primary .value { color: var(--accent); }
+        .stat-card.success .value { color: var(--success); }
+        .stat-card.warning .value { color: var(--warning); }
+        
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a6fc4;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+        
+        /* Table - Notion Style */
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .customer-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .customer-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .product-name {
+            font-weight: 500;
+        }
+        
+        .product-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        .amount {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        /* Status Tags */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-tag.shipped {
+            background: #dbeddb;
+            color: #0f7b6c;
+        }
+        
+        .status-tag.confirmed {
+            background: #d3e5ef;
+            color: #0b6bcb;
+        }
+        
+        .status-tag.draft {
+            background: #e9e9e7;
+            color: #787774;
+        }
+        
+        .status-tag.pending {
+            background: #fdecc8;
+            color: #d9730d;
+        }
+        
+        .status-tag.production {
+            background: #f5e0e9;
+            color: #c14c8a;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        .progress-bar .fill.complete {
+            background: var(--success);
+        }
+        
+        /* Action Button */
+        .action-btn {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-light);
+        }
+        
+        /* User Section */
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .user-info:hover {
+            background: var(--bg-hover);
+        }
+        
+        .logout-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            opacity: 0.7;
+            transition: all 0.15s;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logout-btn:hover {
+            background: #fee2e2;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s;
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab.active {
+            color: var(--text-primary);
+            font-weight: 500;
+            border-bottom-color: var(--text-primary);
+        }
+    </style>
+    <script src="audit-logger.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">J</div>
+                <span class="title">JCO ERP</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="#" class="nav-item active">
+                        <span class="icon">📦</span>
+                        <span>訂單中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">💰</span>
+                        <span>成本中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🛒</span>
+                        <span>採購管理</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">📊</span>
+                        <span>庫存中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">生產管理</div>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🏭</span>
+                        <span>生產中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🔍</span>
+                        <span>品質中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">系統</div>
+                    <a href="#" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>人事中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">⚙️</span>
+                        <span>設定</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">--</div>
+                    <span class="user-name" id="user-name">載入中...</span>
+                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">
+                    <span class="emoji">📦</span>
+                    訂單中心
+                </h1>
+                <p class="page-subtitle">管理所有客戶訂單的完整生命週期</p>
+            </header>
+            
+            <div class="page-body">
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-card primary">
+                        <div class="label">總訂單</div>
+                        <div class="value">5</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">已確認</div>
+                        <div class="value">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">生產中</div>
+                        <div class="value">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="label">待驗貨</div>
+                        <div class="value">1</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="label">已出貨</div>
+                        <div class="value">2</div>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active">📋 訂單列表</div>
+                    <div class="tab">📊 看板視圖</div>
+                    <div class="tab">🚚 出貨追蹤</div>
+                    <div class="tab">📦 裝箱管理</div>
+                    <div class="tab">📈 報表</div>
+                </div>
+                
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="search-input" placeholder="搜尋訂單號、客戶...">
+                        <select class="filter-select">
+                            <option>全部狀態</option>
+                            <option>草稿</option>
+                            <option>已確認</option>
+                            <option>生產中</option>
+                            <option>待驗貨</option>
+                            <option>已出貨</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-secondary">📤 匯出</button>
+                        <button class="btn btn-primary">+ 新增訂單</button>
+                    </div>
+                </div>
+                
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>訂單號</th>
+                                <th>客戶</th>
+                                <th>產品</th>
+                                <th>數量</th>
+                                <th>金額</th>
+                                <th>交期</th>
+                                <th>狀態</th>
+                                <th>進度</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="order-id">PO-2026-001</span></td>
+                                <td>
+                                    <div class="customer-tag">
+                                        <div class="customer-avatar">CI</div>
+                                        <span>CI</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name">B36</span>
+                                        <span class="product-meta">+2 項 (3 SKU)</span>
+                                    </div>
+                                </td>
+                                <td>200</td>
+                                <td><span class="amount">$15,600</span></td>
+                                <td>2026-02-28</td>
+                                <td><span class="status-tag shipped">✓ 已出貨</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill complete" style="width: 100%"></div>
+                                    </div>
+                                </td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-id">PO-2026-002</span></td>
+                                <td>
+                                    <div class="customer-tag">
+                                        <div class="customer-avatar">CI</div>
+                                        <span>CI</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name">W3030</span>
+                                    </div>
+                                </td>
+                                <td>150</td>
+                                <td><span class="amount">$9,750</span></td>
+                                <td>2026-02-25</td>
+                                <td><span class="status-tag confirmed">● 已確認</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: 20%"></div>
+                                    </div>
+                                </td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-id">PO-2026-003</span></td>
+                                <td>
+                                    <div class="customer-tag">
+                                        <div class="customer-avatar">CI</div>
+                                        <span>CI</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name">VB36</span>
+                                        <span class="product-meta">+1 項 (2 SKU)</span>
+                                    </div>
+                                </td>
+                                <td>100</td>
+                                <td><span class="amount">$10,250</span></td>
+                                <td>2026-03-05</td>
+                                <td><span class="status-tag draft">○ 草稿</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: 0%"></div>
+                                    </div>
+                                </td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-id">PO-2026-004</span></td>
+                                <td>
+                                    <div class="customer-tag">
+                                        <div class="customer-avatar">CI</div>
+                                        <span>CI</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name">SB36</span>
+                                    </div>
+                                </td>
+                                <td>80</td>
+                                <td><span class="amount">$8,800</span></td>
+                                <td>2026-02-20</td>
+                                <td><span class="status-tag pending">◐ 待驗貨</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: 80%"></div>
+                                    </div>
+                                </td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-id">PO-2026-005</span></td>
+                                <td>
+                                    <div class="customer-tag">
+                                        <div class="customer-avatar">CI</div>
+                                        <span>CI</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name">Drawer Box</span>
+                                    </div>
+                                </td>
+                                <td>500</td>
+                                <td><span class="amount">$6,000</span></td>
+                                <td>2026-02-15</td>
+                                <td><span class="status-tag shipped">✓ 已出貨</span></td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill complete" style="width: 100%"></div>
+                                    </div>
+                                </td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // 載入使用者資訊
+        function loadUserInfo() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (session) {
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
+                if (nameEl) nameEl.textContent = session.name;
+            }
+        }
+        
+        // 登出功能
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                if (window.AuditLogger) AuditLogger.logLogout();
+                localStorage.removeItem('JCO_ERP_SESSION');
+                window.location.href = 'erp-login-notion.html';
+            }
+        }
+
+        // 訂單操作日誌
+        function logOrderCreate(orderData) {
+            if (window.AuditLogger) {
+                AuditLogger.logCreate('orders', `新增訂單 ${orderData.orderNo || ''}`, orderData);
+            }
+        }
+
+        function logOrderUpdate(orderNo, changes) {
+            if (window.AuditLogger) {
+                AuditLogger.logUpdate('orders', `修改訂單 ${orderNo}`, changes);
+            }
+        }
+
+        function logOrderDelete(orderNo) {
+            if (window.AuditLogger) {
+                AuditLogger.logDelete('orders', `刪除訂單 ${orderNo}`);
+            }
+        }
+
+        function logOrderStatusChange(orderNo, oldStatus, newStatus) {
+            if (window.AuditLogger) {
+                AuditLogger.logUpdate('orders', `訂單 ${orderNo} 狀態變更：${oldStatus} → ${newStatus}`, { orderNo, oldStatus, newStatus });
+            }
+        }
+        
+        // 頁面載入時執行
+        loadUserInfo();
+        
+        // 記錄頁面訪問
+        if (window.AuditLogger) {
+            AuditLogger.logView('orders', '查看訂單中心');
+        }
+    </script>
+</body>
+</html>

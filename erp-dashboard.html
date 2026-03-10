@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 JCO ERP 主控台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- JCO API 連接器 -->
+    <script src="api-connector.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        
+        /* 連線狀態指示器樣式 */
+        #connection-indicator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 載入動畫 */
+        @keyframes pulse-dot {
+            0%, 20% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            80%, 100% { transform: scale(1); opacity: 1; }
+        }
+        .loading-pulse { animation: pulse-dot 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🏭</span>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">JCO ERP 主控台</h1>
+                    <p class="text-sm text-gray-500">傢俱櫥櫃生產管理系統</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div class="font-medium" id="user-name">-</div>
+                    <div class="text-sm text-gray-500" id="user-dept">-</div>
+                </div>
+                <button onclick="logout()" class="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
+                    登出
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 快速統計 -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+                <div class="text-3xl font-bold" id="stat-orders">0</div>
+                <div class="text-blue-100">進行中訂單</div>
+            </div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+                <div class="text-3xl font-bold" id="stat-shipped">0</div>
+                <div class="text-green-100">本月出貨</div>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white">
+                <div class="text-3xl font-bold" id="stat-todo">0</div>
+                <div class="text-yellow-100">待辦事項</div>
+            </div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+                <div class="text-3xl font-bold" id="stat-users">13</div>
+                <div class="text-purple-100">系統用戶</div>
+            </div>
+        </div>
+
+        <!-- 功能模組 -->
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">📦 功能模組</h2>
+        <div class="grid md:grid-cols-3 gap-6 mb-8" id="modules-grid">
+            <!-- 動態生成 -->
+        </div>
+
+        <!-- 用戶管理 (僅 Admin) -->
+        <div id="admin-section" class="hidden">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">👥 用戶管理</h2>
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-600">系統用戶列表</span>
+                    <button onclick="showAddUserModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">+ 新增用戶</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="text-left py-2 px-3">帳號</th>
+                                <th class="text-left py-2 px-3">姓名</th>
+                                <th class="text-left py-2 px-3">部門</th>
+                                <th class="text-left py-2 px-3">角色</th>
+                                <th class="text-center py-2 px-3">可看成本</th>
+                                <th class="text-center py-2 px-3">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 模組定義
+        // === JCO_API 安全檢查 ===
+        if (typeof JCO_API === 'undefined') {
+            console.warn('JCO_API 未載入，使用本地模式');
+            window.JCO_API = {
+                isOnline: false,
+                async getSheetData(key) { 
+                    return JSON.parse(localStorage.getItem('jco-' + key) || '[]'); 
+                },
+                async appendToSheet(key, data) { 
+                    const arr = JSON.parse(localStorage.getItem('jco-' + key) || '[]');
+                    arr.push(data);
+                    localStorage.setItem('jco-' + key, JSON.stringify(arr));
+                    return { status: 'ok' };
+                },
+                async apiCall(action, params) { 
+                    console.log('離線模式:', action, params);
+                    return { status: 'ok' }; 
+                }
+            };
+        }
+        const modules = [
+            { id: 'orders', name: '📦 訂單中心', desc: '訂單管理、看板、出貨追蹤', url: 'erp-order-center.html', color: 'blue', depts: ['admin', 'sales', 'quality'] },
+            { id: 'cost', name: '💰 成本中心', desc: 'BOM、材料成本、板材切割', url: 'erp-cost-center.html', color: 'green', depts: ['admin', 'development'] },
+            { id: 'procurement', name: '🛒 採購中心', desc: '採購管理、庫存、供應商', url: 'erp-procurement-center.html', color: 'purple', depts: ['admin', 'procurement'] },
+        ];
+
+        const deptNames = {
+            'admin': '系統管理員',
+            'sales': '業務部門',
+            'development': '開發部門',
+            'procurement': '採購部門',
+            'quality': '品質部門'
+        };
+
+        const roleNames = {
+            'admin': '管理員',
+            'manager': '主管',
+            'assistant': '助手',
+            'warehouse': '倉管'
+        };
+
+        // 檢查登入狀態
+        function checkAuth() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (!session) {
+                window.location.href = 'erp-login.html';
+                return null;
+            }
+            return session;
+        }
+
+        // 登出
+        function logout() {
+            localStorage.removeItem('JCO_ERP_SESSION');
+            window.location.href = 'erp-login.html';
+        }
+
+        // 渲染模組
+        async function renderModules(session) {
+            const grid = document.getElementById('modules-grid');
+            const isAdmin = session.dept === 'admin';
+            
+            let canViewCost = false;
+            try {
+                // 檢查是否有特殊成本查看權限
+                const users = await JCO_API.getSheetData('hr') || [];
+                const currentUser = users.find(u => u.id === session.userId);
+                canViewCost = currentUser && currentUser.canViewCost;
+            } catch (error) {
+                console.warn('無法檢查用戶權限，使用離線資料');
+                const users = JSON.parse(localStorage.getItem('JCO_ERP_USERS') || '[]');
+                const currentUser = users.find(u => u.id === session.userId);
+                canViewCost = currentUser && currentUser.canViewCost;
+            }
+            
+            const availableModules = modules.filter(m => {
+                if (isAdmin) return true;
+                if (m.depts.includes(session.dept)) return true;
+                // 有成本查看權限的可以進成本中心
+                if (m.id === 'cost' && canViewCost) return true;
+                return false;
+            });
+            
+            grid.innerHTML = availableModules.map(m => `
+                <a href="${m.url}" class="card p-6 block">
+                    <div class="text-2xl mb-2">${m.name}</div>
+                    <p class="text-gray-500 text-sm">${m.desc}</p>
+                    <div class="mt-4 text-${m.color}-600 text-sm font-medium">進入 →</div>
+                </a>
+            `).join('');
+        }
+
+        // 渲染用戶表
+        async function renderUsers() {
+            try {
+                const users = await JCO_API.getSheetData('hr') || [];
+                const tbody = document.getElementById('users-table');
+                
+                tbody.innerHTML = users.map(u => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-3 font-mono">${u.username}</td>
+                        <td class="py-2 px-3">${u.name}</td>
+                        <td class="py-2 px-3">${deptNames[u.dept] || u.dept}</td>
+                        <td class="py-2 px-3">${roleNames[u.role] || u.role}</td>
+                        <td class="py-2 px-3 text-center">
+                            ${u.role === 'admin' ? '✅' : `
+                                <input type="checkbox" ${u.canViewCost ? 'checked' : ''} 
+                                    onchange="toggleCostPermission(${u.id}, this.checked)"
+                                    class="w-4 h-4 text-blue-600 rounded cursor-pointer"
+                                    title="允許查看成本中心">
+                            `}
+                        </td>
+                        <td class="py-2 px-3 text-center">
+                            ${u.role !== 'admin' ? `
+                                <button onclick="resetPassword('${u.username}')" class="text-blue-600 hover:underline text-xs mr-2">重設密碼</button>
+                                <button onclick="deleteUser(${u.id})" class="text-red-600 hover:underline text-xs">刪除</button>
+                            ` : '<span class="text-gray-400 text-xs">系統管理員</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('載入用戶列表失敗:', error);
+                const tbody = document.getElementById('users-table');
+                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">載入用戶資料時發生錯誤</td></tr>';
+            }
+        }
+
+        // 載入統計
+        async function loadStats() {
+            try {
+                const [orders, tasks] = await Promise.all([
+                    JCO_API.getSheetData('orders') || [],
+                    JCO_API.getSheetData('cost') || []
+                ]);
+                
+                const activeOrders = orders.filter(o => !['shipped', 'delivered'].includes(o.status)).length;
+                const shippedOrders = orders.filter(o => o.status === 'shipped').length;
+                const pendingTasks = Array.isArray(tasks) ? 
+                    tasks.filter(t => !(t.bom && t.cutting && t.hardware)).length : 
+                    Object.values(tasks).filter(t => !(t.bom && t.cutting && t.hardware)).length;
+                
+                document.getElementById('stat-orders').textContent = activeOrders;
+                document.getElementById('stat-shipped').textContent = shippedOrders;
+                document.getElementById('stat-todo').textContent = Math.max(0, 
+                    orders.filter(o => ['confirmed', 'production'].includes(o.status)).length - pendingTasks);
+            } catch (error) {
+                console.error('載入統計資料失敗:', error);
+                // 顯示錯誤狀態
+                document.getElementById('stat-orders').textContent = '?';
+                document.getElementById('stat-shipped').textContent = '?';
+                document.getElementById('stat-todo').textContent = '?';
+            }
+        }
+
+        // 重設密碼
+        async function resetPassword(username) {
+            const newPwd = prompt(`重設 ${username} 的密碼：`, 'jco123');
+            if (!newPwd) return;
+            
+            try {
+                const users = await JCO_API.getSheetData('hr') || [];
+                const userIndex = users.findIndex(u => u.username === username);
+                if (userIndex >= 0) {
+                    users[userIndex].password = newPwd;
+                    await JCO_API.updateSheetRow('hr', userIndex + 1, users[userIndex]);
+                    alert(`✅ ${username} 密碼已重設為: ${newPwd}`);
+                }
+            } catch (error) {
+                console.error('重設密碼失敗:', error);
+                alert('❌ 重設密碼失敗，請稍後再試');
+            }
+        }
+
+        // 刪除用戶
+        async function deleteUser(id) {
+            if (!confirm('確定要刪除此用戶？')) return;
+            
+            try {
+                const users = await JCO_API.getSheetData('hr') || [];
+                const userIndex = users.findIndex(u => u.id === id);
+                if (userIndex >= 0) {
+                    await JCO_API.deleteSheetRow('hr', userIndex + 1);
+                    renderUsers();
+                }
+            } catch (error) {
+                console.error('刪除用戶失敗:', error);
+                alert('❌ 刪除用戶失敗，請稍後再試');
+            }
+        }
+
+        // 切換成本查看權限
+        async function toggleCostPermission(userId, canView) {
+            try {
+                const users = await JCO_API.getSheetData('hr') || [];
+                const userIndex = users.findIndex(u => u.id === userId);
+                if (userIndex >= 0) {
+                    users[userIndex].canViewCost = canView;
+                    await JCO_API.updateSheetRow('hr', userIndex + 1, users[userIndex]);
+                    
+                    const action = canView ? '已授權' : '已取消';
+                    alert(`✅ ${users[userIndex].name} ${action}查看成本中心`);
+                }
+            } catch (error) {
+                console.error('更新權限失敗:', error);
+                alert('❌ 更新權限失敗，請稍後再試');
+            }
+        }
+
+        // 新增用戶 Modal（簡化版）
+        async function showAddUserModal() {
+            const username = prompt('帳號：');
+            if (!username) return;
+            const name = prompt('姓名：');
+            if (!name) return;
+            const dept = prompt('部門 (sales/development/procurement/quality)：', 'sales');
+            const role = prompt('角色 (manager/assistant/warehouse)：', 'assistant');
+            const password = prompt('密碼：', 'jco123');
+            
+            try {
+                const users = await JCO_API.getSheetData('hr') || [];
+                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                
+                // 根據部門設定權限
+                const permMap = {
+                    'sales': ['orders', 'customers'],
+                    'development': ['bom', 'cutting', 'hardware', 'todo'],
+                    'procurement': ['materials', 'inventory'],
+                    'quality': ['qc', 'shipping']
+                };
+                
+                const newUser = {
+                    id: newId,
+                    username,
+                    password,
+                    name,
+                    dept,
+                    role,
+                    permissions: permMap[dept] || []
+                };
+                
+                await JCO_API.appendToSheet('hr', newUser);
+                renderUsers();
+                alert(`✅ 用戶 ${name} 已建立！`);
+            } catch (error) {
+                console.error('新增用戶失敗:', error);
+                alert('❌ 新增用戶失敗，請稍後再試');
+            }
+        }
+
+        // 初始化
+        async function init() {
+            const session = checkAuth();
+            if (session) {
+                document.getElementById('user-name').textContent = session.name;
+                document.getElementById('user-dept').textContent = deptNames[session.dept] || session.dept;
+                
+                // 並行載入資料
+                const promises = [
+                    renderModules(session),
+                    loadStats()
+                ];
+                
+                // Admin 才顯示用戶管理
+                if (session.dept === 'admin') {
+                    document.getElementById('admin-section').classList.remove('hidden');
+                    promises.push(renderUsers());
+                }
+                
+                try {
+                    await Promise.all(promises);
+                } catch (error) {
+                    console.error('初始化載入失敗:', error);
+                }
+            }
+        }
+        
+        // 等待 API 連接器載入後初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 給 API 連接器一些時間初始化
+            setTimeout(init, 100);
+        });
+    </script>
+</body>
+</html>

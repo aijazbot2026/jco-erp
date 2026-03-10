@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>庫存中心 - JCO ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f6f3;
+            --bg-hover: #efefef;
+            --text-primary: #37352f;
+            --text-secondary: #787774;
+            --text-light: #9b9a97;
+            --border: #e9e9e7;
+            --accent: #2383e2;
+            --accent-light: #e8f4fd;
+            --success: #0f7b6c;
+            --warning: #d9730d;
+            --error: #e03e3e;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-header .logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #2383e2, #0f7b6c);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        
+        .sidebar-header .title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .sidebar-nav {
+            padding: 8px;
+            flex: 1;
+        }
+        
+        .nav-section {
+            margin-bottom: 16px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 8px 4px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-hover);
+        }
+        
+        .nav-item.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .nav-item .icon {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .page-header {
+            padding: 40px 60px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title .emoji {
+            font-size: 36px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .page-body {
+            padding: 24px 60px 60px;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px 20px;
+            min-width: 140px;
+            flex: 1;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .stat-card.primary .value { color: var(--accent); }
+        .stat-card.success .value { color: var(--success); }
+        .stat-card.warning .value { color: var(--warning); }
+        .stat-card.error .value { color: var(--error); }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a6fc4;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+        
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .item-id {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .amount {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-tag.normal {
+            background: #dbeddb;
+            color: #0f7b6c;
+        }
+        
+        .status-tag.low {
+            background: #fdecc8;
+            color: #d9730d;
+        }
+        
+        .status-tag.critical {
+            background: #ffe2dd;
+            color: #e03e3e;
+        }
+        
+        .status-tag.excess {
+            background: #d3e5ef;
+            color: #0b6bcb;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-light);
+        }
+        
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .user-info:hover {
+            background: var(--bg-hover);
+        }
+        .logout-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            opacity: 0.7;
+            transition: all 0.15s;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logout-btn:hover {
+            background: #fee2e2;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s;
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab.active {
+            color: var(--text-primary);
+            font-weight: 500;
+            border-bottom-color: var(--text-primary);
+        }
+        
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #e8f4fd;
+            color: #2383e2;
+        }
+        
+        .progress-bar {
+            width: 80px;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        .progress-bar .fill.normal { background: var(--success); }
+        .progress-bar .fill.low { background: var(--warning); }
+        .progress-bar .fill.critical { background: var(--error); }
+        .progress-bar .fill.excess { background: var(--accent); }
+    </style>
+    <script src="audit-logger.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">J</div>
+                <span class="title">JCO ERP</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item">
+                        <span class="icon">🏠</span>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="erp-order-center-notion.html" class="nav-item">
+                        <span class="icon">📦</span>
+                        <span>訂單中心</span>
+                    </a>
+                    <a href="erp-cost-center-notion.html" class="nav-item">
+                        <span class="icon">💰</span>
+                        <span>成本中心</span>
+                    </a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item">
+                        <span class="icon">🛒</span>
+                        <span>採購管理</span>
+                    </a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item active">
+                        <span class="icon">📊</span>
+                        <span>庫存中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">生產管理</div>
+                    <a href="erp-production-center-notion.html" class="nav-item">
+                        <span class="icon">🏭</span>
+                        <span>生產中心</span>
+                    </a>
+                    <a href="erp-quality-center-notion.html" class="nav-item">
+                        <span class="icon">🔍</span>
+                        <span>品質中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">系統</div>
+                    <a href="erp-hr-center-notion.html" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>人事中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">⚙️</span>
+                        <span>設定</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">--</div>
+                    <span class="user-name" id="user-name">載入中...</span>
+                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">
+                    <span class="emoji">📊</span>
+                    庫存中心
+                </h1>
+                <p class="page-subtitle">即時庫存監控、安全庫存管理、進出記錄追蹤</p>
+            </header>
+            
+            <div class="page-body">
+                <div class="stats-row">
+                    <div class="stat-card primary">
+                        <div class="label">總品項數</div>
+                        <div class="value">156</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="label">庫存正常</div>
+                        <div class="value">128</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="label">低於安全量</div>
+                        <div class="value">18</div>
+                    </div>
+                    <div class="stat-card error">
+                        <div class="label">緊急補貨</div>
+                        <div class="value">6</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">庫存總值</div>
+                        <div class="value">$245K</div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active">📦 庫存總覽</div>
+                    <div class="tab">📥 進出記錄</div>
+                    <div class="tab">⚠️ 安全庫存</div>
+                    <div class="tab">📋 盤點</div>
+                </div>
+                
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <input type="text" class="search-input" placeholder="搜尋材料、位置...">
+                        <select class="filter-select">
+                            <option>全部類別</option>
+                            <option>板材</option>
+                            <option>五金</option>
+                            <option>油漆</option>
+                            <option>包裝材</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>全部狀態</option>
+                            <option>正常</option>
+                            <option>低庫存</option>
+                            <option>緊急</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-secondary">📋 開始盤點</button>
+                        <button class="btn btn-primary">+ 新增入庫</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>品項</th>
+                                <th>類別</th>
+                                <th>現有庫存</th>
+                                <th>安全庫存</th>
+                                <th>庫存狀態</th>
+                                <th>位置</th>
+                                <th>最後異動</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="item-id">白樺膠合板 18mm</span></td>
+                                <td><span class="category-tag">🪵 板材</span></td>
+                                <td><span class="amount">520 張</span></td>
+                                <td>200 張</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill normal" style="width: 100%"></div>
+                                    </div>
+                                    <span class="status-tag normal">✓ 正常</span>
+                                </td>
+                                <td>A-01-01</td>
+                                <td>2026-03-09</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="item-id">MDF 12mm</span></td>
+                                <td><span class="category-tag">🪵 板材</span></td>
+                                <td><span class="amount">85 張</span></td>
+                                <td>100 張</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill low" style="width: 85%"></div>
+                                    </div>
+                                    <span class="status-tag low">◐ 低庫存</span>
+                                </td>
+                                <td>A-02-03</td>
+                                <td>2026-03-08</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="item-id">DTC 滑軌 18"</span></td>
+                                <td><span class="category-tag">🔩 五金</span></td>
+                                <td><span class="amount">1,250 組</span></td>
+                                <td>500 組</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill normal" style="width: 100%"></div>
+                                    </div>
+                                    <span class="status-tag normal">✓ 正常</span>
+                                </td>
+                                <td>B-01-05</td>
+                                <td>2026-03-07</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="item-id">DTC 鉸鏈</span></td>
+                                <td><span class="category-tag">🔩 五金</span></td>
+                                <td><span class="amount">180 組</span></td>
+                                <td>400 組</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill critical" style="width: 45%"></div>
+                                    </div>
+                                    <span class="status-tag critical">⚠ 緊急</span>
+                                </td>
+                                <td>B-01-06</td>
+                                <td>2026-03-09</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="item-id">AC 漆 白色</span></td>
+                                <td><span class="category-tag">🎨 油漆</span></td>
+                                <td><span class="amount">45 桶</span></td>
+                                <td>30 桶</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill normal" style="width: 100%"></div>
+                                    </div>
+                                    <span class="status-tag normal">✓ 正常</span>
+                                </td>
+                                <td>C-02-01</td>
+                                <td>2026-03-06</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="item-id">包裝紙箱 B36</span></td>
+                                <td><span class="category-tag">📦 包裝材</span></td>
+                                <td><span class="amount">28 個</span></td>
+                                <td>50 個</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="fill critical" style="width: 56%"></div>
+                                    </div>
+                                    <span class="status-tag critical">⚠ 緊急</span>
+                                </td>
+                                <td>D-01-02</td>
+                                <td>2026-03-09</td>
+                                <td><button class="action-btn">⋯</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function loadUserInfo() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (session) {
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
+                if (nameEl) nameEl.textContent = session.name;
+            }
+        }
+        
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('JCO_ERP_SESSION');
+                window.location.href = 'erp-login-notion.html';
+            }
+        }
+        
+        loadUserInfo();
+    </script>
+</body>
+</html>

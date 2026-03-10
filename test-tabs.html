@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分頁測試</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl mb-4">分頁測試</h1>
+    
+    <div class="flex gap-4 border-b mb-4">
+        <button onclick="switchTab('list')" id="tab-list" class="py-2 px-4 tab-active">📋 列表</button>
+        <button onclick="switchTab('kanban')" id="tab-kanban" class="py-2 px-4 text-gray-500">📊 看板</button>
+        <button onclick="switchTab('shipping')" id="tab-shipping" class="py-2 px-4 text-gray-500">🚚 出貨</button>
+    </div>
+    
+    <div id="panel-list" class="tab-panel p-4 bg-blue-100 rounded">這是列表面板</div>
+    <div id="panel-kanban" class="tab-panel p-4 bg-green-100 rounded hidden">這是看板面板</div>
+    <div id="panel-shipping" class="tab-panel p-4 bg-yellow-100 rounded hidden">這是出貨面板</div>
+    
+    <script>
+        console.log('Script loaded');
+        function switchTab(tab) {
+            console.log('switchTab called:', tab);
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById('panel-' + tab).classList.remove('hidden');
+            
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            document.getElementById('tab-' + tab).classList.remove('text-gray-500');
+        }
+        console.log('switchTab function defined');
+    </script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儀表板 - JCO ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f6f3;
+            --bg-hover: #efefef;
+            --text-primary: #37352f;
+            --text-secondary: #787774;
+            --text-light: #9b9a97;
+            --border: #e9e9e7;
+            --accent: #2383e2;
+            --accent-light: #e8f4fd;
+            --success: #0f7b6c;
+            --warning: #d9730d;
+            --error: #e03e3e;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-header .logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #2383e2, #0f7b6c);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        
+        .sidebar-header .title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .sidebar-nav {
+            padding: 8px;
+            flex: 1;
+        }
+        
+        .nav-section {
+            margin-bottom: 16px;
+        }
+        
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 8px 4px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-hover);
+        }
+        
+        .nav-item.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .nav-item .icon {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .page-header {
+            padding: 40px 60px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-title .emoji {
+            font-size: 36px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .page-body {
+            padding: 24px 60px 60px;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .kpi-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .kpi-card.blue::before { background: var(--accent); }
+        .kpi-card.green::before { background: var(--success); }
+        .kpi-card.orange::before { background: var(--warning); }
+        .kpi-card.red::before { background: var(--error); }
+        
+        .kpi-card .icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .kpi-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .kpi-card.blue .value { color: var(--accent); }
+        .kpi-card.green .value { color: var(--success); }
+        .kpi-card.orange .value { color: var(--warning); }
+        .kpi-card.red .value { color: var(--error); }
+        
+        .kpi-card .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .kpi-card .trend {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .kpi-card .trend.up { color: var(--success); }
+        .kpi-card .trend.down { color: var(--error); }
+        
+        /* Section Title */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Module Grid */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .module-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .module-card:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .module-card .icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .module-card .name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .module-card .count {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        /* Todo List */
+        .todo-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        
+        .todo-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .todo-checkbox.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .todo-content {
+            flex: 1;
+        }
+        
+        .todo-title {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .todo-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        .todo-priority {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .todo-priority.high {
+            background: #ffe2dd;
+            color: #e03e3e;
+        }
+        
+        .todo-priority.medium {
+            background: #fdecc8;
+            color: #d9730d;
+        }
+        
+        .todo-priority.low {
+            background: #e9e9e7;
+            color: #787774;
+        }
+        
+        /* Recent Activity */
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.order { background: #d3e5ef; }
+        .activity-icon.production { background: #f5e0e9; }
+        .activity-icon.quality { background: #ffe2dd; }
+        .activity-icon.inventory { background: #dbeddb; }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            margin-bottom: 2px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .user-info:hover {
+            background: var(--bg-hover);
+        }
+        .logout-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            opacity: 0.7;
+            transition: all 0.15s;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logout-btn:hover {
+            background: #fee2e2;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+    </style>
+    <script src="audit-logger.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">J</div>
+                <span class="title">JCO ERP</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item active">
+                        <span class="icon">🏠</span>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="erp-order-center-notion.html" class="nav-item">
+                        <span class="icon">📦</span>
+                        <span>訂單中心</span>
+                    </a>
+                    <a href="erp-cost-center-notion.html" class="nav-item">
+                        <span class="icon">💰</span>
+                        <span>成本中心</span>
+                    </a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item">
+                        <span class="icon">🛒</span>
+                        <span>採購管理</span>
+                    </a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item">
+                        <span class="icon">📊</span>
+                        <span>庫存中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">生產管理</div>
+                    <a href="erp-production-center-notion.html" class="nav-item">
+                        <span class="icon">🏭</span>
+                        <span>生產中心</span>
+                    </a>
+                    <a href="erp-quality-center-notion.html" class="nav-item">
+                        <span class="icon">🔍</span>
+                        <span>品質中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">系統</div>
+                    <a href="erp-hr-center-notion.html" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>人事中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">⚙️</span>
+                        <span>設定</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">--</div>
+                    <span class="user-name" id="user-name">載入中...</span>
+                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">
+                    <span class="emoji">🏠</span>
+                    儀表板
+                </h1>
+                <p class="page-subtitle">JCO ERP 系統總覽 · 2026年3月10日</p>
+            </header>
+            
+            <div class="page-body">
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card blue">
+                        <div class="icon">📦</div>
+                        <div class="value">$50,400</div>
+                        <div class="label">本月訂單額</div>
+                        <div class="trend up">↑ 12% vs 上月</div>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="icon">🏭</div>
+                        <div class="value">78%</div>
+                        <div class="label">產能利用率</div>
+                        <div class="trend up">↑ 5% vs 上週</div>
+                    </div>
+                    <div class="kpi-card orange">
+                        <div class="icon">📊</div>
+                        <div class="value">6</div>
+                        <div class="label">緊急補貨項目</div>
+                        <div class="trend down">↓ 需要處理</div>
+                    </div>
+                    <div class="kpi-card red">
+                        <div class="icon">🔍</div>
+                        <div class="value">97.8%</div>
+                        <div class="label">品質良率</div>
+                        <div class="trend up">↑ 0.3% vs 上月</div>
+                    </div>
+                </div>
+                
+                <!-- Module Entry -->
+                <h2 class="section-title">🚀 快速入口</h2>
+                <div class="module-grid">
+                    <a href="erp-order-center-notion.html" class="module-card">
+                        <div class="icon">📦</div>
+                        <div class="name">訂單中心</div>
+                        <div class="count">5 筆訂單</div>
+                    </a>
+                    <a href="erp-cost-center-notion.html" class="module-card">
+                        <div class="icon">💰</div>
+                        <div class="name">成本中心</div>
+                        <div class="count">12 項待報價</div>
+                    </a>
+                    <a href="erp-procurement-center-notion.html" class="module-card">
+                        <div class="icon">🛒</div>
+                        <div class="name">採購管理</div>
+                        <div class="count">8 單待處理</div>
+                    </a>
+                    <a href="erp-inventory-center-notion.html" class="module-card">
+                        <div class="icon">📊</div>
+                        <div class="name">庫存中心</div>
+                        <div class="count">6 項緊急</div>
+                    </a>
+                    <a href="erp-production-center-notion.html" class="module-card">
+                        <div class="icon">🏭</div>
+                        <div class="name">生產中心</div>
+                        <div class="count">12 工單進行中</div>
+                    </a>
+                    <a href="erp-quality-center-notion.html" class="module-card">
+                        <div class="icon">🔍</div>
+                        <div class="name">品質中心</div>
+                        <div class="count">8 問題待處理</div>
+                    </a>
+                    <a href="erp-hr-center-notion.html" class="module-card">
+                        <div class="icon">👥</div>
+                        <div class="name">人事中心</div>
+                        <div class="count">256 位員工</div>
+                    </a>
+                    <a href="#" class="module-card">
+                        <div class="icon">⚙️</div>
+                        <div class="name">系統設定</div>
+                        <div class="count">管理配置</div>
+                    </a>
+                </div>
+                
+                <!-- Two Column -->
+                <div class="two-columns">
+                    <!-- Todo List -->
+                    <div>
+                        <h2 class="section-title">✅ 待辦事項</h2>
+                        <div class="todo-card">
+                            <div class="todo-item">
+                                <div class="todo-checkbox"></div>
+                                <div class="todo-content">
+                                    <div class="todo-title">確認 PO-2026-003 報價</div>
+                                    <div class="todo-meta">截止：今天</div>
+                                </div>
+                                <span class="todo-priority high">緊急</span>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-checkbox"></div>
+                                <div class="todo-content">
+                                    <div class="todo-title">補貨：DTC 鉸鏈</div>
+                                    <div class="todo-meta">庫存低於安全量</div>
+                                </div>
+                                <span class="todo-priority high">緊急</span>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-checkbox"></div>
+                                <div class="todo-content">
+                                    <div class="todo-title">審核品質問題 QC-2026-0156</div>
+                                    <div class="todo-meta">B36 色差問題</div>
+                                </div>
+                                <span class="todo-priority medium">中等</span>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-checkbox"></div>
+                                <div class="todo-content">
+                                    <div class="todo-title">更新橡膠木價格</div>
+                                    <div class="todo-meta">皇通報價上漲 12%</div>
+                                </div>
+                                <span class="todo-priority medium">中等</span>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-checkbox checked"></div>
+                                <div class="todo-content">
+                                    <div class="todo-title" style="text-decoration: line-through; color: var(--text-light);">完成 WO-2026-0088 工單</div>
+                                    <div class="todo-meta">SB36 x 80</div>
+                                </div>
+                                <span class="todo-priority low">完成</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div>
+                        <h2 class="section-title">📝 最近動態</h2>
+                        <div class="todo-card">
+                            <div class="activity-item">
+                                <div class="activity-icon order">📦</div>
+                                <div class="activity-content">
+                                    <div class="activity-text"><strong>PO-2026-005</strong> 已出貨</div>
+                                    <div class="activity-time">10 分鐘前</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon production">🏭</div>
+                                <div class="activity-content">
+                                    <div class="activity-text"><strong>WO-2026-0088</strong> 生產完成</div>
+                                    <div class="activity-time">30 分鐘前</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon quality">🔍</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">新品質問題 <strong>QC-2026-0156</strong></div>
+                                    <div class="activity-time">1 小時前</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon inventory">📊</div>
+                                <div class="activity-content">
+                                    <div class="activity-text"><strong>白樺膠合板</strong> 入庫 200 張</div>
+                                    <div class="activity-time">2 小時前</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon order">📦</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">新訂單 <strong>PO-2026-006</strong> 已建立</div>
+                                    <div class="activity-time">3 小時前</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function loadUserInfo() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (session) {
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
+                if (nameEl) nameEl.textContent = session.name;
+            }
+        }
+        
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('JCO_ERP_SESSION');
+                window.location.href = 'erp-login-notion.html';
+            }
+        }
+        
+        loadUserInfo();
+    </script>
+</body>
+</html>

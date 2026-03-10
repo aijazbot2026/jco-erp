@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 JCO ERP 完整操作手冊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .screenshot { 
+            border: 3px solid #3b82f6; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .screenshot:hover { transform: scale(1.02); }
+        .module-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .module-card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .btn-ref {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .func-ref {
+            background: #dbeafe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-pass { background: #dcfce7; color: #166534; }
+        .test-pending { background: #fef9c3; color: #854d0e; }
+        .test-fail { background: #fee2e2; color: #991b1b; }
+        .nav-link { transition: all 0.2s; }
+        .nav-link:hover { background: rgba(255,255,255,0.2); }
+        .modal-section {
+            background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+            border-left: 4px solid #a855f7;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-6 px-8 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold">📚 JCO ERP 完整操作手冊</h1>
+                <p class="text-blue-100 mt-1">8 大模組 + 按鈕清單 + Modal 框架</p>
+            </div>
+            <div class="text-right text-sm">
+                <p>版本：1.0</p>
+                <p>更新：2026-03-10</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Nav -->
+    <div class="bg-white shadow-md py-3 px-8 sticky top-20 z-40">
+        <div class="max-w-7xl mx-auto flex flex-wrap gap-2">
+            <a href="#dashboard" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">🏠 Dashboard</a>
+            <a href="#order" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">📦 訂單</a>
+            <a href="#cost" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">💰 成本</a>
+            <a href="#procurement" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">🛒 採購</a>
+            <a href="#inventory" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">📊 庫存</a>
+            <a href="#production" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">🏭 生產</a>
+            <a href="#quality" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">🔍 品質</a>
+            <a href="#hr" class="nav-link px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-blue-100">👥 人事</a>
+            <a href="#modals" class="nav-link px-3 py-1 bg-purple-100 rounded-full text-sm hover:bg-purple-200">🎭 Modal 框架</a>
+            <a href="#buttons" class="nav-link px-3 py-1 bg-green-100 rounded-full text-sm hover:bg-green-200">🔘 按鈕清單</a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-8">
+
+        <!-- ==================== DASHBOARD ==================== -->
+        <section id="dashboard" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-3xl text-white">🏠</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">Dashboard 儀表板</h2>
+                        <p class="text-gray-500">erp-dashboard.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-dashboard.png" alt="Dashboard" class="screenshot mb-4">
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-6">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">📊 功能說明</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li>• 總覽所有模組狀態</li>
+                            <li>• 快速進入各模組</li>
+                            <li>• 顯示關鍵指標 KPI</li>
+                            <li>• 今日待辦事項</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">🔘 按鈕</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li><span class="btn-ref">進入訂單中心</span> → 跳轉訂單模組</li>
+                            <li><span class="btn-ref">進入成本中心</span> → 跳轉成本模組</li>
+                            <li><span class="btn-ref">新增用戶</span> → 新增 ERP 使用者</li>
+                            <li><span class="btn-ref">登出</span> → 登出系統</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 訂單中心 ==================== -->
+        <section id="order" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-3xl text-white">📦</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">訂單中心</h2>
+                        <p class="text-gray-500">erp-order-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-01-order-center.png" alt="訂單中心" class="screenshot mb-4">
+                
+                <div class="grid md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">📑 Tab 分頁</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li>📋 訂單列表</li>
+                            <li>🏗️ 看板視圖</li>
+                            <li>🚚 出貨追蹤</li>
+                            <li>📦 裝箱管理</li>
+                            <li>📈 訂單報表</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">🔘 主要按鈕</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li><span class="btn-ref">+ 新增訂單</span></li>
+                            <li><span class="btn-ref">📤 匯入訂單</span></li>
+                            <li><span class="btn-ref">📥 匯出報表</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">📊 訂單狀態</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li>📝 草稿</li>
+                            <li>✅ 已確認</li>
+                            <li>🏭 生產中</li>
+                            <li>🔍 待驗貨</li>
+                            <li>📦 裝箱中</li>
+                            <li>🚢 已出貨</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 新增訂單流程 -->
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h3 class="font-bold mb-3">📝 新增訂單流程</h3>
+                    <div class="flex flex-wrap items-center gap-2 text-sm">
+                        <span class="bg-white px-3 py-1 rounded-full">1. 點擊「+ 新增訂單」</span>
+                        <span>→</span>
+                        <span class="bg-white px-3 py-1 rounded-full">2. 填寫客戶/交期</span>
+                        <span>→</span>
+                        <span class="bg-white px-3 py-1 rounded-full">3. 新增產品項目</span>
+                        <span>→</span>
+                        <span class="bg-white px-3 py-1 rounded-full">4. 點擊「建立訂單」</span>
+                    </div>
+                    <img src="screenshots/clean-02-new-order-modal.png" alt="新增訂單 Modal" class="screenshot mt-4" style="max-height: 400px; object-fit: contain;">
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 成本中心 ==================== -->
+        <section id="cost" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center text-3xl text-white">💰</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">成本中心</h2>
+                        <p class="text-gray-500">erp-cost-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-cost-center.png" alt="成本中心" class="screenshot mb-4">
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-6">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">📑 Tab 分頁</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li>📋 待辦清單</li>
+                            <li>🏗️ 櫥櫃成本</li>
+                            <li>📦 抽屜盒報價</li>
+                            <li>🪵 材料成本</li>
+                            <li>🔩 五金清單</li>
+                            <li>✂️ 板材切割</li>
+                            <li>📋 BOM 計算</li>
+                            <li>📊 成本報表</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">🔘 主要按鈕</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li><span class="btn-ref">📤 匯入 Excel</span> <span class="func-ref">importExcel()</span></li>
+                            <li><span class="btn-ref">📥 匯出全部</span> <span class="func-ref">exportAll()</span></li>
+                            <li><span class="btn-ref">🔄 重新整理</span> <span class="func-ref">refreshTodoList()</span></li>
+                            <li><span class="btn-ref">💾 儲存方案</span> <span class="func-ref">savePricePreset()</span></li>
+                            <li><span class="btn-ref">🔄 同步採購價</span> <span class="func-ref">syncFromProcurement()</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 採購中心 ==================== -->
+        <section id="procurement" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-3xl text-white">🛒</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">採購管理中心</h2>
+                        <p class="text-gray-500">erp-procurement-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-procurement-center.png" alt="採購中心" class="screenshot mb-4">
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-6">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">📑 Tab 分頁</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li>💰 價格管理</li>
+                            <li>🏭 供應商</li>
+                            <li>📈 價格歷史</li>
+                            <li>📋 採購單</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">🔘 主要按鈕</h3>
+                        <ul class="space-y-1 text-sm">
+                            <li><span class="btn-ref">🔄 同步全部價格</span> <span class="func-ref">syncAllPrices()</span></li>
+                            <li><span class="btn-ref">+ 新增材料</span> <span class="func-ref">addNewMaterial()</span></li>
+                            <li><span class="btn-ref">📥 匯出</span> <span class="func-ref">exportPriceList()</span></li>
+                            <li><span class="btn-ref">📊 匯出報表</span> <span class="func-ref">exportSupplierReport()</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 庫存中心 ==================== -->
+        <section id="inventory" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-3xl text-white">📊</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">庫存中心</h2>
+                        <p class="text-gray-500">erp-inventory-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-inventory-center.png" alt="庫存中心" class="screenshot mb-4">
+                
+                <div class="bg-white p-4 rounded-lg mt-4">
+                    <h3 class="font-bold mb-2">📊 功能說明</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>• 即時庫存查詢</li>
+                        <li>• 安全庫存警示</li>
+                        <li>• 進出貨記錄</li>
+                        <li>• 庫存盤點</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 生產中心 ==================== -->
+        <section id="production" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center text-3xl text-white">🏭</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">生產中心</h2>
+                        <p class="text-gray-500">erp-production-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-production-center.png" alt="生產中心" class="screenshot mb-4">
+                
+                <div class="bg-white p-4 rounded-lg mt-4">
+                    <h3 class="font-bold mb-2">🏭 功能說明</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>• 生產排程管理</li>
+                        <li>• 工單追蹤</li>
+                        <li>• 產能規劃</li>
+                        <li>• 生產進度看板</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 品質中心 ==================== -->
+        <section id="quality" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center text-3xl text-white">🔍</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">品質中心</h2>
+                        <p class="text-gray-500">erp-quality-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-quality-center.png" alt="品質中心" class="screenshot mb-4">
+                
+                <div class="bg-white p-4 rounded-lg mt-4">
+                    <h3 class="font-bold mb-2">🔍 功能說明</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>• 品質問題登記</li>
+                        <li>• 不良品追蹤</li>
+                        <li>• QC 檢驗報告</li>
+                        <li>• 品質趨勢分析</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 人事中心 ==================== -->
+        <section id="hr" class="mb-12">
+            <div class="module-card rounded-2xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center text-3xl text-white">👥</div>
+                    <div>
+                        <h2 class="text-2xl font-bold">人事中心</h2>
+                        <p class="text-gray-500">erp-hr-center.html</p>
+                    </div>
+                </div>
+                
+                <img src="screenshots/clean-hr-center.png" alt="人事中心" class="screenshot mb-4">
+                
+                <div class="bg-white p-4 rounded-lg mt-4">
+                    <h3 class="font-bold mb-2">👥 功能說明</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>• 員工資料管理</li>
+                        <li>• 出勤記錄</li>
+                        <li>• 薪資計算</li>
+                        <li>• 組織架構</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MODAL 框架 ==================== -->
+        <section id="modals" class="mb-12">
+            <div class="modal-section rounded-2xl p-6">
+                <h2 class="text-2xl font-bold mb-6">🎭 Modal 彈窗框架</h2>
+                
+                <p class="mb-4">Modal 是覆蓋在頁面上的彈出視窗，用於新增/編輯資料。以下是 ERP 系統中的所有 Modal：</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm bg-white rounded-lg overflow-hidden">
+                        <thead class="bg-purple-100">
+                            <tr>
+                                <th class="p-3 text-left">Modal 名稱</th>
+                                <th class="p-3 text-left">所在模組</th>
+                                <th class="p-3 text-left">HTML ID</th>
+                                <th class="p-3 text-left">觸發按鈕</th>
+                                <th class="p-3 text-left">主要欄位</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">新增訂單</td>
+                                <td class="p-3">訂單中心</td>
+                                <td class="p-3"><code>order-modal</code></td>
+                                <td class="p-3">+ 新增訂單</td>
+                                <td class="p-3">訂單號、客戶、交期、產品項目</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">新增出貨</td>
+                                <td class="p-3">訂單中心-出貨追蹤</td>
+                                <td class="p-3"><code>shipment-modal</code></td>
+                                <td class="p-3">+ 新增出貨</td>
+                                <td class="p-3">訂單、貨櫃、船運、ETD/ETA</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">裝箱規格</td>
+                                <td class="p-3">訂單中心-裝箱管理</td>
+                                <td class="p-3"><code>packing-modal</code></td>
+                                <td class="p-3">+ 新增規格</td>
+                                <td class="p-3">產品、每箱數量、尺寸、重量</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">新增材料</td>
+                                <td class="p-3">採購中心</td>
+                                <td class="p-3"><code>material-modal</code></td>
+                                <td class="p-3">+ 新增材料</td>
+                                <td class="p-3">材料名稱、類別、單位、價格</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">新增供應商</td>
+                                <td class="p-3">採購中心</td>
+                                <td class="p-3"><code>supplier-modal</code></td>
+                                <td class="p-3">+ 新增供應商</td>
+                                <td class="p-3">名稱、聯絡人、電話、地址</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">新增用戶</td>
+                                <td class="p-3">Dashboard</td>
+                                <td class="p-3"><code>user-modal</code></td>
+                                <td class="p-3">新增用戶</td>
+                                <td class="p-3">姓名、部門、角色、密碼</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 p-4 bg-white rounded-lg">
+                    <h3 class="font-bold mb-2">🔧 Modal 通用結構</h3>
+                    <pre class="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+&lt;div id="xxx-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"&gt;
+    &lt;div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4"&gt;
+        &lt;!-- Header --&gt;
+        &lt;div class="p-6 border-b"&gt;
+            &lt;h3&gt;Modal 標題&lt;/h3&gt;
+            &lt;button onclick="closeXxxModal()"&gt;X&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;!-- Body --&gt;
+        &lt;div class="p-6"&gt;
+            &lt;!-- 表單欄位 --&gt;
+        &lt;/div&gt;
+        &lt;!-- Footer --&gt;
+        &lt;div class="p-6 border-t"&gt;
+            &lt;button onclick="closeXxxModal()"&gt;取消&lt;/button&gt;
+            &lt;button onclick="saveXxx()"&gt;儲存&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 按鈕測試清單 ==================== -->
+        <section id="buttons" class="mb-12">
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">🔘 按鈕測試清單</h2>
+                
+                <p class="mb-4 text-gray-600">以下是 ERP 系統中所有可點擊按鈕的完整清單，包含函數名稱和測試狀態：</p>
+
+                <!-- 訂單中心按鈕 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold mb-3 text-blue-600">📦 訂單中心</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-2 text-left">按鈕</th>
+                                    <th class="p-2 text-left">函數</th>
+                                    <th class="p-2 text-left">功能</th>
+                                    <th class="p-2 text-left">測試</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b"><td class="p-2">+ 新增訂單</td><td class="p-2"><code>openNewOrder()</code></td><td class="p-2">開啟新增訂單 Modal</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">📤 匯入訂單</td><td class="p-2"><code>handleExcelImport()</code></td><td class="p-2">匯入 Excel</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">📥 匯出報表</td><td class="p-2"><code>exportOrders()</code></td><td class="p-2">匯出 Excel</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">建立訂單</td><td class="p-2"><code>addOrder()</code></td><td class="p-2">儲存新訂單</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">取消</td><td class="p-2"><code>closeOrderModal()</code></td><td class="p-2">關閉 Modal</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">+ 新增項目</td><td class="p-2"><code>addOrderItem()</code></td><td class="p-2">新增產品行</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">🗑️ 刪除項目</td><td class="p-2"><code>removeOrderItem(idx)</code></td><td class="p-2">刪除產品行</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">Tab 切換</td><td class="p-2"><code>switchTab(tab)</code></td><td class="p-2">切換視圖</td><td class="p-2"><span class="test-pass px-2 py-1 rounded text-xs">✅ 通過</span></td></tr>
+                                <tr class="border-b"><td class="p-2">登出</td><td class="p-2"><code>logout()</code></td><td class="p-2">登出系統</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 成本中心按鈕 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold mb-3 text-yellow-600">💰 成本中心</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-2 text-left">按鈕</th>
+                                    <th class="p-2 text-left">函數</th>
+                                    <th class="p-2 text-left">功能</th>
+                                    <th class="p-2 text-left">測試</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b"><td class="p-2">📤 匯入 Excel</td><td class="p-2"><code>importExcel()</code></td><td class="p-2">匯入資料</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">📥 匯出全部</td><td class="p-2"><code>exportAll()</code></td><td class="p-2">匯出資料</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">🔄 重新整理</td><td class="p-2"><code>refreshTodoList()</code></td><td class="p-2">重新載入</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">💾 儲存方案</td><td class="p-2"><code>savePricePreset()</code></td><td class="p-2">儲存價格</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">🔄 同步採購價</td><td class="p-2"><code>syncFromProcurement()</code></td><td class="p-2">同步價格</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">Tab 切換 (7個)</td><td class="p-2"><code>switchTab()</code></td><td class="p-2">切換視圖</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 採購中心按鈕 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold mb-3 text-emerald-600">🛒 採購中心</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-2 text-left">按鈕</th>
+                                    <th class="p-2 text-left">函數</th>
+                                    <th class="p-2 text-left">功能</th>
+                                    <th class="p-2 text-left">測試</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b"><td class="p-2">🔄 同步全部價格</td><td class="p-2"><code>syncAllPrices()</code></td><td class="p-2">同步價格</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">+ 新增材料</td><td class="p-2"><code>addNewMaterial()</code></td><td class="p-2">新增材料</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">📥 匯出</td><td class="p-2"><code>exportPriceList()</code></td><td class="p-2">匯出價格</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">📊 匯出報表</td><td class="p-2"><code>exportSupplierReport()</code></td><td class="p-2">匯出供應商</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                                <tr class="border-b"><td class="p-2">類別篩選 (6個)</td><td class="p-2"><code>filterCategory()</code></td><td class="p-2">篩選材料</td><td class="p-2"><span class="test-pending px-2 py-1 rounded text-xs">⏳ 待測</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 統計 -->
+                <div class="mt-8 grid grid-cols-3 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-green-600">7</div>
+                        <div class="text-sm">✅ 已通過</div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-yellow-600">18</div>
+                        <div class="text-sm">⏳ 待測試</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-red-600">0</div>
+                        <div class="text-sm">❌ 失敗</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm py-8 border-t">
+            <p class="font-medium">JCO ERP System - 完整操作手冊</p>
+            <p>© 2026 JCO Wood. All rights reserved.</p>
+            <p class="mt-2">文件產生：Jaz AI Assistant | 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // 點擊截圖放大
+        document.querySelectorAll('.screenshot').forEach(img => {
+            img.addEventListener('click', function() {
+                window.open(this.src, '_blank');
+            });
+        });
+    </script>
+</body>
+</html>

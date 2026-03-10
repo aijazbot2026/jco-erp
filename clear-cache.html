@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>清除快取</title></head>
+<body>
+<h1>清除 JCO ERP 快取</h1>
+<button onclick="clearAll()">清除所有資料</button>
+<p id="result"></p>
+<script>
+function clearAll() {
+    const keys = Object.keys(localStorage).filter(k => k.includes('jco') || k.includes('JCO'));
+    keys.forEach(k => localStorage.removeItem(k));
+    document.getElementById('result').textContent = '已清除 ' + keys.length + ' 個項目: ' + keys.join(', ');
+    setTimeout(() => location.href = 'erp-order-center.html', 2000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JCO ERP 數據測試</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🧪 JCO ERP 數據測試</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">測試控制</h2>
+            <button onclick="runAllTests()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium">
+                ▶️ 執行所有測試
+            </button>
+            <button onclick="clearResults()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 font-medium ml-2">
+                🗑️ 清除結果
+            </button>
+        </div>
+        
+        <div id="results" class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">測試結果</h2>
+            <div id="output" class="font-mono text-sm bg-gray-900 text-green-400 p-4 rounded-lg min-h-[400px] overflow-auto">
+                點擊「執行所有測試」開始...
+            </div>
+        </div>
+        
+        <div id="summary" class="mt-6 hidden">
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-blue-100 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-800" id="totalTests">0</div>
+                    <div class="text-sm text-blue-600">總測試數</div>
+                </div>
+                <div class="bg-green-100 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-800" id="passedTests">0</div>
+                    <div class="text-sm text-green-600">通過</div>
+                </div>
+                <div class="bg-red-100 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-red-800" id="failedTests">0</div>
+                    <div class="text-sm text-red-600">失敗</div>
+                </div>
+                <div class="bg-yellow-100 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-800" id="anomalyCount">0</div>
+                    <div class="text-sm text-yellow-600">異常</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const colors = {
+                info: 'text-green-400',
+                error: 'text-red-400',
+                warn: 'text-yellow-400',
+                success: 'text-cyan-400'
+            };
+            output.innerHTML += `<div class="${colors[type] || colors.info}">${msg}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearResults() {
+            output.innerHTML = '已清除...';
+            document.getElementById('summary').classList.add('hidden');
+        }
+        
+        // 測試數據：真實櫥櫃參數
+        const testOrders = [
+            {
+                orderId: 'CI-2026-001',
+                customer: 'CI (Cortland)',
+                product: 'B12 Base Cabinet',
+                quantity: 50,
+                unitPrice: 125.50,
+                total: 6275.00,
+                orderDate: '2026-03-10',
+                dueDate: '2026-04-15',
+                status: '生產中',
+                notes: 'American Shaker, SW-7007'
+            },
+            {
+                orderId: 'CI-2026-002',
+                customer: 'CI (Cortland)',
+                product: 'W3630 Wall Cabinet',
+                quantity: 30,
+                unitPrice: 189.75,
+                total: 5692.50,
+                orderDate: '2026-03-10',
+                dueDate: '2026-04-15',
+                status: '待生產',
+                notes: 'Bright White, Gloss 25±5'
+            },
+            {
+                orderId: 'CI-2026-003',
+                customer: 'CI (Cortland)',
+                product: 'SB36 Sink Base',
+                quantity: 20,
+                unitPrice: 215.00,
+                total: 4300.00,
+                orderDate: '2026-03-10',
+                dueDate: '2026-04-20',
+                status: '待生產',
+                notes: 'Full overlay, DTC hinges'
+            },
+            {
+                orderId: 'CI-2026-004',
+                customer: 'CI (Cortland)',
+                product: 'VB24 Vanity Base',
+                quantity: 15,
+                unitPrice: 175.25,
+                total: 2628.75,
+                orderDate: '2026-03-10',
+                dueDate: '2026-04-25',
+                status: '報價中',
+                notes: 'Face-frame construction'
+            }
+        ];
+        
+        const testCosts = [
+            {
+                costId: 'COST-B12-001',
+                product: 'B12 Base Cabinet',
+                materialCost: 45.30,
+                hardwareCost: 12.50,
+                paintCost: 8.20,
+                laborCost: 25.00,
+                totalCost: 91.00,
+                unit: 'USD/件',
+                notes: '白樺膠合板 18mm + DTC 滑軌（廷茂）'
+            },
+            {
+                costId: 'COST-W3630-001',
+                product: 'W3630 Wall Cabinet',
+                materialCost: 62.40,
+                hardwareCost: 18.30,
+                paintCost: 12.50,
+                laborCost: 35.00,
+                totalCost: 128.20,
+                unit: 'USD/件',
+                notes: '白樺膠合板（皇家）+ 德森 AC 漆'
+            },
+            {
+                costId: 'COST-SB36-001',
+                product: 'SB36 Sink Base',
+                materialCost: 55.80,
+                hardwareCost: 22.40,
+                paintCost: 15.30,
+                laborCost: 40.00,
+                totalCost: 133.50,
+                unit: 'USD/件',
+                notes: 'DTC 鉸鏈 + 萬鑫螺絲'
+            }
+        ];
+        
+        // 異常檢測
+        function detectAnomalies(original, stored) {
+            const anomalies = [];
+            
+            for (const key in original) {
+                const origVal = original[key];
+                const storedVal = stored[key];
+                
+                if (typeof origVal === 'number') {
+                    const diff = Math.abs(origVal - parseFloat(storedVal));
+                    if (diff > 0.01) {
+                        anomalies.push({ field: key, original: origVal, stored: storedVal, type: '數值差異' });
+                    }
+                    
+                    // 數量級異常（30 變 300）
+                    if (storedVal && origVal > 0) {
+                        const ratio = parseFloat(storedVal) / origVal;
+                        if (ratio >= 10 || ratio <= 0.1) {
+                            anomalies.push({ field: key, original: origVal, stored: storedVal, ratio: ratio, type: '⚠️ 數量級異常' });
+                        }
+                    }
+                }
+                
+                if (typeof origVal === 'string' && origVal !== storedVal) {
+                    anomalies.push({ field: key, original: origVal, stored: storedVal, type: '字串差異' });
+                }
+            }
+            
+            return anomalies;
+        }
+        
+        async function runAllTests() {
+            output.innerHTML = '';
+            log('='.repeat(50));
+            log('🧪 JCO ERP 數據測試');
+            log('測試時間: ' + new Date().toLocaleString());
+            log('='.repeat(50));
+            
+            const results = {
+                orders: { passed: 0, failed: 0, anomalies: [] },
+                costs: { passed: 0, failed: 0, anomalies: [] }
+            };
+            
+            // 測試 1: 訂單數據寫入讀取
+            log('\n📦 測試 1: 訂單數據寫入/讀取', 'success');
+            log('-'.repeat(40));
+            
+            localStorage.setItem('jco-orders', JSON.stringify(testOrders));
+            const storedOrders = JSON.parse(localStorage.getItem('jco-orders') || '[]');
+            
+            for (let i = 0; i < testOrders.length; i++) {
+                const anomalies = detectAnomalies(testOrders[i], storedOrders[i] || {});
+                if (anomalies.length === 0) {
+                    results.orders.passed++;
+                    log(`✅ ${testOrders[i].orderId}: ${testOrders[i].product} - 通過`);
+                } else {
+                    results.orders.failed++;
+                    results.orders.anomalies.push(...anomalies);
+                    log(`❌ ${testOrders[i].orderId} 發現異常:`, 'error');
+                    anomalies.forEach(a => log(`   - ${a.field}: ${a.original} → ${a.stored} (${a.type})`, 'error'));
+                }
+            }
+            
+            // 測試 2: 成本數據
+            log('\n💰 測試 2: 成本數據寫入/讀取', 'success');
+            log('-'.repeat(40));
+            
+            localStorage.setItem('jco-cost-tasks', JSON.stringify(testCosts));
+            const storedCosts = JSON.parse(localStorage.getItem('jco-cost-tasks') || '[]');
+            
+            for (let i = 0; i < testCosts.length; i++) {
+                const anomalies = detectAnomalies(testCosts[i], storedCosts[i] || {});
+                if (anomalies.length === 0) {
+                    results.costs.passed++;
+                    log(`✅ ${testCosts[i].costId}: ${testCosts[i].product} - 通過`);
+                } else {
+                    results.costs.failed++;
+                    results.costs.anomalies.push(...anomalies);
+                    log(`❌ ${testCosts[i].costId} 發現異常:`, 'error');
+                }
+            }
+            
+            // 測試 3: 計算驗證
+            log('\n🔢 測試 3: 計算邏輯驗證', 'success');
+            log('-'.repeat(40));
+            
+            let calcPassed = 0;
+            let calcFailed = 0;
+            
+            for (const order of testOrders) {
+                const expected = order.quantity * order.unitPrice;
+                const diff = Math.abs(expected - order.total);
+                if (diff < 0.01) {
+                    calcPassed++;
+                    log(`✅ ${order.product}: ${order.quantity} × $${order.unitPrice} = $${order.total}`);
+                } else {
+                    calcFailed++;
+                    log(`❌ ${order.product}: 預期 $${expected.toFixed(2)}，實際 $${order.total}`, 'error');
+                }
+            }
+            
+            for (const cost of testCosts) {
+                const expected = cost.materialCost + cost.hardwareCost + cost.paintCost + cost.laborCost;
+                const diff = Math.abs(expected - cost.totalCost);
+                if (diff < 0.01) {
+                    calcPassed++;
+                    log(`✅ ${cost.product}: $${cost.materialCost} + $${cost.hardwareCost} + $${cost.paintCost} + $${cost.laborCost} = $${cost.totalCost}`);
+                } else {
+                    calcFailed++;
+                    log(`❌ ${cost.product}: 預期 $${expected.toFixed(2)}，實際 $${cost.totalCost}`, 'error');
+                }
+            }
+            
+            // 測試 4: 大量數據測試
+            log('\n📊 測試 4: 大量數據測試 (100筆)', 'success');
+            log('-'.repeat(40));
+            
+            const bulkData = [];
+            for (let i = 1; i <= 100; i++) {
+                bulkData.push({
+                    id: `BULK-${i.toString().padStart(3, '0')}`,
+                    value: Math.round(Math.random() * 10000) / 100,
+                    timestamp: Date.now()
+                });
+            }
+            
+            localStorage.setItem('jco-bulk-test', JSON.stringify(bulkData));
+            const storedBulk = JSON.parse(localStorage.getItem('jco-bulk-test') || '[]');
+            
+            if (storedBulk.length === 100) {
+                log(`✅ 100 筆數據寫入成功，讀取 ${storedBulk.length} 筆`);
+                
+                // 驗證數據完整性
+                let bulkErrors = 0;
+                for (let i = 0; i < 100; i++) {
+                    if (bulkData[i].value !== storedBulk[i].value) {
+                        bulkErrors++;
+                    }
+                }
+                
+                if (bulkErrors === 0) {
+                    log('✅ 所有數據值驗證通過');
+                } else {
+                    log(`❌ ${bulkErrors} 筆數據值不一致`, 'error');
+                }
+            } else {
+                log(`❌ 數據遺失：預期 100 筆，實際 ${storedBulk.length} 筆`, 'error');
+            }
+            
+            // 清理測試數據
+            localStorage.removeItem('jco-bulk-test');
+            
+            // 匯總
+            const totalPassed = results.orders.passed + results.costs.passed + calcPassed;
+            const totalFailed = results.orders.failed + results.costs.failed + calcFailed;
+            const totalTests = totalPassed + totalFailed;
+            const anomalyCount = results.orders.anomalies.length + results.costs.anomalies.length;
+            
+            log('\n' + '='.repeat(50));
+            log('📋 測試結果摘要', 'success');
+            log('='.repeat(50));
+            log(`總測試: ${totalTests}`);
+            log(`✅ 通過: ${totalPassed}`, totalPassed > 0 ? 'success' : 'info');
+            log(`❌ 失敗: ${totalFailed}`, totalFailed > 0 ? 'error' : 'info');
+            log(`⚠️ 異常: ${anomalyCount}`, anomalyCount > 0 ? 'warn' : 'info');
+            
+            if (totalFailed === 0 && anomalyCount === 0) {
+                log('\n🎉 所有測試通過！數據儲存正常，無異常。', 'success');
+            }
+            
+            // 更新 UI
+            document.getElementById('summary').classList.remove('hidden');
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = totalPassed;
+            document.getElementById('failedTests').textContent = totalFailed;
+            document.getElementById('anomalyCount').textContent = anomalyCount;
+        }
+    </script>
+</body>
+</html>

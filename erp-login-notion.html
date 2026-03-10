@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - JCO ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f6f3;
+            --bg-hover: #efefef;
+            --text-primary: #37352f;
+            --text-secondary: #787774;
+            --text-light: #9b9a97;
+            --border: #e9e9e7;
+            --accent: #2383e2;
+            --accent-hover: #1a6fc4;
+            --success: #0f7b6c;
+            --error: #e03e3e;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .login-header {
+            padding: 40px 40px 32px;
+            text-align: center;
+        }
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #2383e2, #0f7b6c);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+            color: white;
+            font-weight: 700;
+        }
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .login-form {
+            padding: 0 40px 40px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(35, 131, 226, 0.15);
+        }
+        .form-input::placeholder {
+            color: var(--text-light);
+        }
+        .error-msg {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .error-msg.error {
+            background: #ffeae9;
+            color: var(--error);
+        }
+        .error-msg.success {
+            background: #dbeddb;
+            color: var(--success);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: white;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-login:hover {
+            background: var(--accent-hover);
+        }
+        .login-footer {
+            padding: 20px 40px;
+            background: var(--bg-secondary);
+            text-align: center;
+        }
+        .login-footer p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .login-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        .demo-accounts {
+            margin-top: 24px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .demo-accounts h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .demo-account:last-child {
+            border-bottom: none;
+        }
+        .demo-account:hover {
+            background: var(--bg-hover);
+            margin: 0 -8px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .demo-account .role {
+            color: var(--text-light);
+        }
+    </style>
+    <script src="audit-logger.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">J</div>
+                <h1>JCO ERP</h1>
+                <p>傢俱櫥櫃生產管理系統</p>
+            </div>
+            
+            <form class="login-form" id="login-form">
+                <div id="error-msg" class="error-msg"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">帳號</label>
+                    <input type="text" id="username" class="form-input" placeholder="輸入帳號" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">密碼</label>
+                    <input type="password" id="password" class="form-input" placeholder="輸入密碼" required>
+                </div>
+                
+                <button type="submit" class="btn-login">登入系統</button>
+                
+                <div class="demo-accounts">
+                    <h3>測試帳號</h3>
+                    <div class="demo-account" onclick="fillAccount('admin', 'jco2026')">
+                        <span><strong>admin</strong> / jco2026</span>
+                        <span class="role">管理員</span>
+                    </div>
+                    <div class="demo-account" onclick="fillAccount('sales_mgr', 'sales123')">
+                        <span><strong>sales_mgr</strong> / sales123</span>
+                        <span class="role">業務主管</span>
+                    </div>
+                    <div class="demo-account" onclick="fillAccount('dev_mgr', 'dev123')">
+                        <span><strong>dev_mgr</strong> / dev123</span>
+                        <span class="role">開發主管</span>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="login-footer">
+                <p>忘記密碼？<a href="#">請聯繫管理員</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USERS_DB_KEY = 'JCO_ERP_USERS';
+        
+        const defaultUsers = [
+            { id: 1, username: 'admin', password: 'jco2026', name: 'Jerry Boss', dept: 'admin', role: 'admin', permissions: ['all'] },
+            { id: 10, username: 'dev_mgr', password: 'dev123', name: '開發主管', dept: 'development', role: 'manager', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
+            { id: 11, username: 'dev_ast', password: 'dev123', name: '開發助手', dept: 'development', role: 'assistant', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
+            { id: 20, username: 'sales_mgr', password: 'sales123', name: '業務主管', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'shipping', 'reports'] },
+            { id: 21, username: 'sales_1', password: 'sales123', name: '業務助手1', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 22, username: 'sales_2', password: 'sales123', name: '業務助手2', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 23, username: 'sales_3', password: 'sales123', name: '業務助手3', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 24, username: 'sales_4', password: 'sales123', name: '業務助手4', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 30, username: 'proc_mgr', password: 'proc123', name: '採購組長', dept: 'procurement', role: 'manager', permissions: ['materials', 'suppliers', 'procurement', 'inventory'] },
+            { id: 31, username: 'wh_wood', password: 'wh123', name: '木料倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'materials'] },
+            { id: 32, username: 'wh_hw', password: 'wh123', name: '五金倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'hardware'] },
+            { id: 40, username: 'qc_mgr', password: 'qc123', name: '品質主管', dept: 'quality', role: 'manager', permissions: ['qc', 'shipping', 'reports'] },
+            { id: 41, username: 'qc_ast', password: 'qc123', name: '文書助手', dept: 'quality', role: 'assistant', permissions: ['qc', 'documents'] },
+        ];
+
+        function initUsers() {
+            const stored = localStorage.getItem(USERS_DB_KEY);
+            if (!stored) {
+                localStorage.setItem(USERS_DB_KEY, JSON.stringify(defaultUsers));
+            }
+        }
+
+        function authenticate(username, password) {
+            const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
+            return users.find(u => u.username === username && u.password === password);
+        }
+
+        function saveSession(user) {
+            const session = {
+                id: user.id,
+                username: user.username,
+                name: user.name,
+                dept: user.dept,
+                role: user.role,
+                permissions: user.permissions,
+                loginTime: Date.now()
+            };
+            localStorage.setItem('JCO_ERP_SESSION', JSON.stringify(session));
+        }
+
+        function redirectByDept(dept) {
+            const routes = {
+                'admin': 'erp-dashboard-notion.html',
+                'sales': 'erp-order-center-notion.html',
+                'development': 'erp-cost-center-notion.html',
+                'procurement': 'erp-procurement-notion.html',
+                'quality': 'erp-quality-notion.html'
+            };
+            window.location.href = routes[dept] || 'erp-dashboard-notion.html';
+        }
+
+        function fillAccount(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            const user = authenticate(username, password);
+            
+            if (user) {
+                saveSession(user);
+                // 記錄登入日誌
+                if (window.AuditLogger) {
+                    AuditLogger.logLogin();
+                }
+                errorMsg.className = 'error-msg success';
+                errorMsg.textContent = `✓ 歡迎回來，${user.name}！`;
+                errorMsg.style.display = 'block';
+                setTimeout(() => redirectByDept(user.dept), 800);
+            } else {
+                errorMsg.className = 'error-msg error';
+                errorMsg.textContent = '帳號或密碼錯誤';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        initUsers();
+        
+        const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+        if (session) {
+            redirectByDept(session.dept);
+        }
+    </script>
+</body>
+</html>

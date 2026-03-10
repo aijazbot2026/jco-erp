@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 訂單中心 SOP 操作手冊 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .screenshot { 
+            border: 3px solid #3b82f6; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 100%;
+        }
+        .step-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        .button-ref {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .hotkey {
+            background: #1f2937;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-blue-600 text-white py-6 px-8 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold">📦 訂單中心 SOP 操作手冊</h1>
+                <p class="text-blue-100 mt-1">JCO ERP System v1.0</p>
+            </div>
+            <div class="text-right text-sm">
+                <p>建立日期：2026-03-10</p>
+                <p>版本：1.0</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-8">
+        <!-- 目錄 -->
+        <nav class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-lg font-bold mb-4">📑 目錄</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <a href="#overview" class="text-blue-600 hover:underline">1. 功能總覽</a>
+                <a href="#tabs" class="text-blue-600 hover:underline">2. Tab 功能說明</a>
+                <a href="#new-order" class="text-blue-600 hover:underline">3. 新增訂單</a>
+                <a href="#edit-order" class="text-blue-600 hover:underline">4. 編輯訂單</a>
+                <a href="#shipment" class="text-blue-600 hover:underline">5. 出貨追蹤</a>
+                <a href="#packing" class="text-blue-600 hover:underline">6. 裝箱管理</a>
+                <a href="#reports" class="text-blue-600 hover:underline">7. 訂單報表</a>
+                <a href="#buttons" class="text-blue-600 hover:underline">8. 按鈕對照表</a>
+            </div>
+        </nav>
+
+        <!-- 1. 功能總覽 -->
+        <section id="overview" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">1. 功能總覽</h2>
+            
+            <p class="mb-4">訂單中心是 JCO ERP 的核心模組，負責管理所有客戶訂單的生命週期。</p>
+            
+            <div class="mb-6">
+                <h3 class="font-bold mb-2">📍 進入方式</h3>
+                <p>開啟 <span class="button-ref">erp-order-center.html</span> 或從 Dashboard 點擊「訂單中心」</p>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="font-bold mb-2">🖥️ 首頁畫面</h3>
+                <img src="screenshots/clean-01-order-center.png" alt="訂單中心首頁" class="screenshot">
+                <p class="text-sm text-gray-500 mt-2">▲ 訂單中心首頁，顯示訂單列表和統計卡片</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-blue-600">5</div>
+                    <div class="text-sm">Tab 分頁</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-green-600">3</div>
+                    <div class="text-sm">主要按鈕</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-purple-600">6</div>
+                    <div class="text-sm">訂單狀態</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-orange-600">2</div>
+                    <div class="text-sm">Modal 彈窗</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-red-600">∞</div>
+                    <div class="text-sm">訂單數量</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Tab 功能說明 -->
+        <section id="tabs" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">2. Tab 功能說明</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3">Tab 名稱</th>
+                            <th class="p-3">功能</th>
+                            <th class="p-3">使用時機</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">📋 訂單列表</td>
+                            <td class="p-3">表格顯示所有訂單，可搜尋、篩選、排序</td>
+                            <td class="p-3">查看/搜尋訂單</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">🏗️ 看板視圖</td>
+                            <td class="p-3">拖拉式看板，按狀態分欄</td>
+                            <td class="p-3">追蹤進度、改狀態</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">🚚 出貨追蹤</td>
+                            <td class="p-3">管理出貨批次、船運資訊</td>
+                            <td class="p-3">安排出貨、追蹤貨櫃</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">📦 裝箱管理</td>
+                            <td class="p-3">設定產品裝箱規格</td>
+                            <td class="p-3">規劃裝箱數量</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">📈 訂單報表</td>
+                            <td class="p-3">統計圖表、績效分析</td>
+                            <td class="p-3">週報/月報分析</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. 新增訂單 -->
+        <section id="new-order" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">3. 新增訂單流程</h2>
+            
+            <!-- 步驟 1 -->
+            <div class="step-box p-4 rounded-lg mb-6">
+                <h3 class="font-bold text-lg mb-2">步驟 1：點擊「+ 新增訂單」按鈕</h3>
+                <p class="mb-3">在頁面右上角找到藍色的「+ 新增訂單」按鈕並點擊。</p>
+                <div class="bg-yellow-50 p-3 rounded-lg mb-3">
+                    <strong>📍 按鈕位置：</strong> 頁面右上角，匯出報表按鈕旁邊
+                </div>
+            </div>
+
+            <!-- 步驟 2 -->
+            <div class="step-box p-4 rounded-lg mb-6">
+                <h3 class="font-bold text-lg mb-2">步驟 2：填寫訂單資料</h3>
+                <img src="screenshots/clean-02-new-order-modal.png" alt="新增訂單 Modal" class="screenshot mb-4">
+                <p class="text-sm text-gray-500 mb-4">▲ 新增訂單表單（Modal 彈窗）</p>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">📝 基本資訊</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><span class="button-ref">訂單號</span> — 自動產生（如 PO-2026-006）</li>
+                            <li><span class="button-ref">客戶 *</span> — 下拉選單選擇客戶</li>
+                            <li><span class="button-ref">交期 *</span> — 選擇交貨日期</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <h4 class="font-bold mb-2">📋 產品項目</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><span class="button-ref">產品型號 *</span> — 輸入如 B36, W3030</li>
+                            <li><span class="button-ref">數量 *</span> — 輸入數字</li>
+                            <li><span class="button-ref">單價 USD</span> — 輸入單價</li>
+                            <li><span class="button-ref">小計</span> — 自動計算</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步驟 3 -->
+            <div class="step-box p-4 rounded-lg mb-6">
+                <h3 class="font-bold text-lg mb-2">步驟 3：新增多個產品（選用）</h3>
+                <p>如果一張訂單有多種產品，點擊「+ 新增項目」按鈕增加行。</p>
+            </div>
+
+            <!-- 步驟 4 -->
+            <div class="step-box p-4 rounded-lg">
+                <h3 class="font-bold text-lg mb-2">步驟 4：點擊「建立訂單」</h3>
+                <p>確認資料無誤後，點擊右下角的藍色「建立訂單」按鈕。</p>
+                <div class="bg-green-50 p-3 rounded-lg mt-3">
+                    <strong>✅ 成功：</strong> 訂單會出現在列表中，狀態為「草稿」
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 編輯訂單 -->
+        <section id="edit-order" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">4. 編輯訂單</h2>
+            
+            <div class="step-box p-4 rounded-lg mb-4">
+                <h3 class="font-bold mb-2">操作方式</h3>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li>在訂單列表中<strong>點擊任一訂單行</strong></li>
+                    <li>Modal 會開啟並載入該訂單資料</li>
+                    <li>修改需要的欄位</li>
+                    <li>點擊「更新訂單」儲存</li>
+                </ol>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <strong>⚠️ 注意：</strong> 已出貨的訂單無法編輯
+            </div>
+        </section>
+
+        <!-- 5. 出貨追蹤 -->
+        <section id="shipment" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">5. 出貨追蹤</h2>
+            
+            <img src="screenshots/04-shipment-tracking.png" alt="出貨追蹤" class="screenshot mb-4">
+            <p class="text-sm text-gray-500 mb-4">▲ 出貨追蹤介面</p>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg border">
+                    <h4 class="font-bold mb-2">🚢 功能</h4>
+                    <ul class="space-y-1 text-sm">
+                        <li>• 新增出貨批次</li>
+                        <li>• 追蹤貨櫃編號</li>
+                        <li>• 記錄 ETD/ETA</li>
+                        <li>• 更新出貨狀態</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <h4 class="font-bold mb-2">📊 狀態</h4>
+                    <ul class="space-y-1 text-sm">
+                        <li>🟡 待裝櫃</li>
+                        <li>🔵 運輸中</li>
+                        <li>🟢 已抵達</li>
+                        <li>✅ 已簽收</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 裝箱管理 -->
+        <section id="packing" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">6. 裝箱管理</h2>
+            
+            <img src="screenshots/05-packing-management.png" alt="裝箱管理" class="screenshot mb-4">
+            <p class="text-sm text-gray-500 mb-4">▲ 裝箱管理介面</p>
+
+            <div class="step-box p-4 rounded-lg">
+                <h3 class="font-bold mb-2">用途</h3>
+                <p>設定每種產品的裝箱規格（每箱幾件、箱子尺寸、重量等），方便計算出貨所需箱數和貨櫃空間。</p>
+            </div>
+        </section>
+
+        <!-- 7. 訂單報表 -->
+        <section id="reports" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">7. 訂單報表</h2>
+            
+            <img src="screenshots/06-order-reports.png" alt="訂單報表" class="screenshot mb-4">
+            <p class="text-sm text-gray-500 mb-4">▲ 訂單報表介面</p>
+
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-bold mb-2">📊 統計數據</h4>
+                    <p class="text-sm">總訂單數、總金額、平均單價</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="font-bold mb-2">📈 圖表分析</h4>
+                    <p class="text-sm">月度趨勢、客戶分佈</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h4 class="font-bold mb-2">📋 明細表</h4>
+                    <p class="text-sm">可匯出 Excel</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. 按鈕對照表 -->
+        <section id="buttons" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">8. 按鈕對照表</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3">按鈕名稱</th>
+                            <th class="p-3">位置</th>
+                            <th class="p-3">功能</th>
+                            <th class="p-3">函數名稱</th>
+                            <th class="p-3">測試狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">+ 新增訂單</td>
+                            <td class="p-3">右上角</td>
+                            <td class="p-3">開啟新增訂單 Modal</td>
+                            <td class="p-3"><code>openNewOrder()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">📤 匯入訂單</td>
+                            <td class="p-3">右上角</td>
+                            <td class="p-3">從 Excel 匯入訂單</td>
+                            <td class="p-3"><code>handleExcelImport()</code></td>
+                            <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">⏳ 待測</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">📥 匯出報表</td>
+                            <td class="p-3">右上角</td>
+                            <td class="p-3">匯出訂單為 Excel</td>
+                            <td class="p-3"><code>exportOrders()</code></td>
+                            <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">⏳ 待測</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">建立訂單</td>
+                            <td class="p-3">Modal 內</td>
+                            <td class="p-3">儲存新訂單</td>
+                            <td class="p-3"><code>addOrder()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">取消</td>
+                            <td class="p-3">Modal 內</td>
+                            <td class="p-3">關閉 Modal</td>
+                            <td class="p-3"><code>closeOrderModal()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">+ 新增項目</td>
+                            <td class="p-3">Modal 產品區</td>
+                            <td class="p-3">新增一行產品</td>
+                            <td class="p-3"><code>addOrderItem()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">🗑️ 刪除項目</td>
+                            <td class="p-3">Modal 產品行</td>
+                            <td class="p-3">刪除一行產品</td>
+                            <td class="p-3"><code>removeOrderItem()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">Tab 切換</td>
+                            <td class="p-3">上方導航</td>
+                            <td class="p-3">切換不同視圖</td>
+                            <td class="p-3"><code>switchTab()</code></td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ 通過</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">登出</td>
+                            <td class="p-3">右上角</td>
+                            <td class="p-3">登出系統</td>
+                            <td class="p-3"><code>logout()</code></td>
+                            <td class="p-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">⏳ 待測</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm py-8">
+            <p>JCO ERP System - 訂單中心 SOP 操作手冊</p>
+            <p>© 2026 JCO Wood. All rights reserved.</p>
+            <p class="mt-2">文件產生：Jaz AI Assistant</p>
+        </footer>
+    </div>
+</body>
+</html>

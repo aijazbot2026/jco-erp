@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JCO ERP 操作手冊</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f6f3;
+            --text-primary: #37352f;
+            --text-secondary: #787774;
+            --border: #e9e9e7;
+            --accent: #2383e2;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        h1 .emoji { font-size: 48px; }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 48px;
+        }
+        .toc {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 48px;
+        }
+        .toc h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 24px;
+        }
+        .toc-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .toc-item:hover { color: var(--accent); }
+        .toc-item .num {
+            background: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .section {
+            margin-bottom: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .section:first-of-type { border-top: none; padding-top: 0; }
+        .section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section h2 .emoji { font-size: 32px; }
+        .section .desc {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+        .screenshot {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .screenshot img {
+            width: 100%;
+            display: block;
+        }
+        .features {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px 24px;
+        }
+        .features h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .features ul {
+            list-style: none;
+        }
+        .features li {
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .features li::before {
+            content: "✓";
+            color: #0f7b6c;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span class="emoji">📖</span>
+            JCO ERP 操作手冊
+        </h1>
+        <p class="subtitle">Notion 風格版本 · 完整模組操作指南</p>
+        
+        <nav class="toc">
+            <h2>📑 目錄</h2>
+            <div class="toc-list">
+                <a href="#dashboard" class="toc-item"><span class="num">01</span> 🏠 儀表板</a>
+                <a href="#order" class="toc-item"><span class="num">02</span> 📦 訂單中心</a>
+                <a href="#cost" class="toc-item"><span class="num">03</span> 💰 成本中心</a>
+                <a href="#procurement" class="toc-item"><span class="num">04</span> 🛒 採購管理</a>
+                <a href="#inventory" class="toc-item"><span class="num">05</span> 📊 庫存中心</a>
+                <a href="#production" class="toc-item"><span class="num">06</span> 🏭 生產中心</a>
+                <a href="#quality" class="toc-item"><span class="num">07</span> 🔍 品質中心</a>
+                <a href="#hr" class="toc-item"><span class="num">08</span> 👥 人事中心</a>
+            </div>
+        </nav>
+        
+        <section id="dashboard" class="section">
+            <h2><span class="emoji">🏠</span> 儀表板</h2>
+            <p class="desc">系統首頁，提供營運概覽、KPI 指標、快速入口及待辦事項。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/01-dashboard.png" alt="儀表板">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>本月訂單、營收、生產中等 KPI 卡片</li>
+                    <li>快速進入各模組入口</li>
+                    <li>今日待辦清單</li>
+                    <li>最近動態追蹤</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="order" class="section">
+            <h2><span class="emoji">📦</span> 訂單中心</h2>
+            <p class="desc">管理客戶訂單全生命週期，從下單到出貨追蹤。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/02-order-center.png" alt="訂單中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>新增、編輯、刪除訂單</li>
+                    <li>訂單狀態追蹤（待確認→生產中→已出貨）</li>
+                    <li>匯入/匯出訂單資料</li>
+                    <li>進度視覺化顯示</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="cost" class="section">
+            <h2><span class="emoji">💰</span> 成本中心</h2>
+            <p class="desc">成本核算、BOM 計算、報價管理。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/03-cost-center.png" alt="成本中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>櫥櫃成本計算</li>
+                    <li>抽屜盒報價</li>
+                    <li>材料/五金成本管理</li>
+                    <li>BOM 物料清單</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="procurement" class="section">
+            <h2><span class="emoji">🛒</span> 採購管理</h2>
+            <p class="desc">供應商管理、價格追蹤、採購單。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/04-procurement.png" alt="採購管理">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>供應商資料管理</li>
+                    <li>材料價格追蹤</li>
+                    <li>價格歷史紀錄</li>
+                    <li>採購單管理</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="inventory" class="section">
+            <h2><span class="emoji">📊</span> 庫存中心</h2>
+            <p class="desc">庫存管理、進出記錄、安全庫存。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/05-inventory.png" alt="庫存中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>庫存總覽</li>
+                    <li>進貨/出貨記錄</li>
+                    <li>安全庫存警示</li>
+                    <li>盤點管理</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="production" class="section">
+            <h2><span class="emoji">🏭</span> 生產中心</h2>
+            <p class="desc">生產排程、工單管理、產能規劃。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/06-production.png" alt="生產中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>生產排程管理</li>
+                    <li>工單追蹤</li>
+                    <li>產能監控</li>
+                    <li>進度看板</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="quality" class="section">
+            <h2><span class="emoji">🔍</span> 品質中心</h2>
+            <p class="desc">品質管理、不良品追蹤、QC 報告。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/07-quality.png" alt="品質中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>品質問題記錄</li>
+                    <li>不良品追蹤</li>
+                    <li>QC 報告產出</li>
+                    <li>趨勢分析</li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="hr" class="section">
+            <h2><span class="emoji">👥</span> 人事中心</h2>
+            <p class="desc">員工管理、出勤、薪資計算。</p>
+            <div class="screenshot">
+                <img src="screenshots/notion-clean/08-hr.png" alt="人事中心">
+            </div>
+            <div class="features">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>員工資料管理</li>
+                    <li>出勤記錄</li>
+                    <li>薪資計算</li>
+                    <li>組織架構</li>
+                </ul>
+            </div>
+        </section>
+        
+        <footer class="footer">
+            JCO ERP System · Notion Style · 2026<br>
+            Generated by Jaz ⚡
+        </footer>
+    </div>
+</body>
+</html>

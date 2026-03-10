@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 訂單中心 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JCO API 連接器 -->
+    <script src="api-connector.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .status-draft { background: #f3f4f6; color: #374151; }
+        .status-confirmed { background: #dbeafe; color: #1e40af; }
+        .status-production { background: #fef3c7; color: #92400e; }
+        .status-qc { background: #e0e7ff; color: #3730a3; }
+        .status-packing { background: #fce7f3; color: #9d174d; }
+        .status-shipped { background: #d1fae5; color: #065f46; }
+        .status-delivered { background: #ccfbf1; color: #115e59; }
+        .kanban-card { transition: transform 0.1s, box-shadow 0.1s; }
+        .kanban-card:active { cursor: grabbing; transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .kanban-column { transition: all 0.2s; }
+        
+        /* API 連線狀態指示器 */
+        #connection-indicator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="erp-dashboard.html" class="text-gray-400 hover:text-gray-600" title="返回主控台">🏠</a>
+                <span class="text-2xl">📦</span>
+                <h1 class="text-xl font-bold text-gray-800">訂單中心</h1>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">JCO ERP</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="importExcel()" class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50 flex items-center gap-2">
+                    📤 匯入訂單
+                </button>
+                <button onclick="exportOrders()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center gap-2">
+                    📥 匯出報表
+                </button>
+                <button onclick="openNewOrder()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center gap-2">
+                    + 新增訂單
+                </button>
+                <div class="border-l pl-3 ml-2">
+                    <span class="text-sm text-gray-600" id="current-user">-</span>
+                    <button onclick="logout()" class="ml-2 text-red-500 hover:text-red-700 text-sm">登出</button>
+                </div>
+            </div>
+        </div>
+        <!-- Sub Tabs -->
+        <div class="max-w-7xl mx-auto px-4 flex gap-6 border-t">
+            <button onclick="switchTab('list')" id="tab-list" class="py-3 px-1 text-sm font-medium tab-active">📋 訂單列表</button>
+            <button onclick="switchTab('kanban')" id="tab-kanban" class="py-3 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">📊 看板視圖</button>
+            <button onclick="switchTab('shipping')" id="tab-shipping" class="py-3 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">🚚 出貨追蹤</button>
+            <button onclick="switchTab('packing')" id="tab-packing" class="py-3 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">📦 裝箱管理</button>
+            <button onclick="switchTab('report')" id="tab-report" class="py-3 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">📈 訂單報表</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- 統計卡片 -->
+        <div class="grid grid-cols-6 gap-4 mb-6">
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-gray-800" id="stat-total">0</div>
+                <div class="text-xs text-gray-500">總訂單</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600" id="stat-confirmed">0</div>
+                <div class="text-xs text-gray-500">已確認</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600" id="stat-production">0</div>
+                <div class="text-xs text-gray-500">生產中</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600" id="stat-qc">0</div>
+                <div class="text-xs text-gray-500">待驗貨</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-pink-600" id="stat-packing">0</div>
+                <div class="text-xs text-gray-500">裝箱中</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-green-600" id="stat-shipped">0</div>
+                <div class="text-xs text-gray-500">已出貨</div>
+            </div>
+        </div>
+
+        <!-- 訂單列表 -->
+        <div id="panel-list" class="tab-panel">
+            <div class="card p-6">
+                <!-- 篩選區 -->
+                <div class="flex items-center gap-4 mb-4">
+                    <input type="text" id="search" placeholder="搜尋訂單號/客戶..." class="px-4 py-2 border rounded-lg flex-1" onkeyup="filterOrders()">
+                    <select id="filter-status" class="px-4 py-2 border rounded-lg" onchange="filterOrders()">
+                        <option value="">全部狀態</option>
+                        <option value="draft">草稿</option>
+                        <option value="confirmed">已確認</option>
+                        <option value="production">生產中</option>
+                        <option value="qc">待驗貨</option>
+                        <option value="packing">裝箱中</option>
+                        <option value="shipped">已出貨</option>
+                        <option value="delivered">已交付</option>
+                    </select>
+                    <select id="filter-customer" class="px-4 py-2 border rounded-lg" onchange="filterOrders()">
+                        <option value="">全部客戶</option>
+                    </select>
+                </div>
+
+                <!-- 訂單表格 -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left py-3 px-4">訂單號</th>
+                                <th class="text-left py-3 px-4">客戶</th>
+                                <th class="text-left py-3 px-4">產品</th>
+                                <th class="text-right py-3 px-4">數量</th>
+                                <th class="text-right py-3 px-4">金額</th>
+                                <th class="text-left py-3 px-4">交期</th>
+                                <th class="text-left py-3 px-4">狀態</th>
+                                <th class="text-left py-3 px-4">進度</th>
+                                <th class="py-3 px-4">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            <!-- 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 看板視圖 -->
+        <div id="panel-kanban" class="tab-panel hidden">
+            <div class="grid grid-cols-6 gap-4">
+                <!-- 草稿 -->
+                <div class="bg-gray-100 rounded-xl p-4 min-h-[500px] kanban-column" data-status="draft" ondragover="onDragOver(event)" ondrop="onDrop(event, 'draft')">
+                    <h3 class="font-semibold text-gray-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-gray-400 rounded-full"></span>
+                        草稿 <span class="text-xs bg-gray-300 px-2 rounded-full" id="kanban-draft">0</span>
+                    </h3>
+                    <div id="kanban-col-draft" class="space-y-2 min-h-[400px]"></div>
+                </div>
+                <!-- 已確認 -->
+                <div class="bg-blue-50 rounded-xl p-4 min-h-[500px] kanban-column" data-status="confirmed" ondragover="onDragOver(event)" ondrop="onDrop(event, 'confirmed')">
+                    <h3 class="font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        已確認 <span class="text-xs bg-blue-200 px-2 rounded-full" id="kanban-confirmed">0</span>
+                    </h3>
+                    <div id="kanban-col-confirmed" class="space-y-2 min-h-[400px]"></div>
+                </div>
+                <!-- 生產中 -->
+                <div class="bg-yellow-50 rounded-xl p-4 min-h-[500px] kanban-column" data-status="production" ondragover="onDragOver(event)" ondrop="onDrop(event, 'production')">
+                    <h3 class="font-semibold text-yellow-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                        生產中 <span class="text-xs bg-yellow-200 px-2 rounded-full" id="kanban-production">0</span>
+                    </h3>
+                    <div id="kanban-col-production" class="space-y-2 min-h-[400px]"></div>
+                </div>
+                <!-- 待驗貨 -->
+                <div class="bg-purple-50 rounded-xl p-4 min-h-[500px] kanban-column" data-status="qc" ondragover="onDragOver(event)" ondrop="onDrop(event, 'qc')">
+                    <h3 class="font-semibold text-purple-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-purple-500 rounded-full"></span>
+                        待驗貨 <span class="text-xs bg-purple-200 px-2 rounded-full" id="kanban-qc">0</span>
+                    </h3>
+                    <div id="kanban-col-qc" class="space-y-2 min-h-[400px]"></div>
+                </div>
+                <!-- 裝箱中 -->
+                <div class="bg-pink-50 rounded-xl p-4 min-h-[500px] kanban-column" data-status="packing" ondragover="onDragOver(event)" ondrop="onDrop(event, 'packing')">
+                    <h3 class="font-semibold text-pink-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-pink-500 rounded-full"></span>
+                        裝箱中 <span class="text-xs bg-pink-200 px-2 rounded-full" id="kanban-packing">0</span>
+                    </h3>
+                    <div id="kanban-col-packing" class="space-y-2 min-h-[400px]"></div>
+                </div>
+                <!-- 已出貨 -->
+                <div class="bg-green-50 rounded-xl p-4 min-h-[500px] kanban-column" data-status="shipped" ondragover="onDragOver(event)" ondrop="onDrop(event, 'shipped')">
+                    <h3 class="font-semibold text-green-600 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        已出貨 <span class="text-xs bg-green-200 px-2 rounded-full" id="kanban-shipped">0</span>
+                    </h3>
+                    <div id="kanban-col-shipped" class="space-y-2 min-h-[400px]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 出貨追蹤 -->
+        <div id="panel-shipping" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">🚚 出貨追蹤</h2>
+                    <button onclick="showNewShipmentModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">+ 新增出貨</button>
+                </div>
+                
+                <!-- 出貨統計 -->
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-yellow-600" id="ship-stat-pending">0</div>
+                        <div class="text-xs text-yellow-800">待裝櫃</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-blue-600" id="ship-stat-sailing">0</div>
+                        <div class="text-xs text-blue-800">運輸中</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-purple-600" id="ship-stat-arrived">0</div>
+                        <div class="text-xs text-purple-800">已到港</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-green-600" id="ship-stat-delivered">0</div>
+                        <div class="text-xs text-green-800">已簽收</div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left py-3 px-4">訂單號</th>
+                                <th class="text-left py-3 px-4">客戶</th>
+                                <th class="text-left py-3 px-4">櫃號</th>
+                                <th class="text-left py-3 px-4">船公司</th>
+                                <th class="text-left py-3 px-4">ETD</th>
+                                <th class="text-left py-3 px-4">ETA</th>
+                                <th class="text-left py-3 px-4">狀態</th>
+                                <th class="text-center py-3 px-4">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shipping-table">
+                            <tr><td colspan="8" class="text-center py-8 text-gray-400">暫無出貨記錄，點擊「+ 新增出貨」開始</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 新增出貨 Modal -->
+        <div id="shipment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">🚚 新增出貨記錄</h3>
+                    <button onclick="closeShipmentModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">關聯訂單 *</label>
+                            <select id="ship-order" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="">選擇訂單...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">客戶</label>
+                            <input type="text" id="ship-customer" class="w-full px-3 py-2 border rounded-lg bg-gray-50" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">櫃號 *</label>
+                            <input type="text" id="ship-container" class="w-full px-3 py-2 border rounded-lg" placeholder="ABCD1234567">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">船公司</label>
+                            <select id="ship-carrier" class="w-full px-3 py-2 border rounded-lg">
+                                <option value="COSCO">COSCO 中遠</option>
+                                <option value="Evergreen">Evergreen 長榮</option>
+                                <option value="YangMing">Yang Ming 陽明</option>
+                                <option value="OOCL">OOCL 東方海外</option>
+                                <option value="MSC">MSC 地中海</option>
+                                <option value="Maersk">Maersk 馬士基</option>
+                                <option value="Other">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ETD（預計開船）</label>
+                            <input type="date" id="ship-etd" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ETA（預計到港）</label>
+                            <input type="date" id="ship-eta" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">狀態</label>
+                        <select id="ship-status" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="pending">📦 待裝櫃</option>
+                            <option value="loaded">🚛 已裝櫃</option>
+                            <option value="sailing">🚢 運輸中</option>
+                            <option value="arrived">⚓ 已到港</option>
+                            <option value="customs">📋 清關中</option>
+                            <option value="delivered">✅ 已簽收</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">備註</label>
+                        <textarea id="ship-note" class="w-full px-3 py-2 border rounded-lg" rows="2" placeholder="提單號、追蹤連結等..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button onclick="closeShipmentModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">取消</button>
+                    <button onclick="saveShipment()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 裝箱管理 -->
+        <div id="panel-packing" class="tab-panel hidden">
+            <!-- 產品包裝尺寸管理 -->
+            <div class="card p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">📦 產品包裝尺寸資料庫</h2>
+                    <button onclick="addPackagingSpec()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">+ 新增產品包裝</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="text-left py-2 px-3">產品型號</th>
+                                <th class="text-right py-2 px-3">長 cm</th>
+                                <th class="text-right py-2 px-3">寬 cm</th>
+                                <th class="text-right py-2 px-3">高 cm</th>
+                                <th class="text-right py-2 px-3">每箱 pcs</th>
+                                <th class="text-right py-2 px-3">毛重 kg</th>
+                                <th class="text-right py-2 px-3">材積 CBM</th>
+                                <th class="text-center py-2 px-3">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packaging-specs-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+                <!-- 訂單裝櫃模擬 -->
+                <div class="col-span-2 card p-6">
+                    <h2 class="text-lg font-semibold mb-4">🚛 訂單裝櫃模擬</h2>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">選擇訂單</label>
+                            <select id="pack-order" class="w-full px-3 py-2 border rounded-lg" onchange="simulateLoading()">
+                                <option value="">選擇訂單...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">貨櫃類型</label>
+                            <select id="container-type" class="w-full px-3 py-2 border rounded-lg" onchange="simulateLoading()">
+                                <option value="20GP">20' GP (內尺寸 589×235×239 cm)</option>
+                                <option value="40GP">40' GP (內尺寸 1203×235×239 cm)</option>
+                                <option value="40HQ" selected>40' HQ (內尺寸 1203×235×269 cm)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 3D 裝櫃預覽 -->
+                    <div class="bg-gray-900 rounded-xl p-4 mb-4" style="height: 300px;">
+                        <canvas id="container-3d" width="100%" height="100%"></canvas>
+                        <div id="loading-preview" class="h-full flex items-center justify-center text-gray-500">
+                            選擇訂單後顯示裝櫃方案
+                        </div>
+                    </div>
+
+                    <!-- 裝櫃明細 -->
+                    <div id="loading-detail" class="hidden">
+                        <h3 class="font-medium mb-2">📋 裝櫃明細</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="text-left py-2 px-2">產品</th>
+                                        <th class="text-right py-2 px-2">數量</th>
+                                        <th class="text-right py-2 px-2">箱數</th>
+                                        <th class="text-right py-2 px-2">材積</th>
+                                        <th class="text-left py-2 px-2">擺放方式</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loading-detail-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 計算結果 -->
+                <div class="card p-6 h-fit">
+                    <h2 class="text-lg font-semibold mb-4">📊 計算結果</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">訂單數量</span>
+                            <span class="font-medium" id="res-order-qty">0 pcs</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">總箱數</span>
+                            <span class="font-medium" id="res-boxes">0 箱</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">總材積</span>
+                            <span class="font-medium" id="res-cbm">0 CBM</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">貨櫃容量</span>
+                            <span class="font-medium" id="res-container-cap">76 CBM</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">可裝數量</span>
+                            <span class="font-bold text-lg text-blue-600" id="res-pcs">0 pcs</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">需要櫃數</span>
+                            <span class="font-bold text-lg" id="res-containers">0 櫃</span>
+                        </div>
+                        <div class="flex justify-between py-3 bg-green-50 rounded-lg px-3">
+                            <span class="text-green-700">空間利用率</span>
+                            <span class="font-bold text-green-700" id="res-util">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 space-y-2">
+                        <button onclick="optimizeLoading()" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            🔄 自動優化擺放
+                        </button>
+                        <button onclick="exportLoadingPlan()" class="w-full py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
+                            📤 匯出裝櫃計劃
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 手動計算 (舊功能保留) -->
+            <div class="card p-6 mt-6">
+                <details>
+                    <summary class="cursor-pointer font-medium text-gray-700">🔧 手動計算（單一尺寸）</summary>
+                    <div class="mt-4 grid grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">箱長 cm</label>
+                                    <input type="number" id="box-length" value="120" class="w-full px-3 py-2 border rounded-lg" onchange="calcContainer()">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">箱寬 cm</label>
+                                    <input type="number" id="box-width" value="60" class="w-full px-3 py-2 border rounded-lg" onchange="calcContainer()">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">箱高 cm</label>
+                                    <input type="number" id="box-height" value="80" class="w-full px-3 py-2 border rounded-lg" onchange="calcContainer()">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">每箱數量</label>
+                                <input type="number" id="pcs-per-box" value="2" class="w-full px-3 py-2 border rounded-lg" onchange="calcContainer()">
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between py-2 border-b"><span>每箱材積</span><span id="manual-cbm">0.576 CBM</span></div>
+                            <div class="flex justify-between py-2 border-b"><span>可裝箱數</span><span id="manual-boxes">0 箱</span></div>
+                            <div class="flex justify-between py-2"><span>可裝數量</span><span class="font-bold text-blue-600" id="manual-pcs">0 pcs</span></div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- 訂單報表 -->
+        <div id="panel-report" class="tab-panel hidden">
+            <!-- 頂部統計卡片 -->
+            <div class="grid grid-cols-5 gap-4 mb-6">
+                <div class="card p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="report-total">0</div>
+                    <div class="text-sm text-gray-500">本月訂單</div>
+                </div>
+                <div class="card p-4 text-center">
+                    <div class="text-3xl font-bold text-emerald-600" id="report-amount">$0</div>
+                    <div class="text-sm text-gray-500">訂單金額</div>
+                </div>
+                <div class="card p-4 text-center">
+                    <div class="text-3xl font-bold text-green-600" id="report-shipped">$0</div>
+                    <div class="text-sm text-gray-500">已出貨金額</div>
+                </div>
+                <div class="card p-4 text-center">
+                    <div class="text-3xl font-bold text-orange-600" id="report-avg">$0</div>
+                    <div class="text-sm text-gray-500">平均訂單</div>
+                </div>
+                <div class="card p-4 text-center">
+                    <div class="text-3xl font-bold" id="report-otd">0%</div>
+                    <div class="text-sm text-gray-500">達交率</div>
+                </div>
+            </div>
+            
+            <!-- 第二行：狀態分布 + 客戶排名 -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📊 訂單狀態分布</h2>
+                    <div id="status-distribution" class="space-y-3">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">👥 客戶排名 TOP 5</h2>
+                    <div id="customer-ranking" class="space-y-3">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第三行：產品排名 + 交期分析 -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📦 熱銷產品 TOP 10</h2>
+                    <div id="product-ranking" class="space-y-2">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">⏰ 交期分析</h2>
+                    <div id="delivery-analysis" class="space-y-3">
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">已逾期訂單</span>
+                            <span class="font-bold text-red-600" id="report-overdue">0</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">7天內到期</span>
+                            <span class="font-bold text-orange-600" id="report-due-soon">0</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-gray-600">平均交期天數</span>
+                            <span class="font-bold" id="report-avg-days">0 天</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-600">準時交貨率</span>
+                            <span class="font-bold text-green-600" id="report-ontime-rate">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第四行：最近訂單 -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">📋 最近訂單</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="text-left py-2 px-3">訂單號</th>
+                                <th class="text-left py-2 px-3">客戶</th>
+                                <th class="text-left py-2 px-3">產品</th>
+                                <th class="text-right py-2 px-3">數量</th>
+                                <th class="text-right py-2 px-3">金額</th>
+                                <th class="text-center py-2 px-3">狀態</th>
+                                <th class="text-left py-2 px-3">交期</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders-table">
+                            <!-- 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新增訂單彈窗 (支援多 SKU) -->
+    <div id="order-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b flex items-center justify-between sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-semibold" id="order-modal-title">📦 新增訂單</h3>
+                <button onclick="closeOrderModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
+            </div>
+            <form id="order-form" class="p-6 space-y-4">
+                <!-- 訂單基本資訊 -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">訂單號 *</label>
+                        <input type="text" id="order-no" required class="w-full px-3 py-2 border rounded-lg" placeholder="PO-2026-XXX">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">客戶 *</label>
+                        <select id="order-customer" required class="w-full px-3 py-2 border rounded-lg">
+                            <option value="CI">CI</option>
+                            <option value="Other">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">交期 *</label>
+                        <input type="date" id="order-delivery" required class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                </div>
+
+                <!-- 產品項目 (多行) -->
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-medium text-gray-700">📋 產品項目</h4>
+                        <button type="button" onclick="addOrderItem()" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">+ 新增項目</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="text-left py-2 px-2 w-1/4">產品型號 *</th>
+                                    <th class="text-right py-2 px-2 w-1/6">數量 *</th>
+                                    <th class="text-right py-2 px-2 w-1/6">單價 USD</th>
+                                    <th class="text-right py-2 px-2 w-1/6">小計</th>
+                                    <th class="text-center py-2 px-2 w-16">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-items-table">
+                                <!-- 動態生成 -->
+                            </tbody>
+                            <tfoot class="bg-gray-100">
+                                <tr>
+                                    <td class="py-2 px-2 font-medium">合計</td>
+                                    <td class="py-2 px-2 text-right font-bold" id="order-total-qty">0 pcs</td>
+                                    <td class="py-2 px-2"></td>
+                                    <td class="py-2 px-2 text-right font-bold text-blue-600" id="order-total-amount">$0</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">備註</label>
+                    <textarea id="order-notes" rows="2" class="w-full px-3 py-2 border rounded-lg" placeholder="特殊要求..."></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeOrderModal()" class="px-6 py-2 border rounded-lg hover:bg-gray-50">取消</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                        建立訂單
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 隱藏的檔案輸入 -->
+    <input type="file" id="excel-input" accept=".xlsx,.xls" class="hidden" onchange="handleExcelImport(event)">
+
+    <script>
+        // ====== 權限檢查 ======
+        // === JCO_API 安全檢查 ===
+        if (typeof JCO_API === 'undefined') {
+            console.warn('JCO_API 未載入，使用本地模式');
+            window.JCO_API = {
+                isOnline: false,
+                async getSheetData(key) { 
+                    return JSON.parse(localStorage.getItem('jco-' + key) || '[]'); 
+                },
+                async appendToSheet(key, data) { 
+                    const arr = JSON.parse(localStorage.getItem('jco-' + key) || '[]');
+                    arr.push(data);
+                    localStorage.setItem('jco-' + key, JSON.stringify(arr));
+                    return { status: 'ok' };
+                },
+                async apiCall(action, params) { 
+                    console.log('離線模式:', action, params);
+                    return { status: 'ok' }; 
+                }
+            };
+        }
+        function checkAuth() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (!session) {
+                window.location.href = 'erp-login.html';
+                return null;
+            }
+            // 檢查是否有權限訪問訂單中心
+            const allowedDepts = ['admin', 'sales', 'quality'];
+            if (!allowedDepts.includes(session.dept)) {
+                alert('您沒有權限訪問此頁面');
+                window.location.href = 'erp-dashboard.html';
+                return null;
+            }
+            return session;
+        }
+        
+        function logout() {
+            localStorage.removeItem('JCO_ERP_SESSION');
+            window.location.href = 'erp-login.html';
+        }
+
+        const currentSession = checkAuth();
+        if (currentSession) {
+            document.getElementById('current-user').textContent = currentSession.name;
+        }
+
+        // 資料
+        let orders = [];
+        let currentOrderItems = []; // 暫存當前編輯的訂單項目
+
+        // 載入訂單資料
+        async function loadOrdersData() {
+            try {
+                orders = await JCO_API.getSheetData('orders') || [];
+                
+                // 如果 API 沒資料，建立示範資料
+                if (orders.length === 0) {
+            orders = [
+                { 
+                    id: 1, orderNo: 'PO-2026-001', customer: 'CI', delivery: '2026-02-28', 
+                    status: 'shipped', progress: 100, notes: '', createdAt: '2026-02-01',
+                    items: [
+                        { product: 'B36', qty: 100, price: 85 },
+                        { product: 'W3030', qty: 80, price: 65 },
+                        { product: 'VB36', qty: 20, price: 95 }
+                    ]
+                },
+                { 
+                    id: 2, orderNo: 'PO-2026-002', customer: 'CI', delivery: '2026-02-25', 
+                    status: 'confirmed', progress: 10, notes: '', createdAt: '2026-02-03',
+                    items: [
+                        { product: 'W3030', qty: 150, price: 65 }
+                    ]
+                },
+                { 
+                    id: 3, orderNo: 'PO-2026-003', customer: 'CI', delivery: '2026-03-05', 
+                    status: 'draft', progress: 0, notes: '新樣式', createdAt: '2026-02-05',
+                    items: [
+                        { product: 'VB36', qty: 50, price: 95 },
+                        { product: 'SB36', qty: 50, price: 110 }
+                    ]
+                },
+                { 
+                    id: 4, orderNo: 'PO-2026-004', customer: 'CI', delivery: '2026-02-20', 
+                    status: 'qc', progress: 80, notes: '', createdAt: '2026-01-25',
+                    items: [
+                        { product: 'SB36', qty: 80, price: 110 }
+                    ]
+                },
+                { 
+                    id: 5, orderNo: 'PO-2026-005', customer: 'CI', delivery: '2026-02-15', 
+                    status: 'shipped', progress: 100, notes: '抽屜盒', createdAt: '2026-01-20',
+                    items: [
+                        { product: 'Drawer Box', qty: 500, price: 12 }
+                    ]
+                },
+            ];
+            // 將示範資料儲存到 API
+            for (const order of orders) {
+                await JCO_API.appendToSheet('orders', order);
+            }
+        }
+                } catch (error) {
+                    console.error('載入訂單資料失敗:', error);
+                    // fallback 到 localStorage
+                    orders = JSON.parse(localStorage.getItem('jco-orders') || '[]');
+                }
+                
+                // 相容舊資料格式 (單一 product/qty/price → items 陣列)
+                orders = orders.map(o => {
+                    if (!o.items && o.product) {
+                        o.items = [{ product: o.product, qty: o.qty, price: o.price }];
+                    }
+                    return o;
+                });
+                
+                renderAll();
+            }
+
+        // 計算訂單總數量和金額
+        function getOrderTotals(order) {
+            const items = order.items || [];
+            const totalQty = items.reduce((sum, item) => sum + (item.qty || 0), 0);
+            const totalAmount = items.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
+            return { totalQty, totalAmount };
+        }
+
+        // 取得訂單產品摘要
+        function getOrderProductSummary(order) {
+            const items = order.items || [];
+            if (items.length === 0) return '-';
+            if (items.length === 1) return items[0].product;
+            return items[0].product + ' +' + (items.length - 1);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 等待 API 連接器載入
+            setTimeout(async () => {
+                await loadOrdersData();
+                await loadPackagingSpecs();
+                await loadShipmentsData();
+                calcContainer();
+                
+                document.getElementById('order-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    addOrder();
+                });
+            }, 100);
+        });
+
+        // Tab 切換
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+
+            if (tab === 'kanban') renderKanban();
+            if (tab === 'packing') {
+                renderPackagingSpecs();
+                updatePackOrderSelect();
+            }
+        }
+
+        // 渲染所有
+        function renderAll() {
+            renderStats();
+            renderOrdersTable();
+            renderKanban();
+            renderReport();
+            renderPackagingSpecs();
+            updatePackOrderSelect();
+        }
+
+        // 統計
+        function renderStats() {
+            document.getElementById('stat-total').textContent = orders.length;
+            document.getElementById('stat-confirmed').textContent = orders.filter(o => o.status === 'confirmed').length;
+            document.getElementById('stat-production').textContent = orders.filter(o => o.status === 'production').length;
+            document.getElementById('stat-qc').textContent = orders.filter(o => o.status === 'qc').length;
+            document.getElementById('stat-packing').textContent = orders.filter(o => o.status === 'packing').length;
+            document.getElementById('stat-shipped').textContent = orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length;
+        }
+
+        // 訂單表格
+        function renderOrdersTable() {
+            const tbody = document.getElementById('orders-table');
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-400">暫無訂單</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(o => {
+                const { totalQty, totalAmount } = getOrderTotals(o);
+                const productSummary = getOrderProductSummary(o);
+                const itemCount = (o.items || []).length;
+                
+                return `
+                <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="editOrder(${o.id})">
+                    <td class="py-3 px-4 font-medium">${o.orderNo}</td>
+                    <td class="py-3 px-4">${o.customer}</td>
+                    <td class="py-3 px-4">
+                        <span title="${(o.items || []).map(i => i.product + ' ×' + i.qty).join('\n')}">${productSummary}</span>
+                        ${itemCount > 1 ? `<span class="ml-1 text-xs text-gray-400">(${itemCount} SKU)</span>` : ''}
+                    </td>
+                    <td class="py-3 px-4 text-right">${totalQty.toLocaleString()}</td>
+                    <td class="py-3 px-4 text-right">$${totalAmount.toLocaleString()}</td>
+                    <td class="py-3 px-4">${o.delivery}</td>
+                    <td class="py-3 px-4">
+                        <span class="text-xs px-2 py-1 rounded-full status-${o.status}">${getStatusText(o.status)}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="w-20 bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${o.progress}%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4" onclick="event.stopPropagation()">
+                        <select class="text-xs border rounded px-2 py-1" onchange="updateStatus(${o.id}, this.value)">
+                            <option value="draft" ${o.status === 'draft' ? 'selected' : ''}>草稿</option>
+                            <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>已確認</option>
+                            <option value="production" ${o.status === 'production' ? 'selected' : ''}>生產中</option>
+                            <option value="qc" ${o.status === 'qc' ? 'selected' : ''}>待驗貨</option>
+                            <option value="packing" ${o.status === 'packing' ? 'selected' : ''}>裝箱中</option>
+                            <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>已出貨</option>
+                        </select>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        // 看板視圖
+        // 拖拉功能
+        let draggedOrderId = null;
+
+        function onDragStart(e, orderId) {
+            draggedOrderId = orderId;
+            e.target.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onDragEnd(e) {
+            e.target.style.opacity = '1';
+            // 移除所有列的高亮
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.classList.remove('ring-2', 'ring-blue-400');
+            });
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            // 高亮目標列
+            const col = e.currentTarget;
+            col.classList.add('ring-2', 'ring-blue-400');
+        }
+
+        function onDragLeave(e) {
+            e.currentTarget.classList.remove('ring-2', 'ring-blue-400');
+        }
+
+        function onDrop(e, newStatus) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('ring-2', 'ring-blue-400');
+            
+            if (draggedOrderId) {
+                const order = orders.find(o => o.id === draggedOrderId);
+                if (order && order.status !== newStatus) {
+                    order.status = newStatus;
+                    // 更新進度
+                    const progressMap = { draft: 0, confirmed: 10, production: 40, qc: 70, packing: 85, shipped: 100 };
+                    order.progress = progressMap[newStatus] || order.progress;
+                    saveData();
+                    renderAll();
+                    showNotification(`✅ ${order.orderNo} 已移至「${getStatusText(newStatus)}」`);
+                    
+                    // 🎓 學習型資料庫：進入裝箱或出貨時，檢查是否需要記錄包裝數據
+                    if ((newStatus === 'packing' || newStatus === 'shipped') && order.product) {
+                        checkAndPromptPackagingData(order);
+                    }
+                }
+                draggedOrderId = null;
+            }
+        }
+        
+        // 🎓 學習型資料庫：檢查並提示記錄包裝數據
+        function checkAndPromptPackagingData(order) {
+            const product = order.product;
+            const existingSpec = packagingSpecs.find(p => p.product === product);
+            
+            if (!existingSpec) {
+                // 新產品，提示輸入包裝規格
+                if (confirm(`📦 ${product} 是新產品，尚無包裝規格。\n\n要現在記錄包裝尺寸嗎？\n（記錄後下次自動帶入）`)) {
+                    showQuickPackagingModal(product, order);
+                }
+            }
+        }
+        
+        // 快速包裝規格輸入 Modal
+        function showQuickPackagingModal(product, order) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            modal.id = 'quick-packaging-modal';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-6 w-[500px] max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold">📦 記錄 ${product} 包裝規格</h2>
+                        <button onclick="closeQuickPackagingModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">填寫一次，系統自動記住，下次同產品自動帶入</p>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">長 cm</label>
+                                <input type="number" id="qp-length" class="w-full px-3 py-2 border rounded-lg" placeholder="90">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">寬 cm</label>
+                                <input type="number" id="qp-width" class="w-full px-3 py-2 border rounded-lg" placeholder="60">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">高 cm</label>
+                                <input type="number" id="qp-height" class="w-full px-3 py-2 border rounded-lg" placeholder="80">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">每箱數量 pcs</label>
+                                <input type="number" id="qp-pcs" class="w-full px-3 py-2 border rounded-lg" placeholder="4">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">毛重 kg</label>
+                                <input type="number" id="qp-weight" class="w-full px-3 py-2 border rounded-lg" placeholder="45">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">備註（選填）</label>
+                            <input type="text" id="qp-note" class="w-full px-3 py-2 border rounded-lg" placeholder="例：易碎品需加保麗龍">
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="closeQuickPackagingModal()" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">稍後再說</button>
+                        <button onclick="saveQuickPackaging('${product}')" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">💾 儲存到資料庫</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeQuickPackagingModal() {
+            const modal = document.getElementById('quick-packaging-modal');
+            if (modal) modal.remove();
+        }
+        
+        async function saveQuickPackaging(product) {
+            const length = parseFloat(document.getElementById('qp-length').value) || 0;
+            const width = parseFloat(document.getElementById('qp-width').value) || 0;
+            const height = parseFloat(document.getElementById('qp-height').value) || 0;
+            const pcsPerBox = parseInt(document.getElementById('qp-pcs').value) || 1;
+            const weight = parseFloat(document.getElementById('qp-weight').value) || 0;
+            const note = document.getElementById('qp-note').value || '';
+            
+            if (!length || !width || !height) {
+                alert('請填寫完整的尺寸');
+                return;
+            }
+            
+            const cbm = (length * width * height) / 1000000;
+            
+            const newSpec = {
+                id: Date.now(),
+                product: product,
+                length: length,
+                width: width,
+                height: height,
+                pcsPerBox: pcsPerBox,
+                weight: weight,
+                cbm: cbm.toFixed(4),
+                note: note,
+                source: 'auto-learn',  // 標記來源是自動學習
+                createdAt: new Date().toISOString()
+            };
+            
+            packagingSpecs.push(newSpec);
+            await savePackagingSpecs();
+            
+            closeQuickPackagingModal();
+            renderPackagingSpecs();
+            showNotification(`✅ ${product} 包裝規格已記錄！下次自動帶入`);
+        }
+
+        function renderKanban() {
+            const statuses = ['draft', 'confirmed', 'production', 'qc', 'packing', 'shipped'];
+            statuses.forEach(status => {
+                const col = document.getElementById(`kanban-col-${status}`);
+                const filtered = orders.filter(o => o.status === status);
+                document.getElementById(`kanban-${status}`).textContent = filtered.length;
+
+                col.innerHTML = filtered.map(o => {
+                    const { totalQty } = getOrderTotals(o);
+                    const productSummary = getOrderProductSummary(o);
+                    return `
+                    <div class="bg-white rounded-lg p-3 shadow-sm border cursor-grab hover:shadow-md transition-all kanban-card" 
+                         draggable="true" 
+                         ondragstart="onDragStart(event, ${o.id})" 
+                         ondragend="onDragEnd(event)"
+                         onclick="editOrder(${o.id})">
+                        <div class="font-medium text-sm">${o.orderNo}</div>
+                        <div class="text-xs text-gray-500">${o.customer} · ${productSummary}</div>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs">${totalQty.toLocaleString()} pcs</span>
+                            <span class="text-xs text-gray-400">${o.delivery}</span>
+                        </div>
+                        <div class="mt-2 bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${o.progress}%"></div>
+                        </div>
+                    </div>
+                `}).join('');
+            });
+
+            // 為列添加 dragleave 事件
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.ondragleave = onDragLeave;
+            });
+        }
+
+        // 報表
+        function renderReport() {
+            const total = orders.length;
+            const totalAmount = orders.reduce((sum, o) => sum + getOrderTotals(o).totalAmount, 0);
+            const shippedOrders = orders.filter(o => o.status === 'shipped' || o.status === 'delivered');
+            const shippedAmount = shippedOrders.reduce((sum, o) => sum + getOrderTotals(o).totalAmount, 0);
+            const avgAmount = total > 0 ? totalAmount / total : 0;
+
+            // 頂部統計
+            document.getElementById('report-total').textContent = total;
+            document.getElementById('report-amount').textContent = '$' + totalAmount.toLocaleString();
+            document.getElementById('report-shipped').textContent = '$' + shippedAmount.toLocaleString();
+            document.getElementById('report-avg').textContent = '$' + Math.round(avgAmount).toLocaleString();
+            document.getElementById('report-otd').textContent = total > 0 ? Math.round((shippedAmount / totalAmount) * 100) + '%' : '0%';
+
+            // 訂單狀態分布
+            const statusCounts = {
+                draft: orders.filter(o => o.status === 'draft').length,
+                confirmed: orders.filter(o => o.status === 'confirmed').length,
+                production: orders.filter(o => o.status === 'production').length,
+                qc: orders.filter(o => o.status === 'qc').length,
+                packing: orders.filter(o => o.status === 'packing').length,
+                shipped: orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length
+            };
+            const statusLabels = {
+                draft: { name: '草稿', color: 'bg-gray-400' },
+                confirmed: { name: '已確認', color: 'bg-blue-500' },
+                production: { name: '生產中', color: 'bg-yellow-500' },
+                qc: { name: '待驗貨', color: 'bg-purple-500' },
+                packing: { name: '裝箱中', color: 'bg-pink-500' },
+                shipped: { name: '已出貨', color: 'bg-green-500' }
+            };
+            document.getElementById('status-distribution').innerHTML = Object.entries(statusCounts)
+                .filter(([_, count]) => count > 0)
+                .map(([status, count]) => {
+                    const pct = total > 0 ? (count / total * 100).toFixed(0) : 0;
+                    const label = statusLabels[status] || { name: status, color: 'bg-gray-400' };
+                    return `
+                        <div class="flex items-center gap-3">
+                            <span class="w-20 text-sm text-gray-600">${label.name}</span>
+                            <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
+                                <div class="${label.color} h-full rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="w-16 text-right text-sm font-medium">${count} (${pct}%)</span>
+                        </div>
+                    `;
+                }).join('');
+
+            // 客戶排名
+            const customerTotals = {};
+            orders.forEach(o => {
+                customerTotals[o.customer] = (customerTotals[o.customer] || 0) + getOrderTotals(o).totalAmount;
+            });
+            const customerRanking = Object.entries(customerTotals).sort((a, b) => b[1] - a[1]);
+            document.getElementById('customer-ranking').innerHTML = customerRanking.slice(0, 5).map(([customer, amount], i) => `
+                <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">${i + 1}</span>
+                        <span>${customer}</span>
+                    </div>
+                    <span class="font-medium">$${amount.toLocaleString()}</span>
+                </div>
+            `).join('') || '<div class="text-gray-400 text-center py-4">暫無數據</div>';
+
+            // 產品排名
+            const productTotals = {};
+            orders.forEach(o => {
+                const items = o.items || [];
+                items.forEach(item => {
+                    const key = item.product || o.product;
+                    if (key) {
+                        productTotals[key] = (productTotals[key] || 0) + (item.qty || o.qty || 0);
+                    }
+                });
+            });
+            const productRanking = Object.entries(productTotals).sort((a, b) => b[1] - a[1]);
+            document.getElementById('product-ranking').innerHTML = productRanking.slice(0, 10).map(([product, qty], i) => `
+                <div class="flex items-center justify-between py-1.5 border-b last:border-b-0">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 bg-emerald-100 text-emerald-600 rounded flex items-center justify-center text-xs font-bold">${i + 1}</span>
+                        <span class="text-sm">${product}</span>
+                    </div>
+                    <span class="text-sm font-medium">${qty.toLocaleString()} pcs</span>
+                </div>
+            `).join('') || '<div class="text-gray-400 text-center py-4">暫無數據</div>';
+
+            // 交期分析
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const inProgressOrders = orders.filter(o => !['shipped', 'delivered', 'draft'].includes(o.status));
+            
+            let overdueCount = 0;
+            let dueSoonCount = 0;
+            let totalDays = 0;
+            let daysCount = 0;
+            
+            inProgressOrders.forEach(o => {
+                if (o.deliveryDate) {
+                    const dueDate = new Date(o.deliveryDate);
+                    const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysLeft < 0) overdueCount++;
+                    else if (daysLeft <= 7) dueSoonCount++;
+                    
+                    totalDays += Math.abs(daysLeft);
+                    daysCount++;
+                }
+            });
+            
+            const avgDays = daysCount > 0 ? Math.round(totalDays / daysCount) : 0;
+            const ontimeRate = total > 0 ? Math.round((total - overdueCount) / total * 100) : 100;
+            
+            document.getElementById('report-overdue').textContent = overdueCount;
+            document.getElementById('report-due-soon').textContent = dueSoonCount;
+            document.getElementById('report-avg-days').textContent = avgDays + ' 天';
+            document.getElementById('report-ontime-rate').textContent = ontimeRate + '%';
+
+            // 最近訂單
+            const recentOrders = [...orders].sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 10);
+            document.getElementById('recent-orders-table').innerHTML = recentOrders.map(o => {
+                const { totalQty, totalAmount } = getOrderTotals(o);
+                const productSummary = getOrderProductSummary(o);
+                const statusBadge = getStatusBadge(o.status);
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-3 font-medium">${o.orderNo}</td>
+                        <td class="py-2 px-3">${o.customer}</td>
+                        <td class="py-2 px-3 text-sm">${productSummary}</td>
+                        <td class="py-2 px-3 text-right">${totalQty.toLocaleString()}</td>
+                        <td class="py-2 px-3 text-right font-medium">$${totalAmount.toLocaleString()}</td>
+                        <td class="py-2 px-3 text-center">${statusBadge}</td>
+                        <td class="py-2 px-3 text-sm">${o.deliveryDate || '-'}</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="7" class="text-center py-4 text-gray-400">暫無訂單</td></tr>';
+        }
+
+        // ====== 訂單表單管理 (支援多 SKU) ======
+        let editingOrderId = null;
+
+        function openNewOrder() {
+            editingOrderId = null;
+            document.getElementById('order-modal-title').textContent = '📦 新增訂單';
+            document.getElementById('order-no').value = `PO-2026-${String(orders.length + 1).padStart(3, '0')}`;
+            document.getElementById('order-customer').value = 'CI';
+            document.getElementById('order-delivery').value = '';
+            document.getElementById('order-notes').value = '';
+            
+            // 初始化項目列表 (預設一行)
+            currentOrderItems = [{ product: '', qty: '', price: '' }];
+            renderOrderItems();
+            
+            document.getElementById('order-modal').classList.remove('hidden');
+            document.getElementById('order-modal').classList.add('flex');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.add('hidden');
+            document.getElementById('order-modal').classList.remove('flex');
+            document.getElementById('order-form').reset();
+            currentOrderItems = [];
+            editingOrderId = null;
+        }
+
+        // 渲染訂單項目列表
+        function renderOrderItems() {
+            const tbody = document.getElementById('order-items-table');
+            tbody.innerHTML = currentOrderItems.map((item, idx) => `
+                <tr class="border-b">
+                    <td class="py-2 px-2">
+                        <input type="text" value="${item.product || ''}" 
+                            onchange="updateOrderItem(${idx}, 'product', this.value)"
+                            class="w-full px-2 py-1 border rounded" placeholder="B36, W3030...">
+                    </td>
+                    <td class="py-2 px-2">
+                        <input type="number" value="${item.qty || ''}" 
+                            onchange="updateOrderItem(${idx}, 'qty', this.value)"
+                            class="w-full px-2 py-1 border rounded text-right" placeholder="100">
+                    </td>
+                    <td class="py-2 px-2">
+                        <input type="number" step="0.01" value="${item.price || ''}" 
+                            onchange="updateOrderItem(${idx}, 'price', this.value)"
+                            class="w-full px-2 py-1 border rounded text-right" placeholder="85.00">
+                    </td>
+                    <td class="py-2 px-2 text-right font-medium">
+                        $${((item.qty || 0) * (item.price || 0)).toLocaleString()}
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <button type="button" onclick="removeOrderItem(${idx})" 
+                            class="text-red-500 hover:text-red-700 ${currentOrderItems.length === 1 ? 'opacity-30 cursor-not-allowed' : ''}"
+                            ${currentOrderItems.length === 1 ? 'disabled' : ''}>🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateOrderTotals();
+        }
+
+        function addOrderItem() {
+            currentOrderItems.push({ product: '', qty: '', price: '' });
+            renderOrderItems();
+        }
+
+        function removeOrderItem(idx) {
+            if (currentOrderItems.length > 1) {
+                currentOrderItems.splice(idx, 1);
+                renderOrderItems();
+            }
+        }
+
+        function updateOrderItem(idx, field, value) {
+            if (field === 'qty') value = parseInt(value) || 0;
+            if (field === 'price') value = parseFloat(value) || 0;
+            currentOrderItems[idx][field] = value;
+            updateOrderTotals();
+        }
+
+        function updateOrderTotals() {
+            const totalQty = currentOrderItems.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
+            const totalAmount = currentOrderItems.reduce((sum, item) => sum + (parseInt(item.qty) || 0) * (parseFloat(item.price) || 0), 0);
+            document.getElementById('order-total-qty').textContent = totalQty.toLocaleString() + ' pcs';
+            document.getElementById('order-total-amount').textContent = '$' + totalAmount.toLocaleString();
+        }
+
+        function addOrder() {
+            // 驗證
+            const validItems = currentOrderItems.filter(item => item.product && item.qty > 0);
+            if (validItems.length === 0) {
+                alert('請至少輸入一個產品項目');
+                return;
+            }
+
+            const order = {
+                id: editingOrderId || Date.now(),
+                orderNo: document.getElementById('order-no').value,
+                customer: document.getElementById('order-customer').value,
+                delivery: document.getElementById('order-delivery').value,
+                items: validItems.map(item => ({
+                    product: item.product,
+                    qty: parseInt(item.qty) || 0,
+                    price: parseFloat(item.price) || 0
+                })),
+                status: editingOrderId ? orders.find(o => o.id === editingOrderId)?.status || 'draft' : 'draft',
+                progress: editingOrderId ? orders.find(o => o.id === editingOrderId)?.progress || 0 : 0,
+                notes: document.getElementById('order-notes').value,
+                createdAt: editingOrderId ? orders.find(o => o.id === editingOrderId)?.createdAt : new Date().toISOString().split('T')[0]
+            };
+
+            if (editingOrderId) {
+                const idx = orders.findIndex(o => o.id === editingOrderId);
+                if (idx >= 0) orders[idx] = order;
+                showNotification('✅ 訂單已更新');
+            } else {
+                orders.unshift(order);
+                showNotification('✅ 訂單已建立');
+            }
+            
+            saveData();
+            renderAll();
+            closeOrderModal();
+        }
+
+        function editOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+
+            editingOrderId = id;
+            document.getElementById('order-modal-title').textContent = '✏️ 編輯訂單';
+            document.getElementById('order-no').value = order.orderNo;
+            document.getElementById('order-customer').value = order.customer;
+            document.getElementById('order-delivery').value = order.delivery;
+            document.getElementById('order-notes').value = order.notes || '';
+            
+            // 載入項目
+            currentOrderItems = (order.items || []).map(item => ({
+                product: item.product,
+                qty: item.qty,
+                price: item.price
+            }));
+            if (currentOrderItems.length === 0) {
+                currentOrderItems = [{ product: '', qty: '', price: '' }];
+            }
+            renderOrderItems();
+            
+            document.getElementById('order-modal').classList.remove('hidden');
+            document.getElementById('order-modal').classList.add('flex');
+        }
+
+        function deleteOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+            if (confirm(`確定要刪除訂單 ${order.orderNo} 嗎？`)) {
+                orders = orders.filter(o => o.id !== id);
+                saveData();
+                renderAll();
+                showNotification(`🗑️ 訂單 ${order.orderNo} 已刪除`);
+            }
+        }
+
+        function showNotification(msg) {
+            const div = document.createElement('div');
+            div.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // 更新狀態
+        function updateStatus(id, status) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = status;
+                if (status === 'shipped') order.progress = 100;
+                else if (status === 'packing') order.progress = 90;
+                else if (status === 'qc') order.progress = 75;
+                else if (status === 'production') order.progress = 40;
+                else if (status === 'confirmed') order.progress = 10;
+                else order.progress = 0;
+
+                saveData();
+                renderAll();
+            }
+        }
+
+        // ====== 包裝規格資料庫 ======
+        let packagingSpecs = [];
+        
+        // 載入包裝規格資料
+        async function loadPackagingSpecs() {
+            try {
+                packagingSpecs = await JCO_API.getSheetData('inventory') || [];
+            } catch (error) {
+                console.warn('載入包裝規格失敗:', error);
+                packagingSpecs = JSON.parse(localStorage.getItem('jco-packaging-specs') || '[]');
+            }
+        }
+        
+        // 儲存包裝規格
+        async function savePackagingSpecs() {
+            try {
+                // 清空並重新寫入
+                await JCO_API.apiCall('clearSheet', { sheet: '工作表2' });
+                for (const spec of packagingSpecs) {
+                    await JCO_API.appendToSheet('inventory', spec);
+                }
+            } catch (error) {
+                console.warn('儲存包裝規格到 API 失敗:', error);
+                localStorage.setItem('jco-packaging-specs', JSON.stringify(packagingSpecs));
+            }
+        }
+        
+        // 預設包裝規格
+        if (packagingSpecs.length === 0) {
+            packagingSpecs = [
+                { id: 1, product: 'B12', length: 90, width: 60, height: 80, pcsPerBox: 4, weight: 45, desc: 'Base 12"' },
+                { id: 2, product: 'B36', length: 120, width: 65, height: 90, pcsPerBox: 2, weight: 65, desc: 'Base 36"' },
+                { id: 3, product: 'W3030', length: 85, width: 40, height: 85, pcsPerBox: 4, weight: 35, desc: 'Wall 30x30' },
+                { id: 4, product: 'VB36', length: 110, width: 55, height: 75, pcsPerBox: 2, weight: 50, desc: 'Vanity Base 36"' },
+                { id: 5, product: 'SB36', length: 120, width: 65, height: 90, pcsPerBox: 2, weight: 60, desc: 'Sink Base 36"' },
+                { id: 6, product: 'Drawer Box', length: 60, width: 50, height: 40, pcsPerBox: 10, weight: 25, desc: '抽屜盒' },
+            ];
+            await savePackagingSpecs();
+        }
+
+        // 貨櫃尺寸 (內部尺寸 cm)
+        const containerDimensions = {
+            '20GP': { length: 589, width: 235, height: 239, cbm: 33, maxWeight: 21800 },
+            '40GP': { length: 1203, width: 235, height: 239, cbm: 67, maxWeight: 26500 },
+            '40HQ': { length: 1203, width: 235, height: 269, cbm: 76, maxWeight: 26500 }
+        };
+
+        function renderPackagingSpecs() {
+            const tbody = document.getElementById('packaging-specs-table');
+            if (!tbody) return;
+            
+            tbody.innerHTML = packagingSpecs.map(p => {
+                const cbm = (p.length * p.width * p.height / 1000000).toFixed(4);
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-3 font-medium">${p.product}</td>
+                        <td class="py-2 px-3 text-right">${p.length}</td>
+                        <td class="py-2 px-3 text-right">${p.width}</td>
+                        <td class="py-2 px-3 text-right">${p.height}</td>
+                        <td class="py-2 px-3 text-right">${p.pcsPerBox}</td>
+                        <td class="py-2 px-3 text-right">${p.weight || '-'}</td>
+                        <td class="py-2 px-3 text-right">${cbm}</td>
+                        <td class="py-2 px-3 text-center">
+                            <button onclick="editPackagingSpec(${p.id})" class="text-blue-600 hover:underline text-xs mr-2">編輯</button>
+                            <button onclick="deletePackagingSpec(${p.id})" class="text-red-600 hover:underline text-xs">刪除</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function addPackagingSpec() {
+            const product = prompt('產品型號：');
+            if (!product) return;
+            const length = parseInt(prompt('箱長 (cm)：', '100')) || 100;
+            const width = parseInt(prompt('箱寬 (cm)：', '60')) || 60;
+            const height = parseInt(prompt('箱高 (cm)：', '80')) || 80;
+            const pcsPerBox = parseInt(prompt('每箱數量：', '2')) || 2;
+            const weight = parseInt(prompt('毛重 (kg)：', '50')) || 50;
+
+            packagingSpecs.push({
+                id: Date.now(),
+                product, length, width, height, pcsPerBox, weight
+            });
+            await savePackagingSpecs();
+            renderPackagingSpecs();
+            showNotification(`✅ 已新增 ${product} 包裝規格`);
+        }
+
+        async function editPackagingSpec(id) {
+            const spec = packagingSpecs.find(p => p.id === id);
+            if (!spec) return;
+            
+            spec.length = parseInt(prompt('箱長 (cm)：', spec.length)) || spec.length;
+            spec.width = parseInt(prompt('箱寬 (cm)：', spec.width)) || spec.width;
+            spec.height = parseInt(prompt('箱高 (cm)：', spec.height)) || spec.height;
+            spec.pcsPerBox = parseInt(prompt('每箱數量：', spec.pcsPerBox)) || spec.pcsPerBox;
+            spec.weight = parseInt(prompt('毛重 (kg)：', spec.weight)) || spec.weight;
+
+            await savePackagingSpecs();
+            renderPackagingSpecs();
+            showNotification(`✅ 已更新 ${spec.product} 包裝規格`);
+        }
+
+        async function deletePackagingSpec(id) {
+            const spec = packagingSpecs.find(p => p.id === id);
+            if (!spec || !confirm(`確定刪除 ${spec.product} 的包裝規格？`)) return;
+            
+            packagingSpecs = packagingSpecs.filter(p => p.id !== id);
+            await savePackagingSpecs();
+            renderPackagingSpecs();
+        }
+
+        // 更新訂單選擇下拉
+        function updatePackOrderSelect() {
+            const select = document.getElementById('pack-order');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">選擇訂單...</option>' +
+                orders.filter(o => o.status !== 'shipped' && o.status !== 'delivered' && o.product && o.qty)
+                    .map(o => {
+                        // 檢查是否有包裝規格
+                        const hasSpec = packagingSpecs.some(p => p.product === o.product || o.product.includes(p.product));
+                        const specNote = hasSpec ? '' : ' ⚠️尺寸待補';
+                        return `<option value="${o.id}">${o.orderNo} - ${o.product} (${o.qty} pcs)${specNote}</option>`;
+                    })
+                    .join('');
+        }
+
+        // 模擬裝櫃
+        function simulateLoading() {
+            const orderId = document.getElementById('pack-order').value;
+            const containerType = document.getElementById('container-type').value;
+            const container = containerDimensions[containerType];
+
+            if (!orderId) {
+                document.getElementById('loading-preview').innerHTML = '<div class="h-full flex items-center justify-center text-gray-500">選擇訂單後顯示裝櫃方案</div>';
+                document.getElementById('loading-detail').classList.add('hidden');
+                return;
+            }
+
+            const order = orders.find(o => o.id == orderId);
+            if (!order) return;
+
+            // 找該產品的包裝規格
+            const spec = packagingSpecs.find(p => p.product === order.product || order.product.includes(p.product));
+            if (!spec) {
+                document.getElementById('loading-preview').innerHTML = `
+                    <div class="h-full flex items-center justify-center text-yellow-500">
+                        ⚠️ 找不到 ${order.product} 的包裝規格<br>
+                        <button onclick="addPackagingSpec()" class="mt-2 px-4 py-1 bg-blue-600 text-white rounded text-sm">+ 新增規格</button>
+                    </div>`;
+                return;
+            }
+
+            // 計算裝櫃
+            const boxCBM = (spec.length * spec.width * spec.height) / 1000000;
+            const totalBoxes = Math.ceil(order.qty / spec.pcsPerBox);
+            const totalCBM = boxCBM * totalBoxes;
+            const containersNeeded = Math.ceil(totalCBM / (container.cbm * 0.85));
+            
+            // 計算實際擺放 (簡化版 bin packing)
+            const boxesPerLayer = Math.floor(container.length / spec.length) * Math.floor(container.width / spec.width);
+            const layers = Math.floor(container.height / spec.height);
+            const maxBoxesPerContainer = boxesPerLayer * layers;
+            const actualContainers = Math.ceil(totalBoxes / maxBoxesPerContainer);
+            const usedBoxesLastContainer = totalBoxes % maxBoxesPerContainer || maxBoxesPerContainer;
+            const utilization = Math.round((usedBoxesLastContainer * boxCBM / container.cbm) * 100);
+
+            // 更新結果顯示
+            document.getElementById('res-order-qty').textContent = order.qty.toLocaleString() + ' pcs';
+            document.getElementById('res-boxes').textContent = totalBoxes + ' 箱';
+            document.getElementById('res-cbm').textContent = totalCBM.toFixed(2) + ' CBM';
+            document.getElementById('res-container-cap').textContent = container.cbm + ' CBM';
+            document.getElementById('res-pcs').textContent = (maxBoxesPerContainer * spec.pcsPerBox).toLocaleString() + ' pcs';
+            document.getElementById('res-containers').textContent = actualContainers + ' 櫃';
+            document.getElementById('res-util').textContent = utilization + '%';
+
+            // 繪製 2D 俯視圖
+            draw2DLoadingPlan(spec, container, maxBoxesPerContainer, usedBoxesLastContainer);
+
+            // 顯示明細
+            document.getElementById('loading-detail').classList.remove('hidden');
+            document.getElementById('loading-detail-table').innerHTML = `
+                <tr class="border-b">
+                    <td class="py-2 px-2 font-medium">${order.product}</td>
+                    <td class="py-2 px-2 text-right">${order.qty}</td>
+                    <td class="py-2 px-2 text-right">${totalBoxes}</td>
+                    <td class="py-2 px-2 text-right">${totalCBM.toFixed(2)} CBM</td>
+                    <td class="py-2 px-2">${Math.floor(container.length / spec.length)}×${Math.floor(container.width / spec.width)}×${layers} 層</td>
+                </tr>
+            `;
+        }
+
+        // 繪製 2D 裝櫃圖
+        function draw2DLoadingPlan(spec, container, maxBoxes, usedBoxes) {
+            const preview = document.getElementById('loading-preview');
+            const boxesX = Math.floor(container.length / spec.length);
+            const boxesY = Math.floor(container.width / spec.width);
+            const layers = Math.floor(container.height / spec.height);
+
+            let html = `<div class="text-white text-xs mb-2">俯視圖 (每層 ${boxesX}×${boxesY} = ${boxesX * boxesY} 箱，共 ${layers} 層)</div>`;
+            html += '<div class="grid gap-1" style="grid-template-columns: repeat(' + boxesX + ', 1fr); max-width: 100%;">';
+            
+            for (let i = 0; i < boxesX * boxesY; i++) {
+                const filled = i < Math.min(usedBoxes, boxesX * boxesY);
+                html += `<div class="aspect-[${spec.length}/${spec.width}] rounded ${filled ? 'bg-blue-500' : 'bg-gray-700'} border border-gray-600 flex items-center justify-center text-xs text-white/70">${filled ? (i + 1) : ''}</div>`;
+            }
+            html += '</div>';
+            html += `<div class="text-gray-400 text-xs mt-2">箱子尺寸: ${spec.length}×${spec.width}×${spec.height} cm | 貨櫃: ${container.length}×${container.width}×${container.height} cm</div>`;
+            
+            preview.innerHTML = html;
+        }
+
+        // 優化裝櫃
+        function optimizeLoading() {
+            const orderId = document.getElementById('pack-order').value;
+            if (!orderId) {
+                alert('請先選擇訂單');
+                return;
+            }
+            
+            // TODO: 實現更複雜的 bin packing 演算法
+            // 目前使用簡單的貪心演算法
+            showNotification('✅ 已優化擺放方案（目前使用標準配置）');
+            simulateLoading();
+        }
+
+        // 匯出裝櫃計劃
+        function exportLoadingPlan() {
+            const orderId = document.getElementById('pack-order').value;
+            if (!orderId) {
+                alert('請先選擇訂單');
+                return;
+            }
+            
+            const order = orders.find(o => o.id == orderId);
+            const spec = packagingSpecs.find(p => order.product.includes(p.product));
+            const containerType = document.getElementById('container-type').value;
+            const container = containerDimensions[containerType];
+
+            const content = `
+裝櫃計劃
+========
+訂單號: ${order.orderNo}
+產品: ${order.product}
+數量: ${order.qty} pcs
+
+包裝規格
+--------
+尺寸: ${spec.length} × ${spec.width} × ${spec.height} cm
+每箱: ${spec.pcsPerBox} pcs
+毛重: ${spec.weight} kg
+
+貨櫃: ${containerType}
+--------
+內尺寸: ${container.length} × ${container.width} × ${container.height} cm
+容量: ${container.cbm} CBM
+
+裝櫃方式
+--------
+每層: ${Math.floor(container.length / spec.length)} × ${Math.floor(container.width / spec.width)} = ${Math.floor(container.length / spec.length) * Math.floor(container.width / spec.width)} 箱
+層數: ${Math.floor(container.height / spec.height)} 層
+單櫃最大: ${Math.floor(container.length / spec.length) * Math.floor(container.width / spec.width) * Math.floor(container.height / spec.height)} 箱
+            `.trim();
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `裝櫃計劃-${order.orderNo}.txt`;
+            a.click();
+        }
+
+        // 裝櫃計算 (手動)
+        function calcContainer() {
+            const containerType = document.getElementById('container-type').value;
+            const container = containerDimensions[containerType];
+
+            const length = parseFloat(document.getElementById('box-length').value);
+            const width = parseFloat(document.getElementById('box-width').value);
+            const height = parseFloat(document.getElementById('box-height').value);
+            const pcsPerBox = parseInt(document.getElementById('pcs-per-box').value) || 1;
+
+            const boxCBM = (length * width * height) / 1000000;
+            const boxesX = Math.floor(container.length / length);
+            const boxesY = Math.floor(container.width / width);
+            const layers = Math.floor(container.height / height);
+            const maxBoxes = boxesX * boxesY * layers;
+            const totalPcs = maxBoxes * pcsPerBox;
+            const utilization = Math.round((maxBoxes * boxCBM / container.cbm) * 100);
+
+            document.getElementById('manual-cbm').textContent = boxCBM.toFixed(4) + ' CBM';
+            document.getElementById('manual-boxes').textContent = maxBoxes + ' 箱';
+            document.getElementById('manual-pcs').textContent = totalPcs.toLocaleString() + ' pcs';
+        }
+
+        // Excel 匯入匯出
+        function importExcel() {
+            document.getElementById('excel-input').click();
+        }
+
+        function handleExcelImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet);
+
+                    json.forEach(row => {
+                        orders.push({
+                            id: Date.now() + Math.random(),
+                            orderNo: row['訂單號'] || row['Order No'] || `PO-${Date.now()}`,
+                            customer: row['客戶'] || row['Customer'] || 'Unknown',
+                            product: row['產品'] || row['Product'] || '',
+                            qty: parseInt(row['數量'] || row['Qty']) || 0,
+                            price: parseFloat(row['單價'] || row['Price']) || 0,
+                            delivery: row['交期'] || row['Delivery'] || '',
+                            status: 'draft',
+                            progress: 0,
+                            notes: row['備註'] || row['Notes'] || '',
+                            createdAt: new Date().toISOString().split('T')[0]
+                        });
+                    });
+
+                    saveData();
+                    renderAll();
+                    showNotification(`✅ 已匯入 ${json.length} 筆訂單`);
+                } catch (err) {
+                    alert('匯入失敗: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            e.target.value = '';
+        }
+
+        function exportOrders() {
+            const data = orders.map(o => ({
+                '訂單號': o.orderNo,
+                '客戶': o.customer,
+                '產品': o.product,
+                '數量': o.qty,
+                '單價': o.price,
+                '金額': o.qty * o.price,
+                '交期': o.delivery,
+                '狀態': getStatusText(o.status),
+                '進度': o.progress + '%',
+                '備註': o.notes,
+                '建立日期': o.createdAt
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '訂單');
+            XLSX.writeFile(wb, `訂單清單_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // 工具函數
+        async function saveData() {
+            try {
+                // 清空並重新寫入所有訂單資料
+                // 注意：這是簡化的實作，實際上應該做增量更新
+                await JCO_API.apiCall('clearSheet', { sheet: '工作表1' });
+                for (const order of orders) {
+                    await JCO_API.appendToSheet('orders', order);
+                }
+            } catch (error) {
+                console.warn('儲存到 API 失敗，使用本地儲存:', error);
+                localStorage.setItem('jco-orders', JSON.stringify(orders));
+            }
+        }
+
+        function getStatusText(status) {
+            const map = { draft: '草稿', confirmed: '已確認', production: '生產中', qc: '待驗貨', packing: '裝箱中', shipped: '已出貨', delivered: '已交付' };
+            return map[status] || status;
+        }
+
+        function filterOrders() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            const customerFilter = document.getElementById('filter-customer').value;
+            
+            const tbody = document.getElementById('orders-table');
+            
+            const filtered = orders.filter(o => {
+                // 搜尋過濾
+                if (search && !o.orderNo.toLowerCase().includes(search) && !o.customer.toLowerCase().includes(search) && !o.product.toLowerCase().includes(search)) {
+                    return false;
+                }
+                // 狀態過濾
+                if (statusFilter && o.status !== statusFilter) {
+                    return false;
+                }
+                // 客戶過濾
+                if (customerFilter && o.customer !== customerFilter) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-400">沒有符合條件的訂單</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(o => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 px-4 font-medium">${o.orderNo}</td>
+                    <td class="py-3 px-4">${o.customer}</td>
+                    <td class="py-3 px-4">${o.product}</td>
+                    <td class="py-3 px-4 text-right">${o.qty}</td>
+                    <td class="py-3 px-4 text-right">$${(o.qty * o.price).toLocaleString()}</td>
+                    <td class="py-3 px-4">${o.delivery}</td>
+                    <td class="py-3 px-4">
+                        <span class="text-xs px-2 py-1 rounded-full status-${o.status}">${getStatusText(o.status)}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="w-20 bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${o.progress}%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-1">
+                            <button onclick="editOrder(${o.id})" class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="編輯">✏️</button>
+                            <select class="text-xs border rounded px-2 py-1" onchange="updateStatus(${o.id}, this.value)">
+                                <option value="draft" ${o.status === 'draft' ? 'selected' : ''}>草稿</option>
+                                <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>已確認</option>
+                                <option value="production" ${o.status === 'production' ? 'selected' : ''}>生產中</option>
+                                <option value="qc" ${o.status === 'qc' ? 'selected' : ''}>待驗貨</option>
+                                <option value="packing" ${o.status === 'packing' ? 'selected' : ''}>裝箱中</option>
+                                <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>已出貨</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ====== 出貨追蹤功能 ======
+        let shipments = [];
+        
+        // 載入出貨資料
+        async function loadShipmentsData() {
+            try {
+                shipments = await JCO_API.getSheetData('procurement') || [];
+            } catch (error) {
+                console.warn('載入出貨資料失敗:', error);
+                shipments = JSON.parse(localStorage.getItem('jco-shipments') || '[]');
+            }
+        }
+        
+        // 儲存出貨資料
+        async function saveShipmentsData() {
+            try {
+                await JCO_API.apiCall('clearSheet', { sheet: '工作表4' });
+                for (const shipment of shipments) {
+                    await JCO_API.appendToSheet('procurement', shipment);
+                }
+            } catch (error) {
+                console.warn('儲存出貨資料失敗:', error);
+                localStorage.setItem('jco-shipments', JSON.stringify(shipments));
+            }
+        }
+        let editingShipmentId = null;
+
+        function renderShipping() {
+            const tbody = document.getElementById('shipping-table');
+            
+            // 更新統計
+            document.getElementById('ship-stat-pending').textContent = shipments.filter(s => ['pending', 'loaded'].includes(s.status)).length;
+            document.getElementById('ship-stat-sailing').textContent = shipments.filter(s => s.status === 'sailing').length;
+            document.getElementById('ship-stat-arrived').textContent = shipments.filter(s => ['arrived', 'customs'].includes(s.status)).length;
+            document.getElementById('ship-stat-delivered').textContent = shipments.filter(s => s.status === 'delivered').length;
+
+            if (shipments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-400">暫無出貨記錄，點擊「+ 新增出貨」開始</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = shipments.map(s => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 px-4 font-medium">${s.orderNo}</td>
+                    <td class="py-3 px-4">${s.customer}</td>
+                    <td class="py-3 px-4 font-mono text-sm">${s.container}</td>
+                    <td class="py-3 px-4">${s.carrier}</td>
+                    <td class="py-3 px-4">${s.etd || '-'}</td>
+                    <td class="py-3 px-4">${s.eta || '-'}</td>
+                    <td class="py-3 px-4">${getShipStatusBadge(s.status)}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editShipment(${s.id})" class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="編輯">✏️</button>
+                            <button onclick="deleteShipment(${s.id})" class="p-1 text-red-600 hover:bg-red-50 rounded" title="刪除">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getShipStatusBadge(status) {
+            const badges = {
+                'pending': '<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">📦 待裝櫃</span>',
+                'loaded': '<span class="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700">🚛 已裝櫃</span>',
+                'sailing': '<span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">🚢 運輸中</span>',
+                'arrived': '<span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">⚓ 已到港</span>',
+                'customs': '<span class="px-2 py-1 text-xs rounded-full bg-pink-100 text-pink-700">📋 清關中</span>',
+                'delivered': '<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">✅ 已簽收</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function showNewShipmentModal() {
+            editingShipmentId = null;
+            
+            // 填充訂單下拉
+            const select = document.getElementById('ship-order');
+            select.innerHTML = '<option value="">選擇訂單...</option>';
+            orders.filter(o => ['packing', 'shipped'].includes(o.status) || o.status === 'production').forEach(o => {
+                select.innerHTML += `<option value="${o.id}" data-customer="${o.customer}">${o.orderNo} - ${o.product} (${o.qty} pcs)</option>`;
+            });
+            
+            // 重置表單
+            document.getElementById('ship-customer').value = '';
+            document.getElementById('ship-container').value = '';
+            document.getElementById('ship-carrier').value = 'COSCO';
+            document.getElementById('ship-etd').value = '';
+            document.getElementById('ship-eta').value = '';
+            document.getElementById('ship-status').value = 'pending';
+            document.getElementById('ship-note').value = '';
+            
+            // 監聽訂單選擇
+            select.onchange = function() {
+                const opt = this.options[this.selectedIndex];
+                document.getElementById('ship-customer').value = opt.dataset.customer || '';
+            };
+            
+            document.getElementById('shipment-modal').classList.remove('hidden');
+            document.getElementById('shipment-modal').classList.add('flex');
+        }
+
+        function closeShipmentModal() {
+            document.getElementById('shipment-modal').classList.add('hidden');
+            document.getElementById('shipment-modal').classList.remove('flex');
+            editingShipmentId = null;
+        }
+
+        async function saveShipment() {
+            const orderId = document.getElementById('ship-order').value;
+            const container = document.getElementById('ship-container').value.trim();
+            
+            if (!orderId) {
+                alert('請選擇關聯訂單');
+                return;
+            }
+            if (!container) {
+                alert('請輸入櫃號');
+                return;
+            }
+            
+            const order = orders.find(o => o.id == orderId);
+            
+            const shipment = {
+                id: editingShipmentId || Date.now(),
+                orderId: parseInt(orderId),
+                orderNo: order?.orderNo || '',
+                customer: document.getElementById('ship-customer').value,
+                container: container,
+                carrier: document.getElementById('ship-carrier').value,
+                etd: document.getElementById('ship-etd').value,
+                eta: document.getElementById('ship-eta').value,
+                status: document.getElementById('ship-status').value,
+                note: document.getElementById('ship-note').value,
+                createdAt: editingShipmentId ? (shipments.find(s => s.id === editingShipmentId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (editingShipmentId) {
+                const idx = shipments.findIndex(s => s.id === editingShipmentId);
+                if (idx >= 0) shipments[idx] = shipment;
+            } else {
+                shipments.push(shipment);
+            }
+            
+            // 更新訂單狀態
+            if (order && shipment.status === 'sailing') {
+                order.status = 'shipped';
+                order.progress = 100;
+                saveData();
+            }
+            
+            await saveShipmentsData();
+            closeShipmentModal();
+            renderShipping();
+            renderAll();
+            showNotification(`✅ 出貨記錄 ${container} 已${editingShipmentId ? '更新' : '建立'}`);
+        }
+
+        function editShipment(id) {
+            const s = shipments.find(x => x.id === id);
+            if (!s) return;
+            
+            // 先打開 modal，再設置編輯 ID（避免被 showNewShipmentModal 清空）
+            showNewShipmentModal();
+            editingShipmentId = id;
+            
+            document.getElementById('ship-order').value = s.orderId;
+            document.getElementById('ship-customer').value = s.customer;
+            document.getElementById('ship-container').value = s.container;
+            document.getElementById('ship-carrier').value = s.carrier;
+            document.getElementById('ship-etd').value = s.etd;
+            document.getElementById('ship-eta').value = s.eta;
+            document.getElementById('ship-status').value = s.status;
+            document.getElementById('ship-note').value = s.note || '';
+        }
+
+        async function deleteShipment(id) {
+            const s = shipments.find(x => x.id === id);
+            if (!s) return;
+            if (confirm(`確定要刪除出貨記錄 ${s.container} 嗎？`)) {
+                shipments = shipments.filter(x => x.id !== id);
+                await saveShipmentsData();
+                renderShipping();
+                showNotification(`🗑️ 出貨記錄已刪除`);
+            }
+        }
+
+        // 修改 renderAll 加入 shipping
+        const originalRenderAll = renderAll;
+        renderAll = function() {
+            originalRenderAll();
+            renderShipping();
+        };
+    </script>
+</body>
+</html>

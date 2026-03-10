@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 JCO ERP 登入</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .login-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="login-bg min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white text-center">
+            <div class="text-4xl mb-2">🏭</div>
+            <h1 class="text-2xl font-bold">JCO ERP 系統</h1>
+            <p class="text-blue-100 text-sm mt-1">傢俱櫥櫃生產管理系統</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="p-8">
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">帳號</label>
+                    <input type="text" id="username" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="輸入帳號">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">密碼</label>
+                    <input type="password" id="password" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="輸入密碼">
+                </div>
+                
+                <div id="error-msg" class="hidden text-red-500 text-sm text-center py-2 bg-red-50 rounded-lg"></div>
+                
+                <button type="submit" 
+                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all">
+                    登入系統
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>忘記密碼？請聯繫管理員</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 px-8 py-4 text-center text-xs text-gray-400">
+            © 2026 JCO Wood Cabinet Factory
+        </div>
+    </div>
+
+    <script>
+        // ====== 用戶資料庫 ======
+        const USERS_DB_KEY = 'JCO_ERP_USERS';
+        
+        // 預設用戶（首次載入）
+        const defaultUsers = [
+            // Admin
+            { id: 1, username: 'admin', password: 'jco2026', name: 'Jerry Boss', dept: 'admin', role: 'admin', permissions: ['all'] },
+            
+            // 開發部門
+            { id: 10, username: 'dev_mgr', password: 'dev123', name: '開發主管', dept: 'development', role: 'manager', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
+            { id: 11, username: 'dev_ast', password: 'dev123', name: '開發助手', dept: 'development', role: 'assistant', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
+            
+            // 業務部門
+            { id: 20, username: 'sales_mgr', password: 'sales123', name: '業務主管', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'shipping', 'reports'] },
+            { id: 21, username: 'sales_1', password: 'sales123', name: '業務助手1', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 22, username: 'sales_2', password: 'sales123', name: '業務助手2', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 23, username: 'sales_3', password: 'sales123', name: '業務助手3', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            { id: 24, username: 'sales_4', password: 'sales123', name: '業務助手4', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
+            
+            // 採購部門
+            { id: 30, username: 'proc_mgr', password: 'proc123', name: '採購組長', dept: 'procurement', role: 'manager', permissions: ['materials', 'suppliers', 'procurement', 'inventory'] },
+            { id: 31, username: 'wh_wood', password: 'wh123', name: '木料倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'materials'] },
+            { id: 32, username: 'wh_hw', password: 'wh123', name: '五金倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'hardware'] },
+            
+            // 品質部門
+            { id: 40, username: 'qc_mgr', password: 'qc123', name: '品質主管', dept: 'quality', role: 'manager', permissions: ['qc', 'shipping', 'reports'] },
+            { id: 41, username: 'qc_ast', password: 'qc123', name: '文書助手', dept: 'quality', role: 'assistant', permissions: ['qc', 'documents'] },
+        ];
+
+        // 初始化用戶資料庫
+        function initUsers() {
+            const stored = localStorage.getItem(USERS_DB_KEY);
+            if (!stored) {
+                localStorage.setItem(USERS_DB_KEY, JSON.stringify(defaultUsers));
+            }
+        }
+
+        // 驗證登入
+        function authenticate(username, password) {
+            const users = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]');
+            return users.find(u => u.username === username && u.password === password);
+        }
+
+        // 儲存登入狀態
+        function saveSession(user) {
+            const session = {
+                userId: user.id,
+                username: user.username,
+                name: user.name,
+                dept: user.dept,
+                role: user.role,
+                permissions: user.permissions,
+                loginAt: new Date().toISOString()
+            };
+            localStorage.setItem('JCO_ERP_SESSION', JSON.stringify(session));
+        }
+
+        // 導向對應頁面
+        function redirectByDept(dept) {
+            const routes = {
+                'admin': 'erp-dashboard.html',
+                'sales': 'erp-order-center.html',
+                'development': 'erp-cost-center.html',
+                'procurement': 'erp-procurement-center.html',
+                'quality': 'erp-order-center.html'  // QC 看訂單出貨狀態
+            };
+            window.location.href = routes[dept] || 'erp-dashboard.html';
+        }
+
+        // 登入處理
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            const user = authenticate(username, password);
+            
+            if (user) {
+                saveSession(user);
+                errorMsg.classList.add('hidden');
+                
+                // 顯示成功訊息
+                errorMsg.textContent = `✅ 歡迎回來，${user.name}！`;
+                errorMsg.classList.remove('hidden', 'text-red-500', 'bg-red-50');
+                errorMsg.classList.add('text-green-500', 'bg-green-50');
+                
+                // 導向對應頁面
+                setTimeout(() => redirectByDept(user.dept), 500);
+            } else {
+                errorMsg.textContent = '❌ 帳號或密碼錯誤';
+                errorMsg.classList.remove('hidden');
+            }
+        });
+
+        // 初始化
+        initUsers();
+        
+        // 檢查是否已登入
+        const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+        if (session) {
+            // 已登入，跳轉
+            redirectByDept(session.dept);
+        }
+    </script>
+</body>
+</html>

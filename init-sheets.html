@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JCO ERP - 工作表初始化工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">🛠️ JCO ERP 工作表初始化工具</h1>
+            
+            <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                <p class="text-blue-800">
+                    <strong>說明：</strong> 此工具會在 Google Sheet 的工作表1-6 中添加標題行。
+                </p>
+                <p class="text-sm text-blue-600 mt-2">
+                    Google Sheet ID: <code class="bg-blue-100 px-1 rounded">1e1U-zCXfscAYS55gzrr-ByP63MvFH8Y08wZ28saF3z4</code>
+                </p>
+            </div>
+            
+            <div class="space-y-4" id="sheets-status">
+                <!-- 工作表狀態會動態載入 -->
+            </div>
+            
+            <div class="mt-6 flex gap-4">
+                <button onclick="checkAllSheets()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    🔍 檢查工作表狀態
+                </button>
+                <button onclick="initializeAllSheets()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    ⚡ 初始化所有工作表
+                </button>
+            </div>
+            
+            <div id="log" class="mt-6 p-4 bg-gray-900 text-green-400 rounded-lg font-mono text-sm max-h-64 overflow-y-auto">
+                <p>等待操作...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzJxOa28fnw81S8o9xLamXxOguVngVB-0n4evvtmleoYA-wqU3r1wvUAtBVYbeJ1H_s/exec';
+        
+        const SHEET_CONFIG = {
+            '工作表1': {
+                name: '訂單管理',
+                headers: ['訂單編號', '客戶', '產品', '數量', '金額', '狀態', '建立日期', '更新日期']
+            },
+            '工作表2': {
+                name: '成本管理',
+                headers: ['項目', '類別', '金額', '日期', '備註', '建立者']
+            },
+            '工作表3': {
+                name: '庫存管理',
+                headers: ['品項', '數量', '安全庫存', '供應商', '位置', '最後更新']
+            },
+            '工作表4': {
+                name: '生產管理',
+                headers: ['工單編號', '產品', '計劃數量', '完成數量', '進度', '開始日期', '完成日期']
+            },
+            '工作表5': {
+                name: '品質管理',
+                headers: ['檢驗編號', '產品', '結果', '問題描述', '檢驗員', '日期']
+            },
+            '工作表6': {
+                name: '人事管理',
+                headers: ['員工編號', '姓名', '部門', '出勤狀態', '日期', '備註']
+            }
+        };
+        
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<p>[${time}] ${msg}</p>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        async function fetchSheet(sheetName) {
+            const url = `${API_URL}?action=read&sheet=${encodeURIComponent(sheetName)}`;
+            const response = await fetch(url);
+            return await response.json();
+        }
+        
+        async function checkAllSheets() {
+            const container = document.getElementById('sheets-status');
+            container.innerHTML = '<p class="text-gray-500">檢查中...</p>';
+            
+            let html = '';
+            
+            for (const [sheet, config] of Object.entries(SHEET_CONFIG)) {
+                try {
+                    log(`檢查 ${sheet} (${config.name})...`);
+                    const result = await fetchSheet(sheet);
+                    
+                    const hasHeaders = result.data?.headers?.length > 0 && result.data.headers[0] !== '';
+                    const rowCount = result.data?.count || 0;
+                    
+                    const statusClass = hasHeaders ? 'bg-green-100 border-green-300' : 'bg-yellow-100 border-yellow-300';
+                    const statusIcon = hasHeaders ? '✅' : '⚠️';
+                    const statusText = hasHeaders ? `已初始化 (${rowCount} 筆資料)` : '尚未初始化';
+                    
+                    html += `
+                        <div class="p-4 rounded-lg border ${statusClass}">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold">${sheet}</span>
+                                    <span class="text-gray-600 ml-2">${config.name}</span>
+                                </div>
+                                <span>${statusIcon} ${statusText}</span>
+                            </div>
+                            ${hasHeaders ? `<p class="text-sm text-gray-500 mt-2">欄位: ${result.data.headers.join(', ')}</p>` : ''}
+                        </div>
+                    `;
+                    
+                    log(`${sheet}: ${statusText}`);
+                } catch (error) {
+                    html += `
+                        <div class="p-4 rounded-lg border bg-red-100 border-red-300">
+                            <span class="font-bold">${sheet}</span>
+                            <span class="text-red-600 ml-2">❌ 錯誤: ${error.message}</span>
+                        </div>
+                    `;
+                    log(`${sheet}: 錯誤 - ${error.message}`);
+                }
+            }
+            
+            container.innerHTML = html;
+            log('檢查完成！');
+        }
+        
+        async function initializeAllSheets() {
+            log('開始初始化所有工作表...');
+            log('⚠️ 注意：由於 Apps Script POST 限制，標題需要手動添加。');
+            log('');
+            log('請在 Google Sheet 中手動添加以下標題行：');
+            log('');
+            
+            for (const [sheet, config] of Object.entries(SHEET_CONFIG)) {
+                log(`📋 ${sheet} (${config.name}):`);
+                log(`   ${config.headers.join(' | ')}`);
+                log('');
+            }
+            
+            log('');
+            log('Google Sheet 連結：');
+            log('https://docs.google.com/spreadsheets/d/1e1U-zCXfscAYS55gzrr-ByP63MvFH8Y08wZ28saF3z4/edit');
+            
+            // 嘗試開啟 Google Sheet
+            window.open('https://docs.google.com/spreadsheets/d/1e1U-zCXfscAYS55gzrr-ByP63MvFH8Y08wZ28saF3z4/edit', '_blank');
+        }
+        
+        // 頁面載入時自動檢查
+        window.onload = function() {
+            log('工具已載入');
+            checkAllSheets();
+        };
+    </script>
+</body>
+</html>

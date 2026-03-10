@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 訂單中心 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">📦 訂單中心</h1>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 flex gap-6 border-t">
+            <button onclick="switchTab('list')" id="tab-list" class="py-3 px-1 text-sm font-medium tab-active">📋 訂單列表</button>
+            <button onclick="switchTab('kanban')" id="tab-kanban" class="py-3 px-1 text-sm font-medium text-gray-500">📊 看板視圖</button>
+            <button onclick="switchTab('shipping')" id="tab-shipping" class="py-3 px-1 text-sm font-medium text-gray-500">🚚 出貨追蹤</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div id="panel-list" class="tab-panel card p-6">
+            <h2 class="text-lg font-bold mb-4">訂單列表</h2>
+            <p>這是訂單列表面板</p>
+        </div>
+        <div id="panel-kanban" class="tab-panel card p-6 hidden">
+            <h2 class="text-lg font-bold mb-4">看板視圖</h2>
+            <p>這是看板視圖面板</p>
+        </div>
+        <div id="panel-shipping" class="tab-panel card p-6 hidden">
+            <h2 class="text-lg font-bold mb-4">出貨追蹤</h2>
+            <p>這是出貨追蹤面板</p>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tab) {
+            console.log('switchTab:', tab);
+            // 隱藏所有面板
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            // 顯示目標面板
+            document.getElementById('panel-' + tab).classList.remove('hidden');
+            
+            // 更新 tab 樣式
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            document.getElementById('tab-' + tab).classList.remove('text-gray-500');
+        }
+        console.log('Script loaded successfully');
+    </script>
+</body>
+</html>

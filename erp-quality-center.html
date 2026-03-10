@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 品質中心 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JCO API 連接器 -->
+    <script src="api-connector.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🔍</span>
+                <h1 class="text-xl font-bold text-gray-800">品質中心</h1>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">JCO ERP</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="exportReport()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">📥 匯出報表</button>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 flex gap-6 border-t">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3 px-1 text-sm font-medium tab-active">📊 品質儀表板</button>
+            <button onclick="switchTab('inspection')" id="tab-inspection" class="py-3 px-1 text-sm font-medium text-gray-500">✅ 品檢作業</button>
+            <button onclick="switchTab('defect')" id="tab-defect" class="py-3 px-1 text-sm font-medium text-gray-500">⚠️ 不良分析</button>
+            <button onclick="switchTab('complaint')" id="tab-complaint" class="py-3 px-1 text-sm font-medium text-gray-500">📋 客訴管理</button>
+            <button onclick="switchTab('sample')" id="tab-sample" class="py-3 px-1 text-sm font-medium text-gray-500">🧪 樣品追蹤</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- 統計卡片 -->
+        <div class="grid grid-cols-5 gap-4 mb-6">
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-green-600">98.2%</div>
+                <div class="text-xs text-gray-500">合格率</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-red-600">1.8%</div>
+                <div class="text-xs text-gray-500">不良率</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-yellow-600">5</div>
+                <div class="text-xs text-gray-500">待檢批次</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-blue-600">3</div>
+                <div class="text-xs text-gray-500">本月客訴</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-purple-600">2</div>
+                <div class="text-xs text-gray-500">待確認樣品</div>
+            </div>
+        </div>
+
+        <!-- 品質儀表板 -->
+        <div id="panel-dashboard" class="tab-panel">
+            <div class="grid grid-cols-3 gap-6">
+                <!-- 品質趨勢 -->
+                <div class="col-span-2 card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📈 品質趨勢（近 7 天）</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500">02/01</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 97.5%"></div>
+                                <div class="bg-red-500 rounded" style="width: 2.5%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right">97.5%</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500">02/02</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 98.1%"></div>
+                                <div class="bg-red-500 rounded" style="width: 1.9%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right">98.1%</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500">02/03</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 97.8%"></div>
+                                <div class="bg-red-500 rounded" style="width: 2.2%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right">97.8%</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500">02/04</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 98.5%"></div>
+                                <div class="bg-red-500 rounded" style="width: 1.5%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right">98.5%</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500">02/05</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 98.3%"></div>
+                                <div class="bg-red-500 rounded" style="width: 1.7%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right">98.3%</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="w-16 text-sm text-gray-500 font-bold">02/06</span>
+                            <div class="flex-1 flex gap-1 h-8">
+                                <div class="bg-green-500 rounded" style="width: 98.2%"></div>
+                                <div class="bg-red-500 rounded" style="width: 1.8%"></div>
+                            </div>
+                            <span class="w-16 text-sm text-right font-bold">98.2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 不良分類 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">⚠️ 不良分類</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>表面瑕疵</span>
+                                <span>35%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>尺寸偏差</span>
+                                <span>28%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-orange-500 h-2 rounded-full" style="width: 28%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>組裝問題</span>
+                                <span>20%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>色差</span>
+                                <span>12%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 12%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>其他</span>
+                                <span>5%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-gray-500 h-2 rounded-full" style="width: 5%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日品檢 & 客訴 -->
+            <div class="grid grid-cols-2 gap-6 mt-6">
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">✅ 今日品檢</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-3 border-b">
+                            <div>
+                                <div class="font-medium">WO-2026-084 完工檢</div>
+                                <div class="text-sm text-gray-500">B24 × 80 pcs</div>
+                            </div>
+                            <span class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full">✓ 通過</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b">
+                            <div>
+                                <div class="font-medium">WO-2026-085 製程檢</div>
+                                <div class="text-sm text-gray-500">門片油漆</div>
+                            </div>
+                            <span class="text-xs bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full">檢驗中</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <div class="font-medium">PO-2026-025 進料檢</div>
+                                <div class="text-sm text-gray-500">白樺膠合板 × 100</div>
+                            </div>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">待檢</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📋 近期客訴</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-3 border-b">
+                            <div>
+                                <div class="font-medium">CI - PO-2026-001</div>
+                                <div class="text-sm text-gray-500">門片色差</div>
+                            </div>
+                            <span class="text-xs bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full">調查中</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b">
+                            <div>
+                                <div class="font-medium">CI - PO-2026-003</div>
+                                <div class="text-sm text-gray-500">短裝 2 pcs</div>
+                            </div>
+                            <span class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full">已解決</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <div class="font-medium">CI - PO-2026-005</div>
+                                <div class="text-sm text-gray-500">五金損壞</div>
+                            </div>
+                            <span class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full">已解決</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 品檢作業 -->
+        <div id="panel-inspection" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">✅ 品檢記錄</h2>
+                    <button onclick="newInspection()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">+ 新增檢驗</button>
+                </div>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">檢驗單號</th>
+                            <th class="text-left py-3 px-4">類型</th>
+                            <th class="text-left py-3 px-4">工單/採購單</th>
+                            <th class="text-left py-3 px-4">產品</th>
+                            <th class="text-right py-3 px-4">批量</th>
+                            <th class="text-right py-3 px-4">抽樣</th>
+                            <th class="text-right py-3 px-4">不良</th>
+                            <th class="text-left py-3 px-4">結果</th>
+                            <th class="text-left py-3 px-4">檢驗員</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">QC-2026-156</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">完工檢</span></td>
+                            <td class="py-3 px-4">WO-2026-084</td>
+                            <td class="py-3 px-4">B24</td>
+                            <td class="py-3 px-4 text-right">80</td>
+                            <td class="py-3 px-4 text-right">8</td>
+                            <td class="py-3 px-4 text-right">0</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">合格</span></td>
+                            <td class="py-3 px-4">品管 A</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">QC-2026-155</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">製程檢</span></td>
+                            <td class="py-3 px-4">WO-2026-085</td>
+                            <td class="py-3 px-4">門片</td>
+                            <td class="py-3 px-4 text-right">400</td>
+                            <td class="py-3 px-4 text-right">20</td>
+                            <td class="py-3 px-4 text-right">1</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">待判定</span></td>
+                            <td class="py-3 px-4">品管 B</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">QC-2026-154</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">進料檢</span></td>
+                            <td class="py-3 px-4">PO-2026-023</td>
+                            <td class="py-3 px-4">白樺膠合板</td>
+                            <td class="py-3 px-4 text-right">100</td>
+                            <td class="py-3 px-4 text-right">5</td>
+                            <td class="py-3 px-4 text-right">0</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">合格</span></td>
+                            <td class="py-3 px-4">品管 A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- QC 檢查表 -->
+            <div class="card p-6 mt-6">
+                <h2 class="text-lg font-semibold mb-4">📋 QC 檢查項目</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-medium mb-3">櫥櫃檢查項目</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 尺寸符合圖紙 (±1mm)
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 表面無刮傷、凹痕
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 封邊平整無氣泡
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 門片開關順暢
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 抽屜滑軌順暢
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 色澤一致
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 五金安裝牢固
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-3">油漆檢查項目</h3>
+                        <div class="space-y-2 text-sm">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 顏色符合色板
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 光澤度 25±5
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 無流掛、橘皮
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 無針孔、氣泡
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 附著力測試通過
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="rounded"> 硬度測試通過
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 不良分析 -->
+        <div id="panel-defect" class="tab-panel hidden">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">⚠️ 不良品統計</h2>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">日期</th>
+                            <th class="text-left py-3 px-4">工單</th>
+                            <th class="text-left py-3 px-4">產品</th>
+                            <th class="text-left py-3 px-4">不良類型</th>
+                            <th class="text-right py-3 px-4">數量</th>
+                            <th class="text-left py-3 px-4">原因</th>
+                            <th class="text-left py-3 px-4">處理方式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">2026-02-06</td>
+                            <td class="py-3 px-4">WO-2026-085</td>
+                            <td class="py-3 px-4">門片</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">表面瑕疵</span></td>
+                            <td class="py-3 px-4 text-right">3</td>
+                            <td class="py-3 px-4">噴塗不均</td>
+                            <td class="py-3 px-4">返工重噴</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">2026-02-05</td>
+                            <td class="py-3 px-4">WO-2026-082</td>
+                            <td class="py-3 px-4">B36</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">尺寸偏差</span></td>
+                            <td class="py-3 px-4 text-right">2</td>
+                            <td class="py-3 px-4">開料偏差</td>
+                            <td class="py-3 px-4">報廢</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">2026-02-05</td>
+                            <td class="py-3 px-4">WO-2026-081</td>
+                            <td class="py-3 px-4">W3030</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">組裝問題</span></td>
+                            <td class="py-3 px-4 text-right">1</td>
+                            <td class="py-3 px-4">門片歪斜</td>
+                            <td class="py-3 px-4">返工調整</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 客訴管理 -->
+        <div id="panel-complaint" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">📋 客訴記錄</h2>
+                    <a href="🔍 客訴追蹤系統v2.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
+                        → 前往客訴系統
+                    </a>
+                </div>
+                <p class="text-gray-500">完整客訴管理功能請使用「客訴追蹤系統 v2」</p>
+            </div>
+        </div>
+
+        <!-- 樣品追蹤 -->
+        <div id="panel-sample" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">🧪 樣品追蹤</h2>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">+ 新增樣品</button>
+                </div>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">樣品編號</th>
+                            <th class="text-left py-3 px-4">客戶</th>
+                            <th class="text-left py-3 px-4">產品</th>
+                            <th class="text-left py-3 px-4">需求日期</th>
+                            <th class="text-left py-3 px-4">狀態</th>
+                            <th class="text-left py-3 px-4">備註</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">SAM-2026-012</td>
+                            <td class="py-3 px-4">CI</td>
+                            <td class="py-3 px-4">新款 Shaker 門片</td>
+                            <td class="py-3 px-4">2026-02-15</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">製作中</span></td>
+                            <td class="py-3 px-4">新樣式確認</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">SAM-2026-011</td>
+                            <td class="py-3 px-4">CI</td>
+                            <td class="py-3 px-4">VB36 新色</td>
+                            <td class="py-3 px-4">2026-02-10</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">待確認</span></td>
+                            <td class="py-3 px-4">新色號測試</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">SAM-2026-010</td>
+                            <td class="py-3 px-4">Other</td>
+                            <td class="py-3 px-4">抽屜盒樣品</td>
+                            <td class="py-3 px-4">2026-02-08</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">已確認</span></td>
+                            <td class="py-3 px-4">客戶已確認下單</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tab) {
+        // === JCO_API 安全檢查 ===
+        if (typeof JCO_API === 'undefined') {
+            console.warn('JCO_API 未載入，使用本地模式');
+            window.JCO_API = {
+                isOnline: false,
+                async getSheetData(key) { 
+                    return JSON.parse(localStorage.getItem('jco-' + key) || '[]'); 
+                },
+                async appendToSheet(key, data) { 
+                    const arr = JSON.parse(localStorage.getItem('jco-' + key) || '[]');
+                    arr.push(data);
+                    localStorage.setItem('jco-' + key, JSON.stringify(arr));
+                    return { status: 'ok' };
+                },
+                async apiCall(action, params) { 
+                    console.log('離線模式:', action, params);
+                    return { status: 'ok' }; 
+                }
+            };
+        }
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+        }
+        function exportReport() { alert('匯出功能整合中...'); }
+        function newInspection() { alert('新增檢驗功能整合中...'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👥 人事中心 - JCO ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JCO API 連接器 -->
+    <script src="api-connector.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">👥</span>
+                <h1 class="text-xl font-bold text-gray-800">人事中心</h1>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">JCO ERP</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="exportPayroll()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">📥 匯出薪資表</button>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 flex gap-6 border-t">
+            <button onclick="switchTab('overview')" id="tab-overview" class="py-3 px-1 text-sm font-medium tab-active">📊 人事總覽</button>
+            <button onclick="switchTab('attendance')" id="tab-attendance" class="py-3 px-1 text-sm font-medium text-gray-500">📅 出勤管理</button>
+            <button onclick="switchTab('payroll')" id="tab-payroll" class="py-3 px-1 text-sm font-medium text-gray-500">💰 薪資計算</button>
+            <button onclick="switchTab('overtime')" id="tab-overtime" class="py-3 px-1 text-sm font-medium text-gray-500">⏰ 加班管理</button>
+            <button onclick="switchTab('piecework')" id="tab-piecework" class="py-3 px-1 text-sm font-medium text-gray-500">📦 計件薪資</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- 統計卡片 -->
+        <div class="grid grid-cols-5 gap-4 mb-6">
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-blue-600">248</div>
+                <div class="text-xs text-gray-500">在職人數</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-green-600">235</div>
+                <div class="text-xs text-gray-500">今日出勤</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-yellow-600">8</div>
+                <div class="text-xs text-gray-500">請假人數</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-purple-600">156</div>
+                <div class="text-xs text-gray-500">本月加班時數</div>
+            </div>
+            <div class="card p-4">
+                <div class="text-2xl font-bold text-red-600">94.7%</div>
+                <div class="text-xs text-gray-500">出勤率</div>
+            </div>
+        </div>
+
+        <!-- 人事總覽 -->
+        <div id="panel-overview" class="tab-panel">
+            <div class="grid grid-cols-3 gap-6">
+                <!-- 部門人數 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">🏢 部門人數</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span>生產部</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                                <span class="font-medium w-8">180</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>品管部</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 10%"></div>
+                                </div>
+                                <span class="font-medium w-8">25</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>倉庫</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 8%"></div>
+                                </div>
+                                <span class="font-medium w-8">20</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>辦公室</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 6%"></div>
+                                </div>
+                                <span class="font-medium w-8">15</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>其他</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-gray-500 h-2 rounded-full" style="width: 4%"></div>
+                                </div>
+                                <span class="font-medium w-8">8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日出勤 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">📅 今日出勤狀況</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-gray-600">正常出勤</span>
+                            <span class="font-bold text-green-600">235 人</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-gray-600">事假</span>
+                            <span class="font-bold text-yellow-600">3 人</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-gray-600">病假</span>
+                            <span class="font-bold text-orange-600">2 人</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-gray-600">特休</span>
+                            <span class="font-bold text-blue-600">3 人</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-gray-600">曠職</span>
+                            <span class="font-bold text-red-600">0 人</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-t pt-3">
+                            <span class="font-medium">出勤率</span>
+                            <span class="font-bold text-2xl">94.7%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 本月薪資概況 -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4">💰 本月薪資概況</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between py-2 border-b">
+                            <span class="text-gray-600">基本薪資</span>
+                            <span class="font-medium">$85,000</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b">
+                            <span class="text-gray-600">加班費</span>
+                            <span class="font-medium">$12,500</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b">
+                            <span class="text-gray-600">計件獎金</span>
+                            <span class="font-medium">$8,200</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b">
+                            <span class="text-gray-600">全勤獎金</span>
+                            <span class="font-medium">$3,500</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b">
+                            <span class="text-gray-600">扣款（請假等）</span>
+                            <span class="font-medium text-red-600">-$1,800</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 bg-blue-50 rounded-lg px-3 -mx-3">
+                            <span class="font-semibold">預估總支出</span>
+                            <span class="font-bold text-xl text-blue-600">$107,400</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 出勤管理 -->
+        <div id="panel-attendance" class="tab-panel hidden">
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">📅 出勤記錄</h2>
+                    <div class="flex gap-2">
+                        <input type="date" class="px-3 py-2 border rounded-lg text-sm" value="2026-02-06">
+                        <select class="px-3 py-2 border rounded-lg text-sm">
+                            <option>全部部門</option>
+                            <option>生產部</option>
+                            <option>品管部</option>
+                            <option>倉庫</option>
+                            <option>辦公室</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">工號</th>
+                            <th class="text-left py-3 px-4">姓名</th>
+                            <th class="text-left py-3 px-4">部門</th>
+                            <th class="text-left py-3 px-4">上班</th>
+                            <th class="text-left py-3 px-4">下班</th>
+                            <th class="text-right py-3 px-4">工時</th>
+                            <th class="text-left py-3 px-4">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E001</td>
+                            <td class="py-3 px-4 font-medium">Nguyen Van A</td>
+                            <td class="py-3 px-4">生產部</td>
+                            <td class="py-3 px-4">07:28</td>
+                            <td class="py-3 px-4">16:15</td>
+                            <td class="py-3 px-4 text-right">8.5h</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">正常</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E002</td>
+                            <td class="py-3 px-4 font-medium">Tran Thi B</td>
+                            <td class="py-3 px-4">品管部</td>
+                            <td class="py-3 px-4">07:35</td>
+                            <td class="py-3 px-4">-</td>
+                            <td class="py-3 px-4 text-right">-</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">工作中</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E003</td>
+                            <td class="py-3 px-4 font-medium">Le Van C</td>
+                            <td class="py-3 px-4">生產部</td>
+                            <td class="py-3 px-4">07:45</td>
+                            <td class="py-3 px-4">-</td>
+                            <td class="py-3 px-4 text-right">-</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">遲到</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E004</td>
+                            <td class="py-3 px-4 font-medium">Pham Thi D</td>
+                            <td class="py-3 px-4">倉庫</td>
+                            <td class="py-3 px-4">-</td>
+                            <td class="py-3 px-4">-</td>
+                            <td class="py-3 px-4 text-right">-</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">病假</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 薪資計算 -->
+        <div id="panel-payroll" class="tab-panel hidden">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">💰 薪資計算（越南勞動法）</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- 輸入 -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">基本月薪 (VND)</label>
+                            <input type="number" id="base-salary" value="7000000" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">實際工作天數</label>
+                            <input type="number" id="work-days" value="24" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">平日加班時數</label>
+                            <input type="number" id="ot-normal" value="10" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">週末加班時數</label>
+                            <input type="number" id="ot-weekend" value="8" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">假日加班時數</label>
+                            <input type="number" id="ot-holiday" value="0" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">請假天數</label>
+                            <input type="number" id="leave-days" value="0" class="w-full px-3 py-2 border rounded-lg" onchange="calcPayroll()">
+                        </div>
+                    </div>
+                    <!-- 結果 -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="font-semibold mb-4">薪資明細</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between py-2 border-b">
+                                <span>基本薪資</span>
+                                <span id="pay-base">7,000,000</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b">
+                                <span>平日加班費 (150%)</span>
+                                <span id="pay-ot-normal">0</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b">
+                                <span>週末加班費 (200%)</span>
+                                <span id="pay-ot-weekend">0</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b">
+                                <span>假日加班費 (300%)</span>
+                                <span id="pay-ot-holiday">0</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b">
+                                <span>請假扣款</span>
+                                <span id="pay-deduct" class="text-red-600">0</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b">
+                                <span>社會保險 (10.5%)</span>
+                                <span id="pay-insurance" class="text-red-600">0</span>
+                            </div>
+                            <div class="flex justify-between py-3 bg-white rounded-lg px-3 -mx-3 mt-2">
+                                <span class="font-semibold">實領薪資</span>
+                                <span id="pay-total" class="font-bold text-xl text-blue-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加班管理 -->
+        <div id="panel-overtime" class="tab-panel hidden">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">⏰ 加班申請記錄</h2>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">日期</th>
+                            <th class="text-left py-3 px-4">工號</th>
+                            <th class="text-left py-3 px-4">姓名</th>
+                            <th class="text-left py-3 px-4">部門</th>
+                            <th class="text-left py-3 px-4">類型</th>
+                            <th class="text-right py-3 px-4">時數</th>
+                            <th class="text-left py-3 px-4">原因</th>
+                            <th class="text-left py-3 px-4">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">2026-02-06</td>
+                            <td class="py-3 px-4">E001</td>
+                            <td class="py-3 px-4">Nguyen Van A</td>
+                            <td class="py-3 px-4">生產部</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">平日</span></td>
+                            <td class="py-3 px-4 text-right">2h</td>
+                            <td class="py-3 px-4">趕貨</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">已核准</span></td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">2026-02-08</td>
+                            <td class="py-3 px-4">E005</td>
+                            <td class="py-3 px-4">Hoang Van E</td>
+                            <td class="py-3 px-4">生產部</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">週末</span></td>
+                            <td class="py-3 px-4 text-right">8h</td>
+                            <td class="py-3 px-4">急單</td>
+                            <td class="py-3 px-4"><span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">待核准</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 加班費率說明 -->
+            <div class="card p-6 mt-6">
+                <h2 class="text-lg font-semibold mb-4">📋 越南加班費率（勞動法規定）</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-blue-600">150%</div>
+                        <div class="text-sm text-blue-700 mt-1">平日加班</div>
+                        <div class="text-xs text-gray-500 mt-2">正常工時後</div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-yellow-600">200%</div>
+                        <div class="text-sm text-yellow-700 mt-1">週末加班</div>
+                        <div class="text-xs text-gray-500 mt-2">週六、週日</div>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-red-600">300%</div>
+                        <div class="text-sm text-red-700 mt-1">假日加班</div>
+                        <div class="text-xs text-gray-500 mt-2">國定假日</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 計件薪資 -->
+        <div id="panel-piecework" class="tab-panel hidden">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">📦 計件薪資統計</h2>
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left py-3 px-4">工號</th>
+                            <th class="text-left py-3 px-4">姓名</th>
+                            <th class="text-left py-3 px-4">工序</th>
+                            <th class="text-right py-3 px-4">本日件數</th>
+                            <th class="text-right py-3 px-4">單價</th>
+                            <th class="text-right py-3 px-4">本日計件</th>
+                            <th class="text-right py-3 px-4">本月累計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E010</td>
+                            <td class="py-3 px-4 font-medium">Dao Van F</td>
+                            <td class="py-3 px-4">開料</td>
+                            <td class="py-3 px-4 text-right">85</td>
+                            <td class="py-3 px-4 text-right">5,000</td>
+                            <td class="py-3 px-4 text-right text-green-600">425,000</td>
+                            <td class="py-3 px-4 text-right font-medium">8,500,000</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E011</td>
+                            <td class="py-3 px-4 font-medium">Bui Thi G</td>
+                            <td class="py-3 px-4">封邊</td>
+                            <td class="py-3 px-4 text-right">120</td>
+                            <td class="py-3 px-4 text-right">3,500</td>
+                            <td class="py-3 px-4 text-right text-green-600">420,000</td>
+                            <td class="py-3 px-4 text-right font-medium">7,800,000</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E012</td>
+                            <td class="py-3 px-4 font-medium">Vu Van H</td>
+                            <td class="py-3 px-4">組裝</td>
+                            <td class="py-3 px-4 text-right">25</td>
+                            <td class="py-3 px-4 text-right">15,000</td>
+                            <td class="py-3 px-4 text-right text-green-600">375,000</td>
+                            <td class="py-3 px-4 text-right font-medium">6,750,000</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3 px-4">E013</td>
+                            <td class="py-3 px-4 font-medium">Ngo Thi I</td>
+                            <td class="py-3 px-4">噴漆</td>
+                            <td class="py-3 px-4 text-right">60</td>
+                            <td class="py-3 px-4 text-right">8,000</td>
+                            <td class="py-3 px-4 text-right text-green-600">480,000</td>
+                            <td class="py-3 px-4 text-right font-medium">9,200,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tab) {
+        // === JCO_API 安全檢查 ===
+        if (typeof JCO_API === 'undefined') {
+            console.warn('JCO_API 未載入，使用本地模式');
+            window.JCO_API = {
+                isOnline: false,
+                async getSheetData(key) { 
+                    return JSON.parse(localStorage.getItem('jco-' + key) || '[]'); 
+                },
+                async appendToSheet(key, data) { 
+                    const arr = JSON.parse(localStorage.getItem('jco-' + key) || '[]');
+                    arr.push(data);
+                    localStorage.setItem('jco-' + key, JSON.stringify(arr));
+                    return { status: 'ok' };
+                },
+                async apiCall(action, params) { 
+                    console.log('離線模式:', action, params);
+                    return { status: 'ok' }; 
+                }
+            };
+        }
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+        }
+
+        function calcPayroll() {
+            const baseSalary = parseFloat(document.getElementById('base-salary').value) || 0;
+            const workDays = parseFloat(document.getElementById('work-days').value) || 0;
+            const otNormal = parseFloat(document.getElementById('ot-normal').value) || 0;
+            const otWeekend = parseFloat(document.getElementById('ot-weekend').value) || 0;
+            const otHoliday = parseFloat(document.getElementById('ot-holiday').value) || 0;
+            const leaveDays = parseFloat(document.getElementById('leave-days').value) || 0;
+
+            const hourlyRate = baseSalary / 26 / 8; // 26 天，8 小時
+
+            const otNormalPay = otNormal * hourlyRate * 1.5;
+            const otWeekendPay = otWeekend * hourlyRate * 2.0;
+            const otHolidayPay = otHoliday * hourlyRate * 3.0;
+            const deduct = leaveDays * (baseSalary / 26);
+            const insurance = baseSalary * 0.105; // 10.5% 員工負擔
+
+            const total = baseSalary + otNormalPay + otWeekendPay + otHolidayPay - deduct - insurance;
+
+            document.getElementById('pay-base').textContent = baseSalary.toLocaleString();
+            document.getElementById('pay-ot-normal').textContent = Math.round(otNormalPay).toLocaleString();
+            document.getElementById('pay-ot-weekend').textContent = Math.round(otWeekendPay).toLocaleString();
+            document.getElementById('pay-ot-holiday').textContent = Math.round(otHolidayPay).toLocaleString();
+            document.getElementById('pay-deduct').textContent = '-' + Math.round(deduct).toLocaleString();
+            document.getElementById('pay-insurance').textContent = '-' + Math.round(insurance).toLocaleString();
+            document.getElementById('pay-total').textContent = Math.round(total).toLocaleString() + ' VND';
+        }
+
+        function exportPayroll() { alert('匯出功能整合中...'); }
+
+        // 初始化計算
+        document.addEventListener('DOMContentLoaded', calcPayroll);
+    </script>
+</body>
+</html>
