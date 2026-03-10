@@ -1400,33 +1400,46 @@
                 return;
             }
             
-            const orderNo = 'PO-2026-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
+            // 生成新訂單號
+            const existingNos = ordersData.map(o => parseInt((o[0] || '').replace('PO-2026-', '')) || 0);
+            const maxNo = Math.max(...existingNos, 5);
+            const orderNo = 'PO-2026-' + String(maxNo + 1).padStart(3, '0');
             
             // 產品顯示：第一個 + 其他數量
             const productDisplay = skus.length === 1 
                 ? skus[0].model 
                 : `${skus[0].model} +${skus.length - 1}項 (${skus.length} SKU)`;
             
-            // 寫入 Google Sheets
-            if (window.erpApi) {
+            // 新訂單資料
+            const newOrder = [
+                orderNo, 
+                customer, 
+                productDisplay, 
+                totalQty, 
+                totalAmount, 
+                date || new Date().toISOString().split('T')[0], 
+                '草稿'
+            ];
+            
+            // 立即加入本地資料（確保顯示）
+            ordersData.push(newOrder);
+            
+            // 嘗試寫入 Google Sheets
+            if (window.erpApi && !erpApi.forceOffline) {
                 try {
                     await erpApi.appendToSheet('orders', [
-                        orderNo, 
-                        customer, 
-                        productDisplay, 
-                        totalQty, 
-                        totalAmount, 
-                        date, 
-                        '草稿', 
+                        ...newOrder,
                         new Date().toISOString(),
-                        JSON.stringify(skus),  // SKU 明細 JSON
+                        JSON.stringify(skus),
                         notes
                     ]);
-                    showToast(`✅ 訂單 ${orderNo} 已建立（${skus.length} 個品項）`);
+                    showToast(`✅ 訂單 ${orderNo} 已建立並同步`);
                 } catch (e) {
                     console.error('API Error:', e);
-                    showToast(`⚠️ 訂單已建立（離線模式）`);
+                    showToast(`✅ 訂單 ${orderNo} 已建立（本地）`);
                 }
+            } else {
+                showToast(`✅ 訂單 ${orderNo} 已建立（本地）`);
             }
             
             if (window.AuditLogger) {
@@ -1434,7 +1447,11 @@
             }
             
             closeModal();
-            loadOrders(); // 重新載入訂單
+            
+            // 重新渲染（不重新載入，直接用本地資料）
+            renderOrdersTable(ordersData);
+            renderKanban(ordersData);
+            updateStats(ordersData);
         }
         
         // 匯出功能
