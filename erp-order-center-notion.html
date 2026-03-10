@@ -1383,10 +1383,23 @@
             let totalQty = 0;
             let totalAmount = 0;
             
-            skuLines.forEach(line => {
-                const model = line.querySelector('.sku-model').value.trim();
-                const qty = parseInt(line.querySelector('.sku-qty').value) || 0;
-                const price = parseFloat(line.querySelector('.sku-price').value) || 0;
+            console.log('📦 createOrder 開始...');
+            console.log('SKU Lines found:', skuLines.length);
+            
+            skuLines.forEach((line, idx) => {
+                const modelInput = line.querySelector('.sku-model');
+                const qtyInput = line.querySelector('.sku-qty');
+                const priceInput = line.querySelector('.sku-price');
+                
+                console.log(`Line ${idx}:`, {
+                    modelInput: modelInput?.value,
+                    qtyInput: qtyInput?.value,
+                    priceInput: priceInput?.value
+                });
+                
+                const model = modelInput?.value?.trim() || '';
+                const qty = parseInt(qtyInput?.value) || 0;
+                const price = parseFloat(priceInput?.value) || 0;
                 
                 if (model && qty > 0) {
                     skus.push({ model, qty, price, subtotal: qty * price });
@@ -1395,8 +1408,11 @@
                 }
             });
             
+            console.log('收集到的 SKUs:', skus);
+            
             if (skus.length === 0) {
-                alert('請至少填寫一個產品品項');
+                alert('請至少填寫一個產品品項（型號+數量）');
+                console.log('❌ 沒有有效的 SKU，取消創建');
                 return;
             }
             
@@ -1449,9 +1465,14 @@
             closeModal();
             
             // 重新渲染（不重新載入，直接用本地資料）
+            console.log('✅ 訂單創建成功！ordersData 現在有', ordersData.length, '筆');
+            console.log('新訂單:', newOrder);
+            
             renderOrdersTable(ordersData);
             renderKanban(ordersData);
             updateStats(ordersData);
+            
+            alert(`✅ 訂單 ${orderNo} 已成功建立！`);
         }
         
         // 匯出功能
