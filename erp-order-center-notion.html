@@ -1451,8 +1451,92 @@
         }
         
         function editOrder() {
-            showToast('✏️ 編輯功能開發中');
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
+            
+            const order = ordersData[currentActionRow - 2];
+            if (!order) return;
+            
+            const [orderNo, customer, product, qty, amount, date, status] = order;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal" style="width: 500px;">
+                    <div class="modal-header">
+                        <h3>✏️ 編輯訂單 ${orderNo}</h3>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>客戶</label>
+                            <select id="edit-customer">
+                                <option value="CI" ${customer === 'CI' ? 'selected' : ''}>CI</option>
+                                <option value="Other" ${customer !== 'CI' ? 'selected' : ''}>其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>產品</label>
+                            <input type="text" id="edit-product" value="${product || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>數量</label>
+                            <input type="number" id="edit-qty" value="${qty || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>金額</label>
+                            <input type="number" id="edit-amount" value="${amount || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>交期</label>
+                            <input type="date" id="edit-date" value="${date || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>狀態</label>
+                            <select id="edit-status">
+                                <option value="草稿" ${status === '草稿' ? 'selected' : ''}>草稿</option>
+                                <option value="已確認" ${status === '已確認' ? 'selected' : ''}>已確認</option>
+                                <option value="生產中" ${status === '生產中' ? 'selected' : ''}>生產中</option>
+                                <option value="待驗貨" ${status === '待驗貨' ? 'selected' : ''}>待驗貨</option>
+                                <option value="已出貨" ${status === '已出貨' ? 'selected' : ''}>已出貨</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="saveOrderEdit()">儲存</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function saveOrderEdit() {
+            const newData = [
+                ordersData[currentActionRow - 2][0], // 保留原訂單號
+                document.getElementById('edit-customer').value,
+                document.getElementById('edit-product').value,
+                document.getElementById('edit-qty').value,
+                document.getElementById('edit-amount').value,
+                document.getElementById('edit-date').value,
+                document.getElementById('edit-status').value,
+                ordersData[currentActionRow - 2][7] || new Date().toISOString() // 保留建立時間
+            ];
+            
+            if (window.erpApi) {
+                try {
+                    await erpApi.updateSheetRow('orders', currentActionRow, newData);
+                    showToast(`✅ 訂單已更新`);
+                    closeModal();
+                    loadOrders();
+                } catch (e) {
+                    console.error(e);
+                    showToast('⚠️ 更新失敗');
+                }
+            }
+            
+            if (window.AuditLogger) {
+                AuditLogger.logUpdate('orders', `編輯訂單 ${newData[0]}`);
+            }
         }
         
         async function changeStatus() {
