@@ -552,6 +552,20 @@
         .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(35,131,226,0.1); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); }
+        .form-row { display: flex; gap: 16px; }
+        .sku-section { margin: 16px 0; padding: 16px; background: var(--bg-secondary); border-radius: 8px; }
+        .sku-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .sku-header label { font-weight: 600; }
+        #sku-lines { display: flex; flex-direction: column; gap: 8px; }
+        .sku-line { display: flex; gap: 8px; align-items: center; }
+        .sku-line input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .sku-line .sku-model { flex: 2; }
+        .sku-line .sku-qty { flex: 1; }
+        .sku-line .sku-price { flex: 1; }
+        .btn-remove { width: 28px; height: 28px; border: none; background: #fee2e2; color: #dc2626; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn-remove:hover { background: #fecaca; }
+        .sku-total { margin-top: 12px; text-align: right; font-weight: 600; padding-top: 12px; border-top: 1px solid var(--border); }
+        textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; min-height: 60px; resize: vertical; font-family: inherit; }
         
         /* Action Menu */
         .menu-item { padding: 10px 16px; cursor: pointer; font-size: 14px; }
@@ -1198,35 +1212,55 @@
         
         // ==================== 按鈕功能 ====================
         
-        // 新增訂單 Modal
+        // 新增訂單 Modal（支援多 SKU）
+        let skuCount = 1;
+        
         function showNewOrderModal() {
+            skuCount = 1;
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
-                <div class="modal">
+                <div class="modal" style="width: 600px;">
                     <div class="modal-header">
                         <h3>📦 新增訂單</h3>
                         <button class="close-btn" onclick="closeModal()">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label>客戶</label>
-                            <select id="new-customer">
-                                <option value="CI">CI</option>
-                                <option value="Other">其他</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group" style="flex:1">
+                                <label>客戶</label>
+                                <select id="new-customer">
+                                    <option value="CI">CI</option>
+                                    <option value="Other">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label>交期</label>
+                                <input type="date" id="new-date">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>產品型號</label>
-                            <input type="text" id="new-product" placeholder="例：B36, W3030">
+                        
+                        <div class="sku-section">
+                            <div class="sku-header">
+                                <label>產品明細（SKU）</label>
+                                <button class="btn btn-secondary" type="button" onclick="addSkuLine()">+ 新增品項</button>
+                            </div>
+                            <div id="sku-lines">
+                                <div class="sku-line" data-sku="1">
+                                    <input type="text" class="sku-model" placeholder="型號 (如 B36)">
+                                    <input type="number" class="sku-qty" placeholder="數量">
+                                    <input type="number" class="sku-price" placeholder="單價">
+                                    <button class="btn-remove" onclick="removeSkuLine(this)" title="刪除">×</button>
+                                </div>
+                            </div>
+                            <div class="sku-total">
+                                總計: <span id="sku-total-amount">$0</span> (<span id="sku-total-qty">0</span> 件)
+                            </div>
                         </div>
+                        
                         <div class="form-group">
-                            <label>數量</label>
-                            <input type="number" id="new-qty" placeholder="數量">
-                        </div>
-                        <div class="form-group">
-                            <label>交期</label>
-                            <input type="date" id="new-date">
+                            <label>備註</label>
+                            <textarea id="new-notes" placeholder="訂單備註..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1236,7 +1270,58 @@
                 </div>
             `;
             document.body.appendChild(modal);
+            
+            // 綁定計算事件
+            document.querySelectorAll('.sku-qty, .sku-price').forEach(input => {
+                input.addEventListener('input', calculateTotal);
+            });
+            
             if (window.AuditLogger) AuditLogger.logView('orders', '打開新增訂單視窗');
+        }
+        
+        function addSkuLine() {
+            skuCount++;
+            const container = document.getElementById('sku-lines');
+            const line = document.createElement('div');
+            line.className = 'sku-line';
+            line.dataset.sku = skuCount;
+            line.innerHTML = `
+                <input type="text" class="sku-model" placeholder="型號 (如 W3030)">
+                <input type="number" class="sku-qty" placeholder="數量">
+                <input type="number" class="sku-price" placeholder="單價">
+                <button class="btn-remove" onclick="removeSkuLine(this)" title="刪除">×</button>
+            `;
+            container.appendChild(line);
+            
+            // 綁定計算事件
+            line.querySelectorAll('.sku-qty, .sku-price').forEach(input => {
+                input.addEventListener('input', calculateTotal);
+            });
+        }
+        
+        function removeSkuLine(btn) {
+            const lines = document.querySelectorAll('.sku-line');
+            if (lines.length > 1) {
+                btn.closest('.sku-line').remove();
+                calculateTotal();
+            } else {
+                showToast('至少需要一個品項');
+            }
+        }
+        
+        function calculateTotal() {
+            let totalQty = 0;
+            let totalAmount = 0;
+            
+            document.querySelectorAll('.sku-line').forEach(line => {
+                const qty = parseInt(line.querySelector('.sku-qty').value) || 0;
+                const price = parseFloat(line.querySelector('.sku-price').value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+            
+            document.getElementById('sku-total-qty').textContent = totalQty;
+            document.getElementById('sku-total-amount').textContent = '$' + totalAmount.toLocaleString();
         }
         
         function closeModal() {
@@ -1246,25 +1331,55 @@
         
         async function createOrder() {
             const customer = document.getElementById('new-customer').value;
-            const product = document.getElementById('new-product').value;
-            const qty = document.getElementById('new-qty').value;
             const date = document.getElementById('new-date').value;
+            const notes = document.getElementById('new-notes')?.value || '';
             
-            if (!product || !qty) {
-                alert('請填寫產品和數量');
+            // 收集所有 SKU
+            const skuLines = document.querySelectorAll('.sku-line');
+            const skus = [];
+            let totalQty = 0;
+            let totalAmount = 0;
+            
+            skuLines.forEach(line => {
+                const model = line.querySelector('.sku-model').value.trim();
+                const qty = parseInt(line.querySelector('.sku-qty').value) || 0;
+                const price = parseFloat(line.querySelector('.sku-price').value) || 0;
+                
+                if (model && qty > 0) {
+                    skus.push({ model, qty, price, subtotal: qty * price });
+                    totalQty += qty;
+                    totalAmount += qty * price;
+                }
+            });
+            
+            if (skus.length === 0) {
+                alert('請至少填寫一個產品品項');
                 return;
             }
             
             const orderNo = 'PO-2026-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
-            const amount = parseInt(qty) * 65; // 預設單價
+            
+            // 產品顯示：第一個 + 其他數量
+            const productDisplay = skus.length === 1 
+                ? skus[0].model 
+                : `${skus[0].model} +${skus.length - 1}項 (${skus.length} SKU)`;
             
             // 寫入 Google Sheets
             if (window.erpApi) {
                 try {
                     await erpApi.appendToSheet('orders', [
-                        orderNo, customer, product, qty, amount, date, '草稿', new Date().toISOString()
+                        orderNo, 
+                        customer, 
+                        productDisplay, 
+                        totalQty, 
+                        totalAmount, 
+                        date, 
+                        '草稿', 
+                        new Date().toISOString(),
+                        JSON.stringify(skus),  // SKU 明細 JSON
+                        notes
                     ]);
-                    showToast(`✅ 訂單 ${orderNo} 已建立`);
+                    showToast(`✅ 訂單 ${orderNo} 已建立（${skus.length} 個品項）`);
                 } catch (e) {
                     console.error('API Error:', e);
                     showToast(`⚠️ 訂單已建立（離線模式）`);
@@ -1272,7 +1387,7 @@
             }
             
             if (window.AuditLogger) {
-                AuditLogger.logCreate('orders', `新增訂單 ${orderNo}`, { customer, product, qty, date });
+                AuditLogger.logCreate('orders', `新增訂單 ${orderNo}`, { customer, skus, totalQty, totalAmount, date });
             }
             
             closeModal();
