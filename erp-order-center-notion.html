@@ -560,6 +560,7 @@
         .menu-item.danger:hover { background: #fee2e2; }
     </style>
     <script src="audit-logger.js"></script>
+    <script src="api-connector.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -977,6 +978,113 @@
             }
         }
         
+        // ==================== 資料載入 ====================
+        
+        let ordersData = [];
+        
+        async function loadOrders() {
+            if (window.erpApi) {
+                try {
+                    const data = await erpApi.getSheetData('orders');
+                    if (data && data.length > 1) {
+                        ordersData = data.slice(1); // 跳過標題行
+                        renderOrdersTable(ordersData);
+                        renderKanban(ordersData);
+                        updateStats(ordersData);
+                    }
+                } catch (e) {
+                    console.log('使用本地資料');
+                }
+            }
+        }
+        
+        function renderOrdersTable(orders) {
+            const tbody = document.querySelector('#tab-list tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = orders.map((order, idx) => {
+                const [orderNo, customer, product, qty, amount, date, status] = order;
+                const statusClass = getStatusClass(status);
+                const progress = getProgressWidth(status);
+                
+                return `<tr data-row="${idx + 2}">
+                    <td><span class="order-id">${orderNo || ''}</span></td>
+                    <td><div class="customer-tag"><div class="customer-avatar">${(customer || '').substring(0,2)}</div><span>${customer || ''}</span></div></td>
+                    <td><div class="product-info"><span class="product-name">${product || ''}</span></div></td>
+                    <td>${qty || ''}</td>
+                    <td><span class="amount">$${Number(amount || 0).toLocaleString()}</span></td>
+                    <td>${date || ''}</td>
+                    <td><span class="status-tag ${statusClass}">${status || '草稿'}</span></td>
+                    <td><div class="progress-bar"><div class="fill ${progress >= 100 ? 'complete' : ''}" style="width: ${progress}%"></div></div></td>
+                    <td><button class="action-btn" onclick="showActionMenu(this, ${idx + 2})">⋯</button></td>
+                </tr>`;
+            }).join('');
+        }
+        
+        function getStatusClass(status) {
+            const map = {'草稿': 'draft', '已確認': 'confirmed', '生產中': 'production', '待驗貨': 'inspection', '已出貨': 'shipped'};
+            return map[status] || 'draft';
+        }
+        
+        function getProgressWidth(status) {
+            const map = {'草稿': 10, '已確認': 30, '生產中': 50, '待驗貨': 80, '已出貨': 100};
+            return map[status] || 0;
+        }
+        
+        function renderKanban(orders) {
+            const columns = {
+                'draft': document.querySelector('.kanban-header.draft')?.closest('.kanban-column')?.querySelector('.kanban-cards'),
+                'confirmed': document.querySelector('.kanban-header.confirmed')?.closest('.kanban-column')?.querySelector('.kanban-cards'),
+                'production': document.querySelector('.kanban-header.production')?.closest('.kanban-column')?.querySelector('.kanban-cards'),
+                'inspection': document.querySelector('.kanban-header.inspection')?.closest('.kanban-column')?.querySelector('.kanban-cards'),
+                'shipped': document.querySelector('.kanban-header.shipped')?.closest('.kanban-column')?.querySelector('.kanban-cards')
+            };
+            
+            // 清空所有欄位
+            Object.values(columns).forEach(col => { if (col) col.innerHTML = ''; });
+            
+            orders.forEach((order, idx) => {
+                const [orderNo, customer, product, qty, amount, date, status] = order;
+                const statusClass = getStatusClass(status);
+                const col = columns[statusClass];
+                
+                if (col) {
+                    col.innerHTML += `<div class="kanban-card" draggable="true" data-row="${idx + 2}">
+                        <div class="card-title">${orderNo || ''}</div>
+                        <div class="card-customer">${customer || ''}</div>
+                        <div class="card-product">${product || ''}</div>
+                        <div class="card-amount">$${Number(amount || 0).toLocaleString()}</div>
+                        <div class="card-date">交期: ${date || ''}</div>
+                    </div>`;
+                }
+            });
+            
+            // 更新計數
+            updateKanbanCounts();
+            // 重新綁定拖拽
+            initKanban();
+        }
+        
+        function updateStats(orders) {
+            const stats = { total: orders.length, confirmed: 0, production: 0, inspection: 0, shipped: 0 };
+            orders.forEach(o => {
+                const status = o[6];
+                if (status === '已確認') stats.confirmed++;
+                else if (status === '生產中') stats.production++;
+                else if (status === '待驗貨') stats.inspection++;
+                else if (status === '已出貨') stats.shipped++;
+            });
+            
+            const cards = document.querySelectorAll('.stat-card .stat-value');
+            if (cards.length >= 5) {
+                cards[0].textContent = stats.total;
+                cards[1].textContent = stats.confirmed;
+                cards[2].textContent = stats.production;
+                cards[3].textContent = stats.inspection;
+                cards[4].textContent = stats.shipped;
+            }
+        }
+        
         // ==================== 按鈕功能 ====================
         
         // 新增訂單 Modal
@@ -1025,7 +1133,7 @@
             if (modal) modal.remove();
         }
         
-        function createOrder() {
+        async function createOrder() {
             const customer = document.getElementById('new-customer').value;
             const product = document.getElementById('new-product').value;
             const qty = document.getElementById('new-qty').value;
@@ -1037,13 +1145,27 @@
             }
             
             const orderNo = 'PO-2026-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
+            const amount = parseInt(qty) * 65; // 預設單價
+            
+            // 寫入 Google Sheets
+            if (window.erpApi) {
+                try {
+                    await erpApi.appendToSheet('orders', [
+                        orderNo, customer, product, qty, amount, date, '草稿', new Date().toISOString()
+                    ]);
+                    showToast(`✅ 訂單 ${orderNo} 已建立`);
+                } catch (e) {
+                    console.error('API Error:', e);
+                    showToast(`⚠️ 訂單已建立（離線模式）`);
+                }
+            }
             
             if (window.AuditLogger) {
                 AuditLogger.logCreate('orders', `新增訂單 ${orderNo}`, { customer, product, qty, date });
             }
             
-            showToast(`✅ 訂單 ${orderNo} 已建立（Demo）`);
             closeModal();
+            loadOrders(); // 重新載入訂單
         }
         
         // 匯出功能
@@ -1061,17 +1183,21 @@
         }
         
         // Action Menu
-        function showActionMenu(btn) {
+        let currentActionRow = null;
+        
+        function showActionMenu(btn, rowNum) {
+            currentActionRow = rowNum;
+            
             // 移除舊的 menu
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
             
             const menu = document.createElement('div');
             menu.className = 'action-menu';
             menu.innerHTML = `
-                <div class="menu-item" onclick="viewOrder(this)">👁️ 查看詳情</div>
-                <div class="menu-item" onclick="editOrder(this)">✏️ 編輯</div>
-                <div class="menu-item" onclick="duplicateOrder(this)">📋 複製</div>
-                <div class="menu-item danger" onclick="deleteOrder(this)">🗑️ 刪除</div>
+                <div class="menu-item" onclick="viewOrder()">👁️ 查看詳情</div>
+                <div class="menu-item" onclick="editOrder()">✏️ 編輯</div>
+                <div class="menu-item" onclick="changeStatus()">🔄 變更狀態</div>
+                <div class="menu-item danger" onclick="deleteOrder()">🗑️ 刪除</div>
             `;
             
             const rect = btn.getBoundingClientRect();
@@ -1090,26 +1216,61 @@
             }, 10);
         }
         
-        function viewOrder(item) {
-            const row = item.closest('.action-menu').previousElementSibling;
-            showToast('👁️ 查看訂單詳情（功能開發中）');
+        function viewOrder() {
+            const order = ordersData[currentActionRow - 2];
+            if (order) {
+                alert(`訂單詳情\\n\\n訂單號: ${order[0]}\\n客戶: ${order[1]}\\n產品: ${order[2]}\\n數量: ${order[3]}\\n金額: $${order[4]}\\n交期: ${order[5]}\\n狀態: ${order[6]}`);
+            }
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
         }
         
-        function editOrder(item) {
-            showToast('✏️ 編輯訂單（功能開發中）');
+        function editOrder() {
+            showToast('✏️ 編輯功能開發中');
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
         }
         
-        function duplicateOrder(item) {
-            showToast('📋 複製訂單（功能開發中）');
+        async function changeStatus() {
+            const statuses = ['草稿', '已確認', '生產中', '待驗貨', '已出貨'];
+            const newStatus = prompt('選擇新狀態:\\n1. 草稿\\n2. 已確認\\n3. 生產中\\n4. 待驗貨\\n5. 已出貨\\n\\n輸入數字 1-5:');
+            
+            if (newStatus && parseInt(newStatus) >= 1 && parseInt(newStatus) <= 5) {
+                const status = statuses[parseInt(newStatus) - 1];
+                
+                if (window.erpApi) {
+                    try {
+                        // 更新第 7 欄（狀態）
+                        const order = ordersData[currentActionRow - 2];
+                        order[6] = status;
+                        await erpApi.updateSheetRow('orders', currentActionRow, order);
+                        showToast(`✅ 狀態已更新為「${status}」`);
+                        loadOrders();
+                    } catch (e) {
+                        console.error(e);
+                        showToast('⚠️ 更新失敗');
+                    }
+                }
+                
+                if (window.AuditLogger) {
+                    AuditLogger.logUpdate('orders', `訂單狀態變更為 ${status}`);
+                }
+            }
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
         }
         
-        function deleteOrder(item) {
+        async function deleteOrder() {
             if (confirm('確定要刪除此訂單？')) {
+                if (window.erpApi) {
+                    try {
+                        await erpApi.deleteSheetRow('orders', currentActionRow);
+                        showToast('🗑️ 訂單已刪除');
+                        loadOrders();
+                    } catch (e) {
+                        console.error(e);
+                        showToast('⚠️ 刪除失敗');
+                    }
+                }
+                
                 if (window.AuditLogger) AuditLogger.logDelete('orders', '刪除訂單');
-                showToast('🗑️ 訂單已刪除（Demo）');
             }
             document.querySelectorAll('.action-menu').forEach(m => m.remove());
         }
@@ -1261,6 +1422,14 @@
         
         // 頁面載入時執行
         loadUserInfo();
+        
+        // 初始化 API
+        window.erpApi = new JCOApiConnector();
+        
+        // 載入訂單資料
+        setTimeout(() => {
+            loadOrders();
+        }, 1000);
         
         // 初始化看板拖拽
         initKanban();
