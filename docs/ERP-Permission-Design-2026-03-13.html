@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP 權限設計報告 - 2026-03-13</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:980px;margin:0 auto;padding:32px 20px 60px;background:#f6f7fb;color:#1f2937}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px 24px;margin-bottom:16px;box-shadow:0 8px 22px rgba(15,23,42,.05)}
+    h1,h2,h3{margin:0 0 12px}.muted{color:#6b7280} code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px;border-bottom:1px solid #e5e7eb;vertical-align:top}th{background:#f9fafb}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>JCO ERP 權限設計完成</h1>
+    <div class="muted">目標：讓 Eddie 能用 ERP，但只看到業務相關模組</div>
+  </div>
+
+  <div class="card">
+    <h2>1. 角色系統</h2>
+    <table>
+      <thead><tr><th>角色</th><th>用途</th><th>權限特性</th></tr></thead>
+      <tbody>
+        <tr><td>admin</td><td>系統管理員</td><td>可看全部模組與帳號管理</td></tr>
+        <tr><td>manager</td><td>主管</td><td>可看被分配的完整業務模組</td></tr>
+        <tr><td>viewer</td><td>檢視者</td><td>只看有限模組，不可看敏感後台</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. Eddie 帳號</h2>
+    <p><strong>帳號：</strong><code>eddie</code></p>
+    <p><strong>密碼：</strong><code>eddie2026</code></p>
+    <p><strong>角色：</strong><code>manager</code></p>
+    <p><strong>可看模組：</strong><code>dashboard</code>、<code>orders</code>、<code>customers</code>、<code>reports</code></p>
+  </div>
+
+  <div class="card">
+    <h2>3. 已完成的限制</h2>
+    <ul>
+      <li>登入頁測試帳號區只保留少數必要帳號，不再把全部內部帳號暴露出來</li>
+      <li>Eddie 登入後會進入專屬儀表板，只顯示：訂單管理、客戶管理、報表</li>
+      <li>成本中心 / HR / 採購 / 庫存 / 生產 / 品質 對未授權角色會自動導回 dashboard</li>
+      <li>新增業務專用頁面：<code>erp-customer-center-notion.html</code>、<code>erp-sales-reports-notion.html</code></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. 實測結果</h2>
+    <ul>
+      <li>Eddie 登入後首頁只看到 3 個模組：訂單管理、客戶管理、報表</li>
+      <li>直接打開成本中心 → 自動跳回 dashboard</li>
+      <li>直接打開 HR 中心 → 自動跳回 dashboard</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -1058,6 +1058,19 @@
     </div>
     
     <script>
+        function ensureModuleAccess() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (!session) {
+                window.location.href = 'erp-login-notion.html';
+                return null;
+            }
+            if (session.role !== 'admin' && !(session.allowedModules || []).includes('orders')) {
+                window.location.href = 'erp-dashboard-notion.html';
+                return null;
+            }
+            return session;
+        }
+
         // 載入使用者資訊
         function loadUserInfo() {
             const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
@@ -2127,7 +2140,10 @@
         }
         
         // 頁面載入時執行
-        loadUserInfo();
+        const pageSession = ensureModuleAccess();
+        if (pageSession) {
+            loadUserInfo();
+        }
         
         // 初始化 API
         window.erpApi = new JCOApiConnector();

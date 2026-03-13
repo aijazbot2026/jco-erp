@@ -494,6 +494,19 @@
         }
 
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+
+        function ensureModuleAccess() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (!session) {
+                window.location.href = 'erp-login-notion.html';
+                return;
+            }
+            if (session.role !== 'admin' && !(session.allowedModules || []).includes('quality')) {
+                window.location.href = 'erp-dashboard-notion.html';
+            }
+        }
+
+        ensureModuleAccess();
     </script>
 </body>
 </html>
