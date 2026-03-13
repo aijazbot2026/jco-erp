@@ -744,8 +744,8 @@
                     <!-- Toolbar -->
                     <div class="toolbar">
                         <div class="toolbar-left">
-                            <input type="text" class="search-input" placeholder="搜尋訂單號、客戶...">
-                            <select class="filter-select">
+                            <input type="text" id="order-search" class="search-input" placeholder="搜尋訂單號、客戶..." autocomplete="off">
+                            <select id="status-filter" class="filter-select">
                                 <option>全部狀態</option>
                                 <option>草稿</option>
                                 <option>已確認</option>
@@ -1816,33 +1816,30 @@
         }
         
         // 搜尋功能
+        function applyOrderFilters() {
+            const keyword = (document.getElementById('order-search')?.value || '').toLowerCase().trim();
+            const status = document.getElementById('status-filter')?.value || '全部狀態';
+            const rows = document.querySelectorAll('#tab-list tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const rowStatus = row.querySelector('.status-tag')?.textContent || '';
+                const matchesKeyword = !keyword || text.includes(keyword);
+                const matchesStatus = status === '全部狀態' || rowStatus.includes(status);
+                row.style.display = (matchesKeyword && matchesStatus) ? '' : 'none';
+            });
+        }
+
         function initSearch() {
-            const searchInput = document.querySelector('.search-input');
+            const searchInput = document.getElementById('order-search') || document.querySelector('.search-input');
             if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    const keyword = e.target.value.toLowerCase();
-                    const rows = document.querySelectorAll('#tab-list tbody tr');
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(keyword) ? '' : 'none';
-                    });
-                });
+                searchInput.addEventListener('input', applyOrderFilters);
+                searchInput.addEventListener('search', applyOrderFilters);
             }
             
-            const filterSelect = document.querySelector('.filter-select');
+            const filterSelect = document.getElementById('status-filter') || document.querySelector('.filter-select');
             if (filterSelect) {
-                filterSelect.addEventListener('change', (e) => {
-                    const status = e.target.value;
-                    const rows = document.querySelectorAll('#tab-list tbody tr');
-                    rows.forEach(row => {
-                        if (status === '全部狀態') {
-                            row.style.display = '';
-                        } else {
-                            const rowStatus = row.querySelector('.status-tag')?.textContent || '';
-                            row.style.display = rowStatus.includes(status) ? '' : 'none';
-                        }
-                    });
-                });
+                filterSelect.addEventListener('change', applyOrderFilters);
             }
         }
         

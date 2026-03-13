@@ -6,744 +6,543 @@
     <title>生產中心 - JCO ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f7f6f3;
-            --bg-hover: #efefef;
-            --text-primary: #37352f;
-            --text-secondary: #787774;
-            --text-light: #9b9a97;
-            --border: #e9e9e7;
-            --accent: #2383e2;
-            --accent-light: #e8f4fd;
-            --success: #0f7b6c;
-            --warning: #d9730d;
-            --error: #e03e3e;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-        
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 240px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        
-        .sidebar-header {
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .sidebar-header .logo {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #2383e2, #0f7b6c);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 12px;
-        }
-        
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            padding: 8px;
-            flex: 1;
-        }
-        
-        .nav-section {
-            margin-bottom: 16px;
-        }
-        
-        .nav-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 8px 4px;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.15s;
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-        
-        .nav-item:hover {
-            background: var(--bg-hover);
-        }
-        
-        .nav-item.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .nav-item .icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: var(--bg-primary);
-        }
-        
-        .page-header {
-            padding: 40px 60px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title .emoji {
-            font-size: 36px;
-        }
-        
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .page-body {
-            padding: 24px 60px 60px;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px 20px;
-            min-width: 140px;
-            flex: 1;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg-primary: #ffffff; --bg-secondary: #f7f6f3; --bg-hover: #efefef; --text-primary: #37352f; --text-secondary: #787774; --text-light: #9b9a97; --border: #e9e9e7; --accent: #2383e2; --accent-light: #e8f4fd; --success: #0f7b6c; --warning: #d9730d; --error: #e03e3e; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .sidebar-header .logo { width: 24px; height: 24px; background: linear-gradient(135deg, #2383e2, #0f7b6c); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+        .sidebar-nav { padding: 8px; flex: 1; }
+        .nav-section { margin-bottom: 16px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; padding: 8px 8px 4px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; color: var(--text-secondary); text-decoration: none; }
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); font-weight: 500; }
+        .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+        .main-content { flex: 1; overflow-y: auto; }
+        .page-header { padding: 40px 60px 24px; border-bottom: 1px solid var(--border); }
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .page-body { padding: 24px 60px 60px; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px 20px; min-width: 140px; flex: 1; }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
         .stat-card.primary .value { color: var(--accent); }
         .stat-card.success .value { color: var(--success); }
         .stat-card.warning .value { color: var(--warning); }
         .stat-card.error .value { color: var(--error); }
-        
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 240px;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a6fc4;
-        }
-        
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-        }
-        
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .item-id {
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        .amount {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .status-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-tag.complete {
-            background: #dbeddb;
-            color: #0f7b6c;
-        }
-        
-        .status-tag.in-progress {
-            background: #d3e5ef;
-            color: #0b6bcb;
-        }
-        
-        .status-tag.pending {
-            background: #fdecc8;
-            color: #d9730d;
-        }
-        
-        .status-tag.delayed {
-            background: #ffe2dd;
-            color: #e03e3e;
-        }
-        
-        .status-tag.scheduled {
-            background: #e9e9e7;
-            color: #787774;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--text-light);
-        }
-        
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .user-info:hover {
-            background: var(--bg-hover);
-        }
-        .logout-btn {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            opacity: 0.7;
-            transition: all 0.15s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logout-btn:hover {
-            background: #fee2e2;
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
-        }
-        
-        .tab:hover {
-            color: var(--text-primary);
-        }
-        
-        .tab.active {
-            color: var(--text-primary);
-            font-weight: 500;
-            border-bottom-color: var(--text-primary);
-        }
-        
-        .progress-bar {
-            width: 100px;
-            height: 6px;
-            background: var(--bg-secondary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .progress-bar .fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
-        
-        .progress-bar .fill.normal { background: var(--accent); }
-        .progress-bar .fill.complete { background: var(--success); }
-        .progress-bar .fill.delayed { background: var(--error); }
-        
-        .line-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #f5e0e9;
-            color: #c14c8a;
-        }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; gap: 12px; align-items: center; }
+        .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border-radius: 6px; padding: 8px 12px; }
+        .search-input { border: none; background: transparent; outline: none; font-size: 14px; width: 200px; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 14px; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #1a73d4; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-danger { background: var(--error); color: white; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .data-table th { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-secondary); }
+        .data-table tr:hover { background: var(--bg-secondary); }
+        .status-tag { display: inline-flex; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-pending { background: #f1f1ef; color: #787774; }
+        .status-scheduled { background: #d3e5ef; color: #2383e2; }
+        .status-production { background: #fdecc8; color: #9a6700; }
+        .status-inspection { background: #e8deee; color: #6940a5; }
+        .status-done { background: #ddedea; color: #0f7b6c; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; background: white; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-radius: 8px; z-index: 100; }
+        .dropdown-content.show { display: block; }
+        .dropdown-item { display: block; padding: 10px 16px; cursor: pointer; }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger { color: var(--error); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .progress-bar { height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; }
+        .progress-fill.blue { background: var(--accent); }
+        .progress-fill.green { background: var(--success); }
+        .progress-fill.orange { background: var(--warning); }
+        .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; min-height: 400px; }
+        .kanban-column { background: var(--bg-secondary); border-radius: 8px; padding: 12px; }
+        .kanban-header { display: flex; justify-content: space-between; margin-bottom: 12px; padding: 8px; font-weight: 600; }
+        .kanban-header .count { background: var(--bg-hover); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .kanban-cards { min-height: 200px; }
+        .kanban-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 8px; cursor: grab; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kanban-card .card-title { font-weight: 600; margin-bottom: 4px; }
+        .kanban-card .card-meta { font-size: 12px; color: var(--text-secondary); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #37352f; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999; }
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+        .timeline-item.done::before { background: var(--success); }
+        .user-info { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+        .line-status { display: flex; gap: 16px; margin-bottom: 24px; }
+        .line-card { flex: 1; background: var(--bg-secondary); border-radius: 8px; padding: 16px; }
+        .line-card .line-name { font-weight: 600; margin-bottom: 8px; }
+        .line-card .line-info { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
     </style>
-    <script src="audit-logger.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">J</div>
-                <span class="title">JCO ERP</span>
-            </div>
-            
+        <div class="sidebar">
+            <div class="sidebar-header"><div class="logo">J</div><div class="title">JCO ERP</div></div>
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">主要功能</div>
-                    <a href="erp-dashboard-notion.html" class="nav-item">
-                        <span class="icon">🏠</span>
-                        <span>儀表板</span>
-                    </a>
-                    <a href="erp-order-center-notion.html" class="nav-item">
-                        <span class="icon">📦</span>
-                        <span>訂單中心</span>
-                    </a>
-                    <a href="erp-cost-center-notion.html" class="nav-item">
-                        <span class="icon">💰</span>
-                        <span>成本中心</span>
-                    </a>
-                    <a href="erp-procurement-center-notion.html" class="nav-item">
-                        <span class="icon">🛒</span>
-                        <span>採購管理</span>
-                    </a>
-                    <a href="erp-inventory-center-notion.html" class="nav-item">
-                        <span class="icon">📊</span>
-                        <span>庫存中心</span>
-                    </a>
+                    <div class="nav-section-title">主選單</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item"><span class="icon">🏠</span>儀表板</a>
+                    <a href="erp-order-center-notion.html" class="nav-item"><span class="icon">📦</span>訂單中心</a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item"><span class="icon">🛒</span>採購中心</a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item"><span class="icon">📊</span>庫存中心</a>
                 </div>
-                
                 <div class="nav-section">
                     <div class="nav-section-title">生產管理</div>
-                    <a href="erp-production-center-notion.html" class="nav-item active">
-                        <span class="icon">🏭</span>
-                        <span>生產中心</span>
-                    </a>
-                    <a href="erp-quality-center-notion.html" class="nav-item">
-                        <span class="icon">🔍</span>
-                        <span>品質中心</span>
-                    </a>
+                    <a href="erp-production-center-notion.html" class="nav-item active"><span class="icon">🏭</span>生產中心</a>
+                    <a href="erp-quality-center-notion.html" class="nav-item"><span class="icon">🔍</span>品質中心</a>
                 </div>
-                
                 <div class="nav-section">
-                    <div class="nav-section-title">系統</div>
-                    <a href="erp-hr-center-notion.html" class="nav-item">
-                        <span class="icon">👥</span>
-                        <span>人事中心</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <span class="icon">⚙️</span>
-                        <span>設定</span>
-                    </a>
+                    <div class="nav-section-title">管理</div>
+                    <a href="erp-cost-center-notion.html" class="nav-item"><span class="icon">💰</span>成本中心</a>
+                    <a href="erp-hr-center-notion.html" class="nav-item"><span class="icon">👥</span>人事中心</a>
                 </div>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">--</div>
-                    <span class="user-name" id="user-name">載入中...</span>
-                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
-                </div>
+            <div class="user-info"><div class="user-avatar">產</div><div><div class="user-name">生產主管</div><div class="user-role" style="font-size:11px;color:var(--text-secondary);">生產部</div></div></div>
+        </div>
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><span style="font-size:36px">🏭</span>生產中心</h1>
+                <p style="color:var(--text-secondary)">管理工單、產線排程和生產進度</p>
             </div>
-        </aside>
-        
-        <main class="main-content">
-            <header class="page-header">
-                <h1 class="page-title">
-                    <span class="emoji">🏭</span>
-                    生產中心
-                </h1>
-                <p class="page-subtitle">生產排程、工單管理、產能監控、進度追蹤</p>
-            </header>
-            
             <div class="page-body">
+                <!-- Line Status -->
+                <div class="line-status">
+                    <div class="line-card">
+                        <div class="line-name">🔧 產線 A - 裁板</div>
+                        <div class="line-info">目前工單: WO-2026-003</div>
+                        <div class="progress-bar"><div class="progress-fill orange" style="width:65%"></div></div>
+                        <div class="line-info" style="margin-top:4px">進度 65%</div>
+                    </div>
+                    <div class="line-card">
+                        <div class="line-name">🎨 產線 B - 塗裝</div>
+                        <div class="line-info">目前工單: WO-2026-002</div>
+                        <div class="progress-bar"><div class="progress-fill green" style="width:90%"></div></div>
+                        <div class="line-info" style="margin-top:4px">進度 90%</div>
+                    </div>
+                    <div class="line-card">
+                        <div class="line-name">📦 產線 C - 組裝</div>
+                        <div class="line-info">目前工單: WO-2026-001</div>
+                        <div class="progress-bar"><div class="progress-fill blue" style="width:45%"></div></div>
+                        <div class="line-info" style="margin-top:4px">進度 45%</div>
+                    </div>
+                </div>
+                <!-- Stats -->
                 <div class="stats-row">
-                    <div class="stat-card primary">
-                        <div class="label">進行中工單</div>
-                        <div class="value">12</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="label">今日完成</div>
-                        <div class="value">8</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="label">待排程</div>
-                        <div class="value">5</div>
-                    </div>
-                    <div class="stat-card error">
-                        <div class="label">延遲工單</div>
-                        <div class="value">2</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">產能利用率</div>
-                        <div class="value">78%</div>
-                    </div>
+                    <div class="stat-card primary"><div class="label">總工單</div><div class="value" id="stat-total">0</div></div>
+                    <div class="stat-card warning"><div class="label">生產中</div><div class="value" id="stat-production">0</div></div>
+                    <div class="stat-card"><div class="label">待檢驗</div><div class="value" id="stat-inspection">0</div></div>
+                    <div class="stat-card success"><div class="label">已完成</div><div class="value" id="stat-done">0</div></div>
+                    <div class="stat-card error"><div class="label">延遲工單</div><div class="value" id="stat-delayed">0</div></div>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active">📅 生產排程</div>
-                    <div class="tab">📋 工單管理</div>
-                    <div class="tab">⚡ 產能監控</div>
-                    <div class="tab">📊 進度看板</div>
-                </div>
-                
+                <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <input type="text" class="search-input" placeholder="搜尋工單、產品...">
-                        <select class="filter-select">
-                            <option>全部產線</option>
-                            <option>切割線</option>
-                            <option>組裝線</option>
-                            <option>塗裝線</option>
-                            <option>包裝線</option>
+                        <div class="search-box"><span>🔍</span><input type="text" class="search-input" placeholder="搜尋工單..."></div>
+                        <select class="filter-select" id="status-filter">
+                            <option>全部狀態</option><option>待排程</option><option>生產中</option><option>待檢驗</option><option>已完成</option>
                         </select>
-                        <select class="filter-select">
-                            <option>全部狀態</option>
-                            <option>排程中</option>
-                            <option>進行中</option>
-                            <option>已完成</option>
-                            <option>延遲</option>
+                        <select class="filter-select" id="line-filter">
+                            <option>全部產線</option><option>產線 A</option><option>產線 B</option><option>產線 C</option>
                         </select>
                     </div>
-                    <div class="toolbar-right">
-                        <button class="btn btn-secondary">📊 產能報表</button>
-                        <button class="btn btn-primary">+ 新增工單</button>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-secondary" onclick="exportData()">📥 匯出</button>
+                        <button class="btn btn-primary" onclick="showAddModal()">+ 新增工單</button>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>工單號</th>
-                                <th>訂單</th>
-                                <th>產品</th>
-                                <th>數量</th>
-                                <th>產線</th>
-                                <th>預計完成</th>
-                                <th>進度</th>
-                                <th>狀態</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0089</span></td>
-                                <td>PO-2026-002</td>
-                                <td>W3030</td>
-                                <td><span class="amount">150</span></td>
-                                <td><span class="line-tag">🔪 切割線</span></td>
-                                <td>2026-03-12</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill normal" style="width: 65%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--text-secondary);">65%</span>
-                                </td>
-                                <td><span class="status-tag in-progress">● 進行中</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0088</span></td>
-                                <td>PO-2026-004</td>
-                                <td>SB36</td>
-                                <td><span class="amount">80</span></td>
-                                <td><span class="line-tag">🔧 組裝線</span></td>
-                                <td>2026-03-10</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill complete" style="width: 100%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--text-secondary);">100%</span>
-                                </td>
-                                <td><span class="status-tag complete">✓ 已完成</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0087</span></td>
-                                <td>PO-2026-003</td>
-                                <td>VB36</td>
-                                <td><span class="amount">100</span></td>
-                                <td><span class="line-tag">🎨 塗裝線</span></td>
-                                <td>2026-03-15</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill normal" style="width: 35%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--text-secondary);">35%</span>
-                                </td>
-                                <td><span class="status-tag in-progress">● 進行中</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0086</span></td>
-                                <td>PO-2026-001</td>
-                                <td>B36</td>
-                                <td><span class="amount">200</span></td>
-                                <td><span class="line-tag">📦 包裝線</span></td>
-                                <td>2026-03-08</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill delayed" style="width: 85%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--error);">85% ⚠</span>
-                                </td>
-                                <td><span class="status-tag delayed">⚠ 延遲</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0090</span></td>
-                                <td>—</td>
-                                <td>Drawer Box</td>
-                                <td><span class="amount">500</span></td>
-                                <td><span class="line-tag">🔪 切割線</span></td>
-                                <td>2026-03-18</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill" style="width: 0%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--text-secondary);">0%</span>
-                                </td>
-                                <td><span class="status-tag scheduled">○ 排程中</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">WO-2026-0091</span></td>
-                                <td>—</td>
-                                <td>W3636</td>
-                                <td><span class="amount">120</span></td>
-                                <td><span class="line-tag">🔧 組裝線</span></td>
-                                <td>2026-03-20</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill" style="width: 0%"></div>
-                                    </div>
-                                    <span style="font-size: 12px; color: var(--text-secondary);">0%</span>
-                                </td>
-                                <td><span class="status-tag pending">◐ 待排程</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                        </tbody>
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="list">📋 工單列表</div>
+                    <div class="tab" data-tab="kanban">📊 看板視圖</div>
+                    <div class="tab" data-tab="schedule">📅 排程總覽</div>
+                    <div class="tab" data-tab="reports">📈 生產報表</div>
+                </div>
+                <!-- Tab: List -->
+                <div class="tab-content active" id="tab-list">
+                    <table class="data-table">
+                        <thead><tr><th>工單號</th><th>關聯訂單</th><th>產品</th><th>數量</th><th>產線</th><th>進度</th><th>開始日</th><th>預計完成</th><th>狀態</th><th>操作</th></tr></thead>
+                        <tbody id="production-table-body"></tbody>
                     </table>
                 </div>
+                <!-- Tab: Kanban -->
+                <div class="tab-content" id="tab-kanban">
+                    <div class="kanban-board">
+                        <div class="kanban-column" data-status="待排程"><div class="kanban-header">待排程 <span class="count">0</span></div><div class="kanban-cards" id="kanban-pending"></div></div>
+                        <div class="kanban-column" data-status="生產中"><div class="kanban-header">生產中 <span class="count">0</span></div><div class="kanban-cards" id="kanban-production"></div></div>
+                        <div class="kanban-column" data-status="待檢驗"><div class="kanban-header">待檢驗 <span class="count">0</span></div><div class="kanban-cards" id="kanban-inspection"></div></div>
+                        <div class="kanban-column" data-status="已完成"><div class="kanban-header">已完成 <span class="count">0</span></div><div class="kanban-cards" id="kanban-done"></div></div>
+                    </div>
+                </div>
+                <!-- Tab: Schedule -->
+                <div class="tab-content" id="tab-schedule">
+                    <h3 style="margin-bottom:20px">本週排程</h3>
+                    <div class="timeline" id="schedule-timeline"></div>
+                </div>
+                <!-- Tab: Reports -->
+                <div class="tab-content" id="tab-reports">
+                    <div class="stats-row">
+                        <div class="stat-card"><div class="label">本月完成工單</div><div class="value" id="report-completed">0</div></div>
+                        <div class="stat-card"><div class="label">平均生產週期</div><div class="value" id="report-cycle">0</div></div>
+                        <div class="stat-card"><div class="label">產線稼動率</div><div class="value" id="report-utilization">0%</div></div>
+                        <div class="stat-card"><div class="label">準時完成率</div><div class="value" id="report-ontime">0%</div></div>
+                    </div>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title" id="modal-title">新增工單</h3><button class="modal-close" onclick="closeAddModal()">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">工單號</label><input type="text" class="form-input" id="wo-number" readonly></div>
+                    <div class="form-group"><label class="form-label">關聯訂單</label><input type="text" class="form-input" id="wo-order" placeholder="PO-2026-XXX"></div>
+                </div>
+                <div class="form-group"><label class="form-label">產品名稱 *</label><input type="text" class="form-input" id="wo-product" placeholder="例: B36 Base Cabinet"></div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">規格</label><input type="text" class="form-input" id="wo-spec" placeholder="例: 36×24×34.5"></div>
+                    <div class="form-group"><label class="form-label">計劃數量 *</label><input type="number" class="form-input" id="wo-qty" placeholder="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">產線</label><select class="form-select" id="wo-line"><option>產線 A</option><option>產線 B</option><option>產線 C</option></select></div>
+                    <div class="form-group"><label class="form-label">負責人</label><input type="text" class="form-input" id="wo-owner" value="生產主管"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">開始日期</label><input type="date" class="form-input" id="wo-start"></div>
+                    <div class="form-group"><label class="form-label">預計完成日</label><input type="date" class="form-input" id="wo-end"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAddModal()">取消</button><button class="btn btn-primary" onclick="saveProduction()">儲存</button></div>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div class="modal-overlay" id="status-modal">
+        <div class="modal" style="max-width:400px">
+            <div class="modal-header"><h3 class="modal-title">變更狀態</h3><button class="modal-close" onclick="closeStatusModal()">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="status-index">
+                <div class="form-group"><label class="form-label">完成數量</label><input type="number" class="form-input" id="completed-qty" placeholder="0"></div>
+                <div class="form-group"><label class="form-label">新狀態</label><select class="form-select" id="new-status"><option>待排程</option><option>生產中</option><option>待檢驗</option><option>已完成</option></select></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeStatusModal()">取消</button><button class="btn btn-primary" onclick="updateStatus()">確認</button></div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width:400px">
+            <div class="modal-header"><h3 class="modal-title">確認刪除</h3><button class="modal-close" onclick="closeDeleteModal()">&times;</button></div>
+            <div class="modal-body"><input type="hidden" id="delete-index"><p>確定要刪除此工單嗎？</p><p id="delete-info" style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:6px"></p></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button><button class="btn btn-danger" onclick="confirmDelete()">確認刪除</button></div>
+        </div>
+    </div>
+
+    <script src="api-connector.js"></script>
+    <script src="audit-logger.js"></script>
     <script>
-        function loadUserInfo() {
-            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-            if (session) {
-                const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-                if (nameEl) nameEl.textContent = session.name;
-            }
+        let productionData = [];
+        const demoData = [
+            ['WO-2026-001', 'PO-2026-001', 'B36 Base Cabinet', '36×24×34.5', 50, 45, '產線 C', '生產主管', '2026-03-01', '2026-03-08', '生產中'],
+            ['WO-2026-002', 'PO-2026-001', 'W3030 Wall Cabinet', '30×30×12', 30, 27, '產線 B', '生產主管', '2026-03-02', '2026-03-07', '待檢驗'],
+            ['WO-2026-003', 'PO-2026-002', 'VB36 Vanity Base', '36×21×34.5', 40, 26, '產線 A', '生產主管', '2026-03-05', '2026-03-12', '生產中'],
+            ['WO-2026-004', 'PO-2026-003', 'SB36 Sink Base', '36×24×34.5', 20, 0, '產線 A', '生產主管', '2026-03-10', '2026-03-15', '待排程'],
+            ['WO-2026-005', 'PO-2026-004', 'Drawer Box Set', '21×4.5×18', 100, 100, '產線 C', '生產主管', '2026-02-25', '2026-03-05', '已完成']
+        ];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.erpApi) {
+                try {
+                    const apiData = await erpApi.getSheetData('production');
+                    productionData = apiData?.length > 0 ? apiData : demoData;
+                } catch (e) { productionData = demoData; }
+            } else { productionData = demoData; }
+            renderAll();
+            initTabs();
+            initSearch();
+            setDefaultDates();
+        });
+
+        function renderAll() { renderTable(); renderKanban(); renderSchedule(); renderReports(); updateStats(); }
+
+        function updateStats() {
+            const total = productionData.length;
+            const production = productionData.filter(p => p[10] === '生產中').length;
+            const inspection = productionData.filter(p => p[10] === '待檢驗').length;
+            const done = productionData.filter(p => p[10] === '已完成').length;
+            const today = new Date().toISOString().split('T')[0];
+            const delayed = productionData.filter(p => p[9] < today && p[10] !== '已完成').length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-production').textContent = production;
+            document.getElementById('stat-inspection').textContent = inspection;
+            document.getElementById('stat-done').textContent = done;
+            document.getElementById('stat-delayed').textContent = delayed;
         }
-        
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('JCO_ERP_SESSION');
-                window.location.href = 'erp-login-notion.html';
-            }
+
+        function renderTable() {
+            const tbody = document.getElementById('production-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = productionData.map((wo, idx) => {
+                const [woNo, orderNo, product, spec, planQty, doneQty, line, owner, start, end, status] = wo;
+                const progress = planQty > 0 ? Math.round((doneQty / planQty) * 100) : 0;
+                const statusClass = { '待排程': 'status-pending', '生產中': 'status-production', '待檢驗': 'status-inspection', '已完成': 'status-done' }[status] || 'status-pending';
+                const progressClass = progress >= 100 ? 'green' : progress >= 50 ? 'orange' : 'blue';
+                return `<tr>
+                    <td><strong>${woNo}</strong></td>
+                    <td>${orderNo || '-'}</td>
+                    <td>${product}</td>
+                    <td>${doneQty}/${planQty}</td>
+                    <td>${line}</td>
+                    <td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill ${progressClass}" style="width:${progress}%"></div></div><span>${progress}%</span></div></td>
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td><span class="status-tag ${statusClass}">${status}</span></td>
+                    <td><div class="dropdown"><button class="actions-btn" onclick="toggleDropdown(this)">⋯</button><div class="dropdown-content">
+                        <div class="dropdown-item" onclick="showStatusModal(${idx})">🔄 更新進度</div>
+                        <div class="dropdown-item" onclick="editProduction(${idx})">✏️ 編輯</div>
+                        <div class="dropdown-item danger" onclick="showDeleteModal(${idx})">🗑️ 刪除</div>
+                    </div></div></td>
+                </tr>`;
+            }).join('');
         }
-        
-        loadUserInfo();
+
+        function renderKanban() {
+            const statusMap = { '待排程': 'kanban-pending', '生產中': 'kanban-production', '待檢驗': 'kanban-inspection', '已完成': 'kanban-done' };
+            Object.values(statusMap).forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+            productionData.forEach((wo, idx) => {
+                const [woNo, orderNo, product, spec, planQty, doneQty, line, owner, start, end, status] = wo;
+                const containerId = statusMap[status] || 'kanban-pending';
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                const progress = planQty > 0 ? Math.round((doneQty / planQty) * 100) : 0;
+                const card = document.createElement('div');
+                card.className = 'kanban-card';
+                card.innerHTML = `<div class="card-title">${woNo}</div><div class="card-meta">${product}</div><div class="card-meta">${line} · ${doneQty}/${planQty} (${progress}%)</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill blue" style="width:${progress}%"></div></div>`;
+                container.appendChild(card);
+            });
+            Object.entries(statusMap).forEach(([status, id]) => {
+                const container = document.getElementById(id);
+                const count = container?.children.length || 0;
+                const header = container?.parentElement?.querySelector('.count');
+                if (header) header.textContent = count;
+            });
+        }
+
+        function renderSchedule() {
+            const timeline = document.getElementById('schedule-timeline');
+            if (!timeline) return;
+            const sorted = [...productionData].sort((a, b) => new Date(a[8]) - new Date(b[8]));
+            timeline.innerHTML = sorted.map(wo => {
+                const [woNo, orderNo, product, spec, planQty, doneQty, line, owner, start, end, status] = wo;
+                const isDone = status === '已完成';
+                return `<div class="timeline-item ${isDone ? 'done' : ''}">
+                    <div style="font-weight:600">${woNo} - ${product}</div>
+                    <div style="font-size:13px;color:var(--text-secondary)">${line} · ${start} → ${end}</div>
+                    <div style="font-size:13px;margin-top:4px"><span class="status-tag ${isDone ? 'status-done' : 'status-production'}">${status}</span></div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderReports() {
+            const done = productionData.filter(p => p[10] === '已完成').length;
+            document.getElementById('report-completed').textContent = done;
+            document.getElementById('report-cycle').textContent = '5.2 天';
+            document.getElementById('report-utilization').textContent = '78%';
+            document.getElementById('report-ontime').textContent = '92%';
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function initSearch() {
+            document.querySelector('.search-input')?.addEventListener('input', filterTable);
+            document.getElementById('status-filter')?.addEventListener('change', filterTable);
+            document.getElementById('line-filter')?.addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const keyword = document.querySelector('.search-input')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('status-filter')?.value || '全部狀態';
+            const lineFilter = document.getElementById('line-filter')?.value || '全部產線';
+            document.querySelectorAll('#production-table-body tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const status = row.querySelector('.status-tag')?.textContent || '';
+                const line = row.cells[4]?.textContent || '';
+                const match = text.includes(keyword) && (statusFilter === '全部狀態' || status === statusFilter) && (lineFilter === '全部產線' || line === lineFilter);
+                row.style.display = match ? '' : 'none';
+            });
+        }
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('wo-start').value = today;
+            const end = new Date(); end.setDate(end.getDate() + 7);
+            document.getElementById('wo-end').value = end.toISOString().split('T')[0];
+        }
+
+        function generateWONumber() {
+            const year = new Date().getFullYear();
+            return `WO-${year}-${String(productionData.length + 1).padStart(3, '0')}`;
+        }
+
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = '新增工單';
+            document.getElementById('edit-index').value = -1;
+            document.getElementById('wo-number').value = generateWONumber();
+            setDefaultDates();
+            ['wo-order', 'wo-product', 'wo-spec', 'wo-qty'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('wo-owner').value = '生產主管';
+            document.getElementById('add-modal').classList.add('show');
+        }
+
+        function closeAddModal() { document.getElementById('add-modal').classList.remove('show'); }
+
+        function editProduction(idx) {
+            const wo = productionData[idx];
+            if (!wo) return;
+            document.getElementById('modal-title').textContent = '編輯工單';
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('wo-number').value = wo[0];
+            document.getElementById('wo-order').value = wo[1];
+            document.getElementById('wo-product').value = wo[2];
+            document.getElementById('wo-spec').value = wo[3];
+            document.getElementById('wo-qty').value = wo[4];
+            document.getElementById('wo-line').value = wo[6];
+            document.getElementById('wo-owner').value = wo[7];
+            document.getElementById('wo-start').value = wo[8];
+            document.getElementById('wo-end').value = wo[9];
+            document.getElementById('add-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        async function saveProduction() {
+            const idx = Number(document.getElementById('edit-index').value);
+            const woNo = document.getElementById('wo-number').value;
+            const orderNo = document.getElementById('wo-order').value;
+            const product = document.getElementById('wo-product').value;
+            const spec = document.getElementById('wo-spec').value;
+            const qty = Number(document.getElementById('wo-qty').value) || 0;
+            const line = document.getElementById('wo-line').value;
+            const owner = document.getElementById('wo-owner').value;
+            const start = document.getElementById('wo-start').value;
+            const end = document.getElementById('wo-end').value;
+            if (!product) { showToast('⚠️ 請填寫產品名稱'); return; }
+            const newWO = [woNo, orderNo, product, spec, qty, 0, line, owner, start, end, '待排程'];
+            if (idx >= 0) {
+                newWO[5] = productionData[idx][5]; newWO[10] = productionData[idx][10];
+                productionData[idx] = newWO;
+                showToast('✅ 工單已更新');
+            } else {
+                productionData.push(newWO);
+                showToast('✅ 工單已新增');
+            }
+            if (window.erpApi && !erpApi.forceOffline) { try { if (idx >= 0) await erpApi.updateSheetRow('production', idx + 2, newWO); else await erpApi.appendSheetRow('production', newWO); } catch (e) {} }
+            renderAll(); closeAddModal();
+        }
+
+        function showStatusModal(idx) {
+            const wo = productionData[idx];
+            if (!wo) return;
+            document.getElementById('status-index').value = idx;
+            document.getElementById('completed-qty').value = wo[5];
+            document.getElementById('new-status').value = wo[10];
+            document.getElementById('status-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeStatusModal() { document.getElementById('status-modal').classList.remove('show'); }
+
+        async function updateStatus() {
+            const idx = Number(document.getElementById('status-index').value);
+            const completedQty = Number(document.getElementById('completed-qty').value) || 0;
+            const newStatus = document.getElementById('new-status').value;
+            if (idx >= 0 && productionData[idx]) {
+                productionData[idx][5] = completedQty;
+                productionData[idx][10] = newStatus;
+                showToast(`✅ 進度已更新: ${completedQty}/${productionData[idx][4]} · ${newStatus}`);
+                if (window.erpApi && !erpApi.forceOffline) { try { await erpApi.updateSheetRow('production', idx + 2, productionData[idx]); } catch (e) {} }
+                renderAll();
+            }
+            closeStatusModal();
+        }
+
+        function showDeleteModal(idx) {
+            const wo = productionData[idx];
+            if (!wo) return;
+            document.getElementById('delete-index').value = idx;
+            document.getElementById('delete-info').innerHTML = `<strong>${wo[0]}</strong> - ${wo[2]}<br>數量: ${wo[4]}`;
+            document.getElementById('delete-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('show'); }
+
+        async function confirmDelete() {
+            const idx = Number(document.getElementById('delete-index').value);
+            if (idx >= 0 && productionData[idx]) {
+                const woNo = productionData[idx][0];
+                productionData.splice(idx, 1);
+                showToast('🗑️ 工單已刪除');
+                if (window.erpApi && !erpApi.forceOffline) { try { await erpApi.deleteSheetRow('production', idx + 2); } catch (e) {} }
+                renderAll();
+            }
+            closeDeleteModal();
+        }
+
+        function toggleDropdown(btn) { closeAllDropdowns(); btn.nextElementSibling.classList.toggle('show'); event.stopPropagation(); }
+        function closeAllDropdowns() { document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
+        document.addEventListener('click', closeAllDropdowns);
+
+        function exportData() {
+            let csv = '工單號,關聯訂單,產品,規格,計劃數量,完成數量,產線,負責人,開始日,預計完成,狀態\n';
+            productionData.forEach(wo => { csv += wo.map(v => `"${v || ''}"`).join(',') + '\n'; });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `JCO-生產報表-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+            showToast('📥 報表匯出成功');
+        }
+
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
     </script>
 </body>
 </html>

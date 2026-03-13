@@ -1,0 +1,28 @@
+{
+  "name": "jco-erp-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api-connector.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node tests/erp-full-test.js",
+    "test:headless": "ERP_HEADLESS=1 node tests/erp-full-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aijazbot2026/jco-erp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aijazbot2026/jco-erp/issues"
+  },
+  "homepage": "https://github.com/aijazbot2026/jco-erp#readme",
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}

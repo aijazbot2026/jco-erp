@@ -6,12 +6,7 @@
     <title>庫存中心 - JCO ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f7f6f3;
@@ -26,712 +21,1012 @@
             --warning: #d9730d;
             --error: #e03e3e;
         }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-        
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 240px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        
-        .sidebar-header {
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .sidebar-header .logo {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #2383e2, #0f7b6c);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 12px;
-        }
-        
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            padding: 8px;
-            flex: 1;
-        }
-        
-        .nav-section {
-            margin-bottom: 16px;
-        }
-        
-        .nav-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 8px 4px;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.15s;
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-        
-        .nav-item:hover {
-            background: var(--bg-hover);
-        }
-        
-        .nav-item.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .nav-item .icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: var(--bg-primary);
-        }
-        
-        .page-header {
-            padding: 40px 60px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title .emoji {
-            font-size: 36px;
-        }
-        
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .page-body {
-            padding: 24px 60px 60px;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px 20px;
-            min-width: 140px;
-            flex: 1;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .sidebar-header .logo { width: 24px; height: 24px; background: linear-gradient(135deg, #2383e2, #0f7b6c); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+        .sidebar-header .title { font-weight: 600; font-size: 14px; }
+        .sidebar-nav { padding: 8px; flex: 1; }
+        .nav-section { margin-bottom: 16px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 8px 4px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; color: var(--text-secondary); text-decoration: none; }
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); font-weight: 500; }
+        .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+        .main-content { flex: 1; overflow-y: auto; background: var(--bg-primary); }
+        .page-header { padding: 40px 60px 24px; border-bottom: 1px solid var(--border); }
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .page-title .emoji { font-size: 36px; }
+        .page-subtitle { color: var(--text-secondary); font-size: 14px; }
+        .page-body { padding: 24px 60px 60px; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px 20px; min-width: 140px; flex: 1; }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
         .stat-card.primary .value { color: var(--accent); }
         .stat-card.success .value { color: var(--success); }
         .stat-card.warning .value { color: var(--warning); }
         .stat-card.error .value { color: var(--error); }
-        
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 240px;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a6fc4;
-        }
-        
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-        }
-        
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .item-id {
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        .amount {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .status-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-tag.normal {
-            background: #dbeddb;
-            color: #0f7b6c;
-        }
-        
-        .status-tag.low {
-            background: #fdecc8;
-            color: #d9730d;
-        }
-        
-        .status-tag.critical {
-            background: #ffe2dd;
-            color: #e03e3e;
-        }
-        
-        .status-tag.excess {
-            background: #d3e5ef;
-            color: #0b6bcb;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--text-light);
-        }
-        
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .user-info:hover {
-            background: var(--bg-hover);
-        }
-        .logout-btn {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            opacity: 0.7;
-            transition: all 0.15s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logout-btn:hover {
-            background: #fee2e2;
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
-        }
-        
-        .tab:hover {
-            color: var(--text-primary);
-        }
-        
-        .tab.active {
-            color: var(--text-primary);
-            font-weight: 500;
-            border-bottom-color: var(--text-primary);
-        }
-        
-        .category-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #e8f4fd;
-            color: #2383e2;
-        }
-        
-        .progress-bar {
-            width: 80px;
-            height: 6px;
-            background: var(--bg-secondary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .progress-bar .fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
-        
-        .progress-bar .fill.normal { background: var(--success); }
-        .progress-bar .fill.low { background: var(--warning); }
-        .progress-bar .fill.critical { background: var(--error); }
-        .progress-bar .fill.excess { background: var(--accent); }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; gap: 12px; align-items: center; }
+        .toolbar-right { display: flex; gap: 8px; }
+        .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border-radius: 6px; padding: 8px 12px; }
+        .search-input { border: none; background: transparent; outline: none; font-size: 14px; width: 200px; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 14px; cursor: pointer; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #1a73d4; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--error); color: white; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .data-table th { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-secondary); }
+        .data-table tr:hover { background: var(--bg-secondary); }
+        .status-tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-normal { background: #ddedea; color: #0f7b6c; }
+        .status-low { background: #fdecc8; color: #9a6700; }
+        .status-out { background: #fbe4e4; color: #c93030; }
+        .status-over { background: #d3e5ef; color: #2383e2; }
+        .actions-btn { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+        .actions-btn:hover { background: var(--bg-hover); }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; background: white; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-radius: 8px; z-index: 100; overflow: hidden; }
+        .dropdown-content.show { display: block; }
+        .dropdown-item { display: block; padding: 10px 16px; cursor: pointer; transition: background 0.15s; }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger { color: var(--error); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .alert-card { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .alert-card.danger { background: #fee2e2; border-color: #f87171; }
+        .alert-title { font-weight: 600; margin-bottom: 4px; }
+        .alert-desc { font-size: 13px; color: var(--text-secondary); }
+        .progress-bar { height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .progress-fill.green { background: var(--success); }
+        .progress-fill.orange { background: var(--warning); }
+        .progress-fill.red { background: var(--error); }
+        .progress-fill.blue { background: var(--accent); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #37352f; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .location-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .location-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px; }
+        .location-card .title { font-weight: 600; margin-bottom: 8px; }
+        .location-card .info { font-size: 13px; color: var(--text-secondary); }
+        .user-info { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+        .user-name { font-size: 13px; }
+        .user-role { font-size: 11px; color: var(--text-secondary); }
+        .quick-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+        .quick-btn { flex: 1; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.15s; }
+        .quick-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+        .quick-btn .icon { font-size: 24px; margin-bottom: 8px; }
+        .quick-btn .label { font-weight: 500; }
     </style>
-    <script src="audit-logger.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
+        <!-- Sidebar -->
+        <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">J</div>
-                <span class="title">JCO ERP</span>
+                <div class="title">JCO ERP</div>
             </div>
-            
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">主要功能</div>
-                    <a href="erp-dashboard-notion.html" class="nav-item">
-                        <span class="icon">🏠</span>
-                        <span>儀表板</span>
-                    </a>
-                    <a href="erp-order-center-notion.html" class="nav-item">
-                        <span class="icon">📦</span>
-                        <span>訂單中心</span>
-                    </a>
-                    <a href="erp-cost-center-notion.html" class="nav-item">
-                        <span class="icon">💰</span>
-                        <span>成本中心</span>
-                    </a>
-                    <a href="erp-procurement-center-notion.html" class="nav-item">
-                        <span class="icon">🛒</span>
-                        <span>採購管理</span>
-                    </a>
-                    <a href="erp-inventory-center-notion.html" class="nav-item active">
-                        <span class="icon">📊</span>
-                        <span>庫存中心</span>
-                    </a>
+                    <div class="nav-section-title">主選單</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item"><span class="icon">🏠</span>儀表板</a>
+                    <a href="erp-order-center-notion.html" class="nav-item"><span class="icon">📦</span>訂單中心</a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item"><span class="icon">🛒</span>採購中心</a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item active"><span class="icon">📊</span>庫存中心</a>
                 </div>
-                
                 <div class="nav-section">
                     <div class="nav-section-title">生產管理</div>
-                    <a href="erp-production-center-notion.html" class="nav-item">
-                        <span class="icon">🏭</span>
-                        <span>生產中心</span>
-                    </a>
-                    <a href="erp-quality-center-notion.html" class="nav-item">
-                        <span class="icon">🔍</span>
-                        <span>品質中心</span>
-                    </a>
+                    <a href="erp-production-center-notion.html" class="nav-item"><span class="icon">🏭</span>生產中心</a>
+                    <a href="erp-quality-center-notion.html" class="nav-item"><span class="icon">🔍</span>品質中心</a>
                 </div>
-                
                 <div class="nav-section">
-                    <div class="nav-section-title">系統</div>
-                    <a href="erp-hr-center-notion.html" class="nav-item">
-                        <span class="icon">👥</span>
-                        <span>人事中心</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <span class="icon">⚙️</span>
-                        <span>設定</span>
-                    </a>
+                    <div class="nav-section-title">管理</div>
+                    <a href="erp-cost-center-notion.html" class="nav-item"><span class="icon">💰</span>成本中心</a>
+                    <a href="erp-hr-center-notion.html" class="nav-item"><span class="icon">👥</span>人事中心</a>
                 </div>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">--</div>
-                    <span class="user-name" id="user-name">載入中...</span>
-                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
+            <div class="user-info">
+                <div class="user-avatar">倉</div>
+                <div>
+                    <div class="user-name">倉管員</div>
+                    <div class="user-role">倉庫部</div>
                 </div>
             </div>
-        </aside>
-        
-        <main class="main-content">
-            <header class="page-header">
-                <h1 class="page-title">
-                    <span class="emoji">📊</span>
-                    庫存中心
-                </h1>
-                <p class="page-subtitle">即時庫存監控、安全庫存管理、進出記錄追蹤</p>
-            </header>
-            
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><span class="emoji">📊</span>庫存中心</h1>
+                <p class="page-subtitle">管理原物料庫存、倉位配置和庫存異動</p>
+            </div>
+
             <div class="page-body">
+                <!-- Alerts -->
+                <div id="alerts-container"></div>
+
+                <!-- Stats -->
                 <div class="stats-row">
                     <div class="stat-card primary">
-                        <div class="label">總品項數</div>
-                        <div class="value">156</div>
+                        <div class="label">物料總數</div>
+                        <div class="value" id="stat-total">0</div>
                     </div>
                     <div class="stat-card success">
-                        <div class="label">庫存正常</div>
-                        <div class="value">128</div>
+                        <div class="label">正常庫存</div>
+                        <div class="value" id="stat-normal">0</div>
                     </div>
                     <div class="stat-card warning">
-                        <div class="label">低於安全量</div>
-                        <div class="value">18</div>
+                        <div class="label">低庫存警示</div>
+                        <div class="value" id="stat-low">0</div>
                     </div>
                     <div class="stat-card error">
-                        <div class="label">緊急補貨</div>
-                        <div class="value">6</div>
+                        <div class="label">缺貨項目</div>
+                        <div class="value" id="stat-out">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">庫存總值</div>
-                        <div class="value">$245K</div>
+                        <div class="value" id="stat-value">$0</div>
                     </div>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active">📦 庫存總覽</div>
-                    <div class="tab">📥 進出記錄</div>
-                    <div class="tab">⚠️ 安全庫存</div>
-                    <div class="tab">📋 盤點</div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-btn" onclick="showAdjustModal('in')">
+                        <div class="icon">📥</div>
+                        <div class="label">入庫</div>
+                    </div>
+                    <div class="quick-btn" onclick="showAdjustModal('out')">
+                        <div class="icon">📤</div>
+                        <div class="label">出庫</div>
+                    </div>
+                    <div class="quick-btn" onclick="showAdjustModal('count')">
+                        <div class="icon">📋</div>
+                        <div class="label">盤點</div>
+                    </div>
+                    <div class="quick-btn" onclick="showAdjustModal('transfer')">
+                        <div class="icon">🔄</div>
+                        <div class="label">調撥</div>
+                    </div>
                 </div>
-                
+
+                <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <input type="text" class="search-input" placeholder="搜尋材料、位置...">
-                        <select class="filter-select">
-                            <option>全部類別</option>
+                        <div class="search-box">
+                            <span>🔍</span>
+                            <input type="text" class="search-input" placeholder="搜尋物料...">
+                        </div>
+                        <select class="filter-select" id="category-filter">
+                            <option>全部分類</option>
                             <option>板材</option>
                             <option>五金</option>
                             <option>油漆</option>
-                            <option>包裝材</option>
+                            <option>耗材</option>
                         </select>
-                        <select class="filter-select">
+                        <select class="filter-select" id="status-filter">
                             <option>全部狀態</option>
                             <option>正常</option>
                             <option>低庫存</option>
-                            <option>緊急</option>
+                            <option>缺貨</option>
                         </select>
                     </div>
                     <div class="toolbar-right">
-                        <button class="btn btn-secondary">📋 開始盤點</button>
-                        <button class="btn btn-primary">+ 新增入庫</button>
+                        <button class="btn btn-secondary" onclick="exportData()">📥 匯出</button>
+                        <button class="btn btn-primary" onclick="showAddModal()">+ 新增物料</button>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="list">📋 庫存清單</div>
+                    <div class="tab" data-tab="movements">🔄 異動記錄</div>
+                    <div class="tab" data-tab="locations">📍 倉位管理</div>
+                    <div class="tab" data-tab="reports">📈 庫存報表</div>
+                </div>
+
+                <!-- Tab: List -->
+                <div class="tab-content active" id="tab-list">
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th>品項</th>
-                                <th>類別</th>
+                                <th>物料編號</th>
+                                <th>物料名稱</th>
+                                <th>分類</th>
+                                <th>規格</th>
                                 <th>現有庫存</th>
                                 <th>安全庫存</th>
-                                <th>庫存狀態</th>
-                                <th>位置</th>
-                                <th>最後異動</th>
-                                <th></th>
+                                <th>單位</th>
+                                <th>倉位</th>
+                                <th>狀態</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="item-id">白樺膠合板 18mm</span></td>
-                                <td><span class="category-tag">🪵 板材</span></td>
-                                <td><span class="amount">520 張</span></td>
-                                <td>200 張</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill normal" style="width: 100%"></div>
-                                    </div>
-                                    <span class="status-tag normal">✓ 正常</span>
-                                </td>
-                                <td>A-01-01</td>
-                                <td>2026-03-09</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">MDF 12mm</span></td>
-                                <td><span class="category-tag">🪵 板材</span></td>
-                                <td><span class="amount">85 張</span></td>
-                                <td>100 張</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill low" style="width: 85%"></div>
-                                    </div>
-                                    <span class="status-tag low">◐ 低庫存</span>
-                                </td>
-                                <td>A-02-03</td>
-                                <td>2026-03-08</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">DTC 滑軌 18"</span></td>
-                                <td><span class="category-tag">🔩 五金</span></td>
-                                <td><span class="amount">1,250 組</span></td>
-                                <td>500 組</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill normal" style="width: 100%"></div>
-                                    </div>
-                                    <span class="status-tag normal">✓ 正常</span>
-                                </td>
-                                <td>B-01-05</td>
-                                <td>2026-03-07</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">DTC 鉸鏈</span></td>
-                                <td><span class="category-tag">🔩 五金</span></td>
-                                <td><span class="amount">180 組</span></td>
-                                <td>400 組</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill critical" style="width: 45%"></div>
-                                    </div>
-                                    <span class="status-tag critical">⚠ 緊急</span>
-                                </td>
-                                <td>B-01-06</td>
-                                <td>2026-03-09</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">AC 漆 白色</span></td>
-                                <td><span class="category-tag">🎨 油漆</span></td>
-                                <td><span class="amount">45 桶</span></td>
-                                <td>30 桶</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill normal" style="width: 100%"></div>
-                                    </div>
-                                    <span class="status-tag normal">✓ 正常</span>
-                                </td>
-                                <td>C-02-01</td>
-                                <td>2026-03-06</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">包裝紙箱 B36</span></td>
-                                <td><span class="category-tag">📦 包裝材</span></td>
-                                <td><span class="amount">28 個</span></td>
-                                <td>50 個</td>
-                                <td>
-                                    <div class="progress-bar">
-                                        <div class="fill critical" style="width: 56%"></div>
-                                    </div>
-                                    <span class="status-tag critical">⚠ 緊急</span>
-                                </td>
-                                <td>D-01-02</td>
-                                <td>2026-03-09</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
+                        <tbody id="inventory-table-body">
+                            <!-- Dynamic content -->
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Tab: Movements -->
+                <div class="tab-content" id="tab-movements">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>異動單號</th>
+                                <th>日期時間</th>
+                                <th>物料</th>
+                                <th>類型</th>
+                                <th>數量</th>
+                                <th>異動前</th>
+                                <th>異動後</th>
+                                <th>經辦人</th>
+                                <th>備註</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movements-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab: Locations -->
+                <div class="tab-content" id="tab-locations">
+                    <div class="toolbar" style="margin-bottom: 20px;">
+                        <h3>倉位配置</h3>
+                        <button class="btn btn-primary" onclick="showAddLocationModal()">+ 新增倉位</button>
+                    </div>
+                    <div class="location-grid" id="locations-grid">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Tab: Reports -->
+                <div class="tab-content" id="tab-reports">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="label">本月入庫</div>
+                            <div class="value" id="report-in">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">本月出庫</div>
+                            <div class="value" id="report-out">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">庫存周轉率</div>
+                            <div class="value" id="report-turnover">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">呆滯物料</div>
+                            <div class="value" id="report-dead">0</div>
+                        </div>
+                    </div>
+                    <h3 style="margin: 24px 0 16px;">各分類庫存佔比</h3>
+                    <div id="category-chart" style="display: flex; gap: 24px; align-items: center; padding: 20px; background: var(--bg-secondary); border-radius: 8px;"></div>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">新增物料</h3>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">物料編號</label>
+                        <input type="text" class="form-input" id="mat-code" placeholder="自動生成" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">分類 *</label>
+                        <select class="form-select" id="mat-category">
+                            <option value="">選擇分類</option>
+                            <option value="板材">板材</option>
+                            <option value="五金">五金</option>
+                            <option value="油漆">油漆</option>
+                            <option value="耗材">耗材</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">物料名稱 *</label>
+                    <input type="text" class="form-input" id="mat-name" placeholder="例: 白樺膠合板">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">規格</label>
+                        <input type="text" class="form-input" id="mat-spec" placeholder="例: 18mm × 4×8尺">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">單位</label>
+                        <select class="form-select" id="mat-unit">
+                            <option value="張">張</option>
+                            <option value="片">片</option>
+                            <option value="才">才</option>
+                            <option value="公斤">公斤</option>
+                            <option value="桶">桶</option>
+                            <option value="組">組</option>
+                            <option value="個">個</option>
+                            <option value="包">包</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">現有庫存</label>
+                        <input type="number" class="form-input" id="mat-qty" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">安全庫存</label>
+                        <input type="number" class="form-input" id="mat-safety" placeholder="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">單價</label>
+                        <input type="number" class="form-input" id="mat-price" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">倉位</label>
+                        <select class="form-select" id="mat-location">
+                            <option value="A-01">A-01 原料區</option>
+                            <option value="A-02">A-02 原料區</option>
+                            <option value="B-01">B-01 五金區</option>
+                            <option value="B-02">B-02 五金區</option>
+                            <option value="C-01">C-01 油漆區</option>
+                            <option value="D-01">D-01 耗材區</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備註</label>
+                    <textarea class="form-textarea" id="mat-notes" rows="2" placeholder="物料備註..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveInventory()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adjust Modal (入庫/出庫/盤點) -->
+    <div class="modal-overlay" id="adjust-modal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="adjust-title">庫存調整</h3>
+                <button class="modal-close" onclick="closeAdjustModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="adjust-type">
+                <div class="form-group">
+                    <label class="form-label">選擇物料 *</label>
+                    <select class="form-select" id="adjust-material">
+                        <option value="">選擇物料</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">目前庫存</label>
+                    <div id="current-stock" style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="adjust-qty-label">調整數量 *</label>
+                    <input type="number" class="form-input" id="adjust-qty" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備註</label>
+                    <input type="text" class="form-input" id="adjust-notes" placeholder="調整原因...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAdjustModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmAdjust()">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">確認刪除</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-index">
+                <p>確定要刪除此物料嗎？</p>
+                <p id="delete-info" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px;"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api-connector.js"></script>
+    <script src="audit-logger.js"></script>
     <script>
-        function loadUserInfo() {
-            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-            if (session) {
-                const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-                if (nameEl) nameEl.textContent = session.name;
-            }
-        }
+        // Data
+        let inventoryData = [];
+        let movementsData = [];
+        let locationsData = [
+            { code: 'A-01', name: '原料區 A-01', capacity: 100, used: 65 },
+            { code: 'A-02', name: '原料區 A-02', capacity: 100, used: 80 },
+            { code: 'B-01', name: '五金區 B-01', capacity: 50, used: 35 },
+            { code: 'B-02', name: '五金區 B-02', capacity: 50, used: 20 },
+            { code: 'C-01', name: '油漆區 C-01', capacity: 30, used: 25 },
+            { code: 'D-01', name: '耗材區 D-01', capacity: 40, used: 15 }
+        ];
         
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('JCO_ERP_SESSION');
-                window.location.href = 'erp-login-notion.html';
-            }
-        }
+        // Demo data
+        const demoInventory = [
+            ['MAT-001', '白樺膠合板', '板材', '18mm × 4×8尺', 150, 50, '張', 'A-01', 1200, ''],
+            ['MAT-002', 'MDF 中密度板', '板材', '15mm × 4×8尺', 80, 30, '張', 'A-02', 800, ''],
+            ['MAT-003', 'DTC滑軌 450mm', '五金', '450mm 三節', 200, 100, '組', 'B-01', 65, ''],
+            ['MAT-004', 'DTC鉸鏈', '五金', '35mm 緩衝', 500, 200, '個', 'B-01', 25, ''],
+            ['MAT-005', 'AC底漆', '油漆', '20L', 25, 10, '桶', 'C-01', 1500, ''],
+            ['MAT-006', 'UV面漆', '油漆', '20L', 8, 10, '桶', 'C-01', 2200, '低庫存警示'],
+            ['MAT-007', '砂紙 P180', '耗材', '230×280mm', 0, 50, '張', 'D-01', 5, '缺貨'],
+            ['MAT-008', '橡膠木指接板', '板材', '30mm × 4×8尺', 45, 20, '張', 'A-01', 3000, '']
+        ];
         
-        loadUserInfo();
+        const demoMovements = [
+            ['MV-001', '2026-03-11 09:30', 'MAT-001 白樺膠合板', '入庫', 50, 100, 150, '倉管員', '採購到貨'],
+            ['MV-002', '2026-03-10 14:20', 'MAT-003 DTC滑軌', '出庫', -30, 230, 200, '倉管員', '生產領料'],
+            ['MV-003', '2026-03-10 10:15', 'MAT-005 AC底漆', '入庫', 10, 15, 25, '倉管員', '採購到貨'],
+            ['MV-004', '2026-03-09 16:00', 'MAT-006 UV面漆', '出庫', -5, 13, 8, '倉管員', '生產領料'],
+            ['MV-005', '2026-03-08 11:30', 'MAT-007 砂紙', '出庫', -50, 50, 0, '倉管員', '全數領用']
+        ];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.erpApi) {
+                try {
+                    const apiData = await erpApi.getSheetData('inventory');
+                    if (apiData && apiData.length > 0) {
+                        inventoryData = apiData;
+                    } else {
+                        inventoryData = demoInventory;
+                    }
+                } catch (e) {
+                    console.log('API 載入失敗，使用示範資料');
+                    inventoryData = demoInventory;
+                }
+            } else {
+                inventoryData = demoInventory;
+            }
+            movementsData = demoMovements;
+            
+            renderAll();
+            initTabs();
+            initSearch();
+            checkAlerts();
+        });
+
+        function renderAll() {
+            renderTable();
+            renderMovements();
+            renderLocations();
+            renderReports();
+            updateStats();
+            updateAdjustMaterialSelect();
+        }
+
+        function updateStats() {
+            const total = inventoryData.length;
+            const normal = inventoryData.filter(m => Number(m[4]) >= Number(m[5])).length;
+            const low = inventoryData.filter(m => Number(m[4]) < Number(m[5]) && Number(m[4]) > 0).length;
+            const out = inventoryData.filter(m => Number(m[4]) === 0).length;
+            const value = inventoryData.reduce((sum, m) => sum + (Number(m[4]) * Number(m[8]) || 0), 0);
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-normal').textContent = normal;
+            document.getElementById('stat-low').textContent = low;
+            document.getElementById('stat-out').textContent = out;
+            document.getElementById('stat-value').textContent = '$' + value.toLocaleString();
+        }
+
+        function checkAlerts() {
+            const container = document.getElementById('alerts-container');
+            const lowItems = inventoryData.filter(m => Number(m[4]) < Number(m[5]) && Number(m[4]) > 0);
+            const outItems = inventoryData.filter(m => Number(m[4]) === 0);
+            
+            let html = '';
+            if (outItems.length > 0) {
+                html += `<div class="alert-card danger">
+                    <div class="alert-title">⚠️ 缺貨警示 (${outItems.length} 項)</div>
+                    <div class="alert-desc">${outItems.map(m => m[1]).join('、')}</div>
+                </div>`;
+            }
+            if (lowItems.length > 0) {
+                html += `<div class="alert-card">
+                    <div class="alert-title">⚡ 低庫存警示 (${lowItems.length} 項)</div>
+                    <div class="alert-desc">${lowItems.map(m => m[1]).join('、')}</div>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function getStatus(qty, safety) {
+            if (qty === 0) return { text: '缺貨', class: 'status-out' };
+            if (qty < safety) return { text: '低庫存', class: 'status-low' };
+            if (qty > safety * 2) return { text: '過剩', class: 'status-over' };
+            return { text: '正常', class: 'status-normal' };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('inventory-table-body');
+            if (!tbody) return;
+            
+            if (inventoryData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">尚無庫存資料</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = inventoryData.map((m, idx) => {
+                const [code, name, category, spec, qty, safety, unit, location] = m;
+                const status = getStatus(Number(qty), Number(safety));
+                const percentage = Math.min((Number(qty) / Number(safety)) * 100, 200);
+                const progressClass = percentage < 50 ? 'red' : percentage < 100 ? 'orange' : 'green';
+                
+                return `<tr>
+                    <td><strong>${code || ''}</strong></td>
+                    <td>${name || ''}</td>
+                    <td>${category || ''}</td>
+                    <td>${spec || '-'}</td>
+                    <td>
+                        <strong>${qty || 0}</strong>
+                        <div class="progress-bar"><div class="progress-fill ${progressClass}" style="width: ${Math.min(percentage, 100)}%"></div></div>
+                    </td>
+                    <td>${safety || 0}</td>
+                    <td>${unit || ''}</td>
+                    <td>${location || '-'}</td>
+                    <td><span class="status-tag ${status.class}">${status.text}</span></td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="actions-btn" onclick="toggleDropdown(this)">⋯</button>
+                            <div class="dropdown-content">
+                                <div class="dropdown-item" onclick="quickAdjust(${idx}, 'in')">📥 入庫</div>
+                                <div class="dropdown-item" onclick="quickAdjust(${idx}, 'out')">📤 出庫</div>
+                                <div class="dropdown-item" onclick="editInventory(${idx})">✏️ 編輯</div>
+                                <div class="dropdown-item danger" onclick="showDeleteModal(${idx})">🗑️ 刪除</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderMovements() {
+            const tbody = document.getElementById('movements-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = movementsData.map(mv => {
+                const [mvNo, datetime, material, type, qty, before, after, handler, notes] = mv;
+                const isIn = type === '入庫';
+                return `<tr>
+                    <td><strong>${mvNo}</strong></td>
+                    <td>${datetime}</td>
+                    <td>${material}</td>
+                    <td><span class="status-tag ${isIn ? 'status-normal' : 'status-low'}">${type}</span></td>
+                    <td style="color: ${isIn ? 'var(--success)' : 'var(--error)'};">${isIn ? '+' : ''}${qty}</td>
+                    <td>${before}</td>
+                    <td>${after}</td>
+                    <td>${handler}</td>
+                    <td>${notes || '-'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderLocations() {
+            const grid = document.getElementById('locations-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = locationsData.map(loc => {
+                const percentage = (loc.used / loc.capacity) * 100;
+                const progressClass = percentage > 90 ? 'red' : percentage > 70 ? 'orange' : 'green';
+                return `<div class="location-card">
+                    <div class="title">${loc.name}</div>
+                    <div class="info">容量: ${loc.capacity} | 已用: ${loc.used}</div>
+                    <div class="progress-bar"><div class="progress-fill ${progressClass}" style="width: ${percentage}%"></div></div>
+                    <div class="info" style="margin-top: 8px;">${percentage.toFixed(0)}% 使用率</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderReports() {
+            const inCount = movementsData.filter(m => m[3] === '入庫').reduce((sum, m) => sum + Math.abs(Number(m[4])), 0);
+            const outCount = movementsData.filter(m => m[3] === '出庫').reduce((sum, m) => sum + Math.abs(Number(m[4])), 0);
+            
+            document.getElementById('report-in').textContent = inCount;
+            document.getElementById('report-out').textContent = outCount;
+            document.getElementById('report-turnover').textContent = '2.5';
+            document.getElementById('report-dead').textContent = '3';
+            
+            // Category chart
+            const categories = {};
+            inventoryData.forEach(m => {
+                const cat = m[2] || '其他';
+                const val = Number(m[4]) * Number(m[8]) || 0;
+                categories[cat] = (categories[cat] || 0) + val;
+            });
+            
+            const total = Object.values(categories).reduce((a, b) => a + b, 0);
+            const colors = { '板材': '#2383e2', '五金': '#0f7b6c', '油漆': '#d9730d', '耗材': '#9b9a97' };
+            
+            document.getElementById('category-chart').innerHTML = `
+                <div style="flex: 1;">
+                    ${Object.entries(categories).map(([cat, val]) => {
+                        const pct = total > 0 ? (val / total * 100).toFixed(1) : 0;
+                        return `<div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>${cat}</span>
+                                <span>$${val.toLocaleString()} (${pct}%)</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${pct}%; background: ${colors[cat] || '#666'}"></div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 32px; font-weight: 700;">$${total.toLocaleString()}</div>
+                    <div style="color: var(--text-secondary);">庫存總值</div>
+                </div>
+            `;
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function initSearch() {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTable);
+            }
+            document.getElementById('category-filter')?.addEventListener('change', filterTable);
+            document.getElementById('status-filter')?.addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const keyword = document.querySelector('.search-input')?.value.toLowerCase() || '';
+            const categoryFilter = document.getElementById('category-filter')?.value || '全部分類';
+            const statusFilter = document.getElementById('status-filter')?.value || '全部狀態';
+            
+            const rows = document.querySelectorAll('#inventory-table-body tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const category = row.cells[2]?.textContent || '';
+                const status = row.querySelector('.status-tag')?.textContent || '';
+                
+                const matchKeyword = text.includes(keyword);
+                const matchCategory = categoryFilter === '全部分類' || category === categoryFilter;
+                const matchStatus = statusFilter === '全部狀態' || status === statusFilter;
+                
+                row.style.display = (matchKeyword && matchCategory && matchStatus) ? '' : 'none';
+            });
+        }
+
+        function generateMatCode() {
+            const num = String(inventoryData.length + 1).padStart(3, '0');
+            return `MAT-${num}`;
+        }
+
+        // Modal functions
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = '新增物料';
+            document.getElementById('edit-index').value = -1;
+            document.getElementById('mat-code').value = generateMatCode();
+            clearForm();
+            document.getElementById('add-modal').classList.add('show');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.remove('show');
+        }
+
+        function clearForm() {
+            ['mat-category', 'mat-name', 'mat-spec', 'mat-qty', 'mat-safety', 'mat-price', 'mat-notes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('mat-unit').value = '張';
+            document.getElementById('mat-location').value = 'A-01';
+        }
+
+        function editInventory(idx) {
+            const m = inventoryData[idx];
+            if (!m) return;
+            
+            document.getElementById('modal-title').textContent = '編輯物料';
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('mat-code').value = m[0];
+            document.getElementById('mat-name').value = m[1];
+            document.getElementById('mat-category').value = m[2];
+            document.getElementById('mat-spec').value = m[3];
+            document.getElementById('mat-qty').value = m[4];
+            document.getElementById('mat-safety').value = m[5];
+            document.getElementById('mat-unit').value = m[6];
+            document.getElementById('mat-location').value = m[7];
+            document.getElementById('mat-price').value = m[8];
+            document.getElementById('mat-notes').value = m[9] || '';
+            
+            document.getElementById('add-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        async function saveInventory() {
+            const idx = Number(document.getElementById('edit-index').value);
+            const code = document.getElementById('mat-code').value;
+            const name = document.getElementById('mat-name').value;
+            const category = document.getElementById('mat-category').value;
+            const spec = document.getElementById('mat-spec').value;
+            const qty = Number(document.getElementById('mat-qty').value) || 0;
+            const safety = Number(document.getElementById('mat-safety').value) || 0;
+            const unit = document.getElementById('mat-unit').value;
+            const location = document.getElementById('mat-location').value;
+            const price = Number(document.getElementById('mat-price').value) || 0;
+            const notes = document.getElementById('mat-notes').value;
+            
+            if (!name || !category) {
+                showToast('⚠️ 請填寫物料名稱和分類');
+                return;
+            }
+            
+            const newMat = [code, name, category, spec, qty, safety, unit, location, price, notes];
+            
+            if (idx >= 0) {
+                inventoryData[idx] = newMat;
+                showToast('✅ 物料已更新');
+                if (window.AuditLogger) AuditLogger.logUpdate('inventory', `更新物料 ${code}`);
+            } else {
+                inventoryData.push(newMat);
+                showToast('✅ 物料已新增');
+                if (window.AuditLogger) AuditLogger.logCreate('inventory', `新增物料 ${code}`);
+            }
+            
+            if (window.erpApi && !erpApi.forceOffline) {
+                try {
+                    if (idx >= 0) {
+                        await erpApi.updateSheetRow('inventory', idx + 2, newMat);
+                    } else {
+                        await erpApi.appendSheetRow('inventory', newMat);
+                    }
+                } catch (e) { console.log('API 同步失敗'); }
+            }
+            
+            renderAll();
+            checkAlerts();
+            closeAddModal();
+        }
+
+        // Adjust modal
+        function showAdjustModal(type) {
+            const titles = { in: '📥 入庫', out: '📤 出庫', count: '📋 盤點', transfer: '🔄 調撥' };
+            const labels = { in: '入庫數量', out: '出庫數量', count: '實際庫存', transfer: '調撥數量' };
+            
+            document.getElementById('adjust-title').textContent = titles[type] || '庫存調整';
+            document.getElementById('adjust-qty-label').textContent = labels[type] || '調整數量';
+            document.getElementById('adjust-type').value = type;
+            document.getElementById('adjust-material').value = '';
+            document.getElementById('adjust-qty').value = '';
+            document.getElementById('adjust-notes').value = '';
+            document.getElementById('current-stock').textContent = '-';
+            
+            document.getElementById('adjust-modal').classList.add('show');
+        }
+
+        function closeAdjustModal() {
+            document.getElementById('adjust-modal').classList.remove('show');
+        }
+
+        function updateAdjustMaterialSelect() {
+            const select = document.getElementById('adjust-material');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">選擇物料</option>' + 
+                inventoryData.map((m, idx) => `<option value="${idx}">${m[0]} ${m[1]}</option>`).join('');
+            
+            select.addEventListener('change', () => {
+                const idx = Number(select.value);
+                if (inventoryData[idx]) {
+                    document.getElementById('current-stock').textContent = 
+                        `${inventoryData[idx][4]} ${inventoryData[idx][6]}`;
+                } else {
+                    document.getElementById('current-stock').textContent = '-';
+                }
+            });
+        }
+
+        function quickAdjust(idx, type) {
+            showAdjustModal(type);
+            document.getElementById('adjust-material').value = idx;
+            document.getElementById('current-stock').textContent = 
+                `${inventoryData[idx][4]} ${inventoryData[idx][6]}`;
+            closeAllDropdowns();
+        }
+
+        async function confirmAdjust() {
+            const type = document.getElementById('adjust-type').value;
+            const idx = Number(document.getElementById('adjust-material').value);
+            const qty = Number(document.getElementById('adjust-qty').value);
+            const notes = document.getElementById('adjust-notes').value;
+            
+            if (isNaN(idx) || !inventoryData[idx] || !qty) {
+                showToast('⚠️ 請選擇物料並輸入數量');
+                return;
+            }
+            
+            const m = inventoryData[idx];
+            const before = Number(m[4]);
+            let after;
+            let mvType;
+            
+            switch (type) {
+                case 'in':
+                    after = before + qty;
+                    mvType = '入庫';
+                    break;
+                case 'out':
+                    after = Math.max(0, before - qty);
+                    mvType = '出庫';
+                    break;
+                case 'count':
+                    after = qty;
+                    mvType = '盤點';
+                    break;
+                case 'transfer':
+                    after = before - qty;
+                    mvType = '調撥';
+                    break;
+                default:
+                    return;
+            }
+            
+            inventoryData[idx][4] = after;
+            
+            // Add movement record
+            const mvNo = `MV-${String(movementsData.length + 1).padStart(3, '0')}`;
+            const now = new Date();
+            const datetime = `${now.toISOString().split('T')[0]} ${now.toTimeString().slice(0,5)}`;
+            const diff = type === 'out' || type === 'transfer' ? -qty : (type === 'count' ? after - before : qty);
+            
+            movementsData.unshift([mvNo, datetime, `${m[0]} ${m[1]}`, mvType, diff, before, after, '倉管員', notes]);
+            
+            showToast(`✅ ${mvType}完成: ${m[1]} ${before} → ${after}`);
+            
+            if (window.AuditLogger) {
+                AuditLogger.logUpdate('inventory', `${m[0]} ${mvType} ${diff > 0 ? '+' : ''}${diff}`);
+            }
+            
+            if (window.erpApi && !erpApi.forceOffline) {
+                try {
+                    await erpApi.updateSheetRow('inventory', idx + 2, inventoryData[idx]);
+                } catch (e) { console.log('API 同步失敗'); }
+            }
+            
+            renderAll();
+            checkAlerts();
+            closeAdjustModal();
+        }
+
+        // Delete modal
+        function showDeleteModal(idx) {
+            const m = inventoryData[idx];
+            if (!m) return;
+            
+            document.getElementById('delete-index').value = idx;
+            document.getElementById('delete-info').innerHTML = `<strong>${m[0]}</strong> - ${m[1]}<br>現有庫存: ${m[4]} ${m[6]}`;
+            document.getElementById('delete-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('show');
+        }
+
+        async function confirmDelete() {
+            const idx = Number(document.getElementById('delete-index').value);
+            
+            if (idx >= 0 && inventoryData[idx]) {
+                const code = inventoryData[idx][0];
+                inventoryData.splice(idx, 1);
+                
+                showToast('🗑️ 物料已刪除');
+                if (window.AuditLogger) AuditLogger.logDelete('inventory', `刪除物料 ${code}`);
+                
+                if (window.erpApi && !erpApi.forceOffline) {
+                    try { await erpApi.deleteSheetRow('inventory', idx + 2); } catch (e) {}
+                }
+                
+                renderAll();
+                checkAlerts();
+            }
+            closeDeleteModal();
+        }
+
+        // Dropdown
+        function toggleDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
+            closeAllDropdowns();
+            dropdown.classList.toggle('show');
+            event.stopPropagation();
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+        }
+
+        document.addEventListener('click', closeAllDropdowns);
+
+        // Export
+        function exportData() {
+            let csv = '物料編號,物料名稱,分類,規格,現有庫存,安全庫存,單位,倉位,單價,備註\n';
+            inventoryData.forEach(m => {
+                csv += m.map(v => `"${v || ''}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `JCO-庫存報表-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showToast('📥 報表匯出成功');
+        }
+
+        function showAddLocationModal() {
+            showToast('📍 倉位管理功能開發中...');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
     </script>
 </body>
 </html>

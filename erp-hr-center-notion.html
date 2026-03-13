@@ -6,748 +6,450 @@
     <title>人事中心 - JCO ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f7f6f3;
-            --bg-hover: #efefef;
-            --text-primary: #37352f;
-            --text-secondary: #787774;
-            --text-light: #9b9a97;
-            --border: #e9e9e7;
-            --accent: #2383e2;
-            --accent-light: #e8f4fd;
-            --success: #0f7b6c;
-            --warning: #d9730d;
-            --error: #e03e3e;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-        
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 240px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        
-        .sidebar-header {
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .sidebar-header .logo {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #2383e2, #0f7b6c);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 12px;
-        }
-        
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            padding: 8px;
-            flex: 1;
-        }
-        
-        .nav-section {
-            margin-bottom: 16px;
-        }
-        
-        .nav-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 8px 4px;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.15s;
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-        
-        .nav-item:hover {
-            background: var(--bg-hover);
-        }
-        
-        .nav-item.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .nav-item .icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: var(--bg-primary);
-        }
-        
-        .page-header {
-            padding: 40px 60px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title .emoji {
-            font-size: 36px;
-        }
-        
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .page-body {
-            padding: 24px 60px 60px;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px 20px;
-            min-width: 140px;
-            flex: 1;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg-primary: #ffffff; --bg-secondary: #f7f6f3; --bg-hover: #efefef; --text-primary: #37352f; --text-secondary: #787774; --text-light: #9b9a97; --border: #e9e9e7; --accent: #2383e2; --accent-light: #e8f4fd; --success: #0f7b6c; --warning: #d9730d; --error: #e03e3e; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .sidebar-header .logo { width: 24px; height: 24px; background: linear-gradient(135deg, #2383e2, #0f7b6c); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+        .sidebar-nav { padding: 8px; flex: 1; }
+        .nav-section { margin-bottom: 16px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; padding: 8px 8px 4px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--text-secondary); text-decoration: none; }
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); font-weight: 500; }
+        .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+        .main-content { flex: 1; overflow-y: auto; }
+        .page-header { padding: 40px 60px 24px; border-bottom: 1px solid var(--border); }
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .page-body { padding: 24px 60px 60px; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px 20px; min-width: 140px; flex: 1; }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
         .stat-card.primary .value { color: var(--accent); }
         .stat-card.success .value { color: var(--success); }
         .stat-card.warning .value { color: var(--warning); }
-        .stat-card.error .value { color: var(--error); }
-        
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 240px;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a6fc4;
-        }
-        
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-        }
-        
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .employee-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .employee-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: white;
-        }
-        
-        .employee-name {
-            font-weight: 500;
-        }
-        
-        .employee-id {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-        
-        .status-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-tag.active {
-            background: #dbeddb;
-            color: #0f7b6c;
-        }
-        
-        .status-tag.leave {
-            background: #fdecc8;
-            color: #d9730d;
-        }
-        
-        .status-tag.absent {
-            background: #ffe2dd;
-            color: #e03e3e;
-        }
-        
-        .status-tag.onsite {
-            background: #d3e5ef;
-            color: #0b6bcb;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--text-light);
-        }
-        
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .user-info:hover {
-            background: var(--bg-hover);
-        }
-        .logout-btn {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            opacity: 0.7;
-            transition: all 0.15s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logout-btn:hover {
-            background: #fee2e2;
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
-        }
-        
-        .tab:hover {
-            color: var(--text-primary);
-        }
-        
-        .tab.active {
-            color: var(--text-primary);
-            font-weight: 500;
-            border-bottom-color: var(--text-primary);
-        }
-        
-        .dept-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #e8f4fd;
-            color: #2383e2;
-        }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; gap: 12px; }
+        .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border-radius: 6px; padding: 8px 12px; }
+        .search-input { border: none; background: transparent; outline: none; font-size: 14px; width: 200px; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 14px; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-danger { background: var(--error); color: white; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .data-table th { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-secondary); }
+        .data-table tr:hover { background: var(--bg-secondary); }
+        .status-tag { display: inline-flex; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-active { background: #ddedea; color: #0f7b6c; }
+        .status-leave { background: #fdecc8; color: #9a6700; }
+        .status-resigned { background: #f1f1ef; color: #787774; }
+        .employee-card { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 12px; }
+        .employee-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 600; }
+        .employee-info { flex: 1; }
+        .employee-name { font-weight: 600; margin-bottom: 2px; }
+        .employee-dept { font-size: 13px; color: var(--text-secondary); }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; background: white; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-radius: 8px; z-index: 100; }
+        .dropdown-content.show { display: block; }
+        .dropdown-item { display: block; padding: 10px 16px; cursor: pointer; }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger { color: var(--error); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .dept-card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; text-align: center; }
+        .dept-card .count { font-size: 32px; font-weight: 700; color: var(--accent); }
+        .dept-card .name { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #37352f; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999; }
+        .user-info { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+        .org-chart { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
     </style>
-    <script src="audit-logger.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">J</div>
-                <span class="title">JCO ERP</span>
-            </div>
-            
+        <div class="sidebar">
+            <div class="sidebar-header"><div class="logo">J</div><div class="title">JCO ERP</div></div>
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">主要功能</div>
-                    <a href="erp-dashboard-notion.html" class="nav-item">
-                        <span class="icon">🏠</span>
-                        <span>儀表板</span>
-                    </a>
-                    <a href="erp-order-center-notion.html" class="nav-item">
-                        <span class="icon">📦</span>
-                        <span>訂單中心</span>
-                    </a>
-                    <a href="erp-cost-center-notion.html" class="nav-item">
-                        <span class="icon">💰</span>
-                        <span>成本中心</span>
-                    </a>
-                    <a href="erp-procurement-center-notion.html" class="nav-item">
-                        <span class="icon">🛒</span>
-                        <span>採購管理</span>
-                    </a>
-                    <a href="erp-inventory-center-notion.html" class="nav-item">
-                        <span class="icon">📊</span>
-                        <span>庫存中心</span>
-                    </a>
+                    <div class="nav-section-title">主選單</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item"><span class="icon">🏠</span>儀表板</a>
+                    <a href="erp-order-center-notion.html" class="nav-item"><span class="icon">📦</span>訂單中心</a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item"><span class="icon">🛒</span>採購中心</a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item"><span class="icon">📊</span>庫存中心</a>
                 </div>
-                
                 <div class="nav-section">
                     <div class="nav-section-title">生產管理</div>
-                    <a href="erp-production-center-notion.html" class="nav-item">
-                        <span class="icon">🏭</span>
-                        <span>生產中心</span>
-                    </a>
-                    <a href="erp-quality-center-notion.html" class="nav-item">
-                        <span class="icon">🔍</span>
-                        <span>品質中心</span>
-                    </a>
+                    <a href="erp-production-center-notion.html" class="nav-item"><span class="icon">🏭</span>生產中心</a>
+                    <a href="erp-quality-center-notion.html" class="nav-item"><span class="icon">🔍</span>品質中心</a>
                 </div>
-                
                 <div class="nav-section">
-                    <div class="nav-section-title">系統</div>
-                    <a href="erp-hr-center-notion.html" class="nav-item active">
-                        <span class="icon">👥</span>
-                        <span>人事中心</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <span class="icon">⚙️</span>
-                        <span>設定</span>
-                    </a>
+                    <div class="nav-section-title">管理</div>
+                    <a href="erp-cost-center-notion.html" class="nav-item"><span class="icon">💰</span>成本中心</a>
+                    <a href="erp-hr-center-notion.html" class="nav-item active"><span class="icon">👥</span>人事中心</a>
                 </div>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">--</div>
-                    <span class="user-name" id="user-name">載入中...</span>
-                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
-                </div>
+            <div class="user-info"><div class="user-avatar">人</div><div><div style="font-size:13px">人事主管</div><div style="font-size:11px;color:var(--text-secondary)">人事部</div></div></div>
+        </div>
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><span style="font-size:36px">👥</span>人事中心</h1>
+                <p style="color:var(--text-secondary)">管理員工資料、考勤記錄和組織架構</p>
             </div>
-        </aside>
-        
-        <main class="main-content">
-            <header class="page-header">
-                <h1 class="page-title">
-                    <span class="emoji">👥</span>
-                    人事中心
-                </h1>
-                <p class="page-subtitle">員工資料管理、出勤追蹤、薪資計算、組織架構</p>
-            </header>
-            
             <div class="page-body">
                 <div class="stats-row">
-                    <div class="stat-card primary">
-                        <div class="label">總員工數</div>
-                        <div class="value">256</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="label">今日出勤</div>
-                        <div class="value">248</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="label">請假中</div>
-                        <div class="value">5</div>
-                    </div>
-                    <div class="stat-card error">
-                        <div class="label">缺勤</div>
-                        <div class="value">3</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">本月加班</div>
-                        <div class="value">1,280h</div>
-                    </div>
+                    <div class="stat-card primary"><div class="label">員工總數</div><div class="value" id="stat-total">0</div></div>
+                    <div class="stat-card success"><div class="label">在職</div><div class="value" id="stat-active">0</div></div>
+                    <div class="stat-card warning"><div class="label">請假中</div><div class="value" id="stat-leave">0</div></div>
+                    <div class="stat-card"><div class="label">本月新進</div><div class="value" id="stat-new">0</div></div>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active">👤 員工資料</div>
-                    <div class="tab">📅 出勤記錄</div>
-                    <div class="tab">💵 薪資管理</div>
-                    <div class="tab">🏢 組織架構</div>
-                </div>
-                
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <input type="text" class="search-input" placeholder="搜尋員工姓名、工號...">
-                        <select class="filter-select">
-                            <option>全部部門</option>
-                            <option>生產部</option>
-                            <option>品管部</option>
-                            <option>倉儲部</option>
-                            <option>管理部</option>
-                        </select>
-                        <select class="filter-select">
-                            <option>全部狀態</option>
-                            <option>在職</option>
-                            <option>請假</option>
-                            <option>離職</option>
-                        </select>
+                        <div class="search-box"><span>🔍</span><input type="text" class="search-input" placeholder="搜尋員工..."></div>
+                        <select class="filter-select" id="dept-filter"><option>全部部門</option><option>生產部</option><option>品管部</option><option>採購部</option><option>倉庫部</option><option>業務部</option><option>管理部</option></select>
+                        <select class="filter-select" id="status-filter"><option>全部狀態</option><option>在職</option><option>請假</option><option>離職</option></select>
                     </div>
-                    <div class="toolbar-right">
-                        <button class="btn btn-secondary">📊 出勤報表</button>
-                        <button class="btn btn-primary">+ 新增員工</button>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-secondary" onclick="exportData()">📥 匯出</button>
+                        <button class="btn btn-primary" onclick="showAddModal()">+ 新增員工</button>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>員工</th>
-                                <th>部門</th>
-                                <th>職位</th>
-                                <th>入職日期</th>
-                                <th>今日狀態</th>
-                                <th>本月出勤</th>
-                                <th>聯絡方式</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">王</div>
-                                        <div>
-                                            <div class="employee-name">王小明</div>
-                                            <div class="employee-id">EMP-001</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">🔧 生產部</span></td>
-                                <td>組長</td>
-                                <td>2020-03-15</td>
-                                <td><span class="status-tag active">✓ 出勤</span></td>
-                                <td>22/22</td>
-                                <td>0912-345-678</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #fd79a8, #e84393);">李</div>
-                                        <div>
-                                            <div class="employee-name">李美玲</div>
-                                            <div class="employee-id">EMP-015</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">🔍 品管部</span></td>
-                                <td>品管員</td>
-                                <td>2021-06-01</td>
-                                <td><span class="status-tag active">✓ 出勤</span></td>
-                                <td>21/22</td>
-                                <td>0923-456-789</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #55efc4, #00b894);">張</div>
-                                        <div>
-                                            <div class="employee-name">張志豪</div>
-                                            <div class="employee-id">EMP-023</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">📦 倉儲部</span></td>
-                                <td>倉管員</td>
-                                <td>2022-01-10</td>
-                                <td><span class="status-tag leave">◐ 請假</span></td>
-                                <td>18/22</td>
-                                <td>0934-567-890</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">陳</div>
-                                        <div>
-                                            <div class="employee-name">陳怡君</div>
-                                            <div class="employee-id">EMP-008</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">🏢 管理部</span></td>
-                                <td>人資專員</td>
-                                <td>2019-08-20</td>
-                                <td><span class="status-tag active">✓ 出勤</span></td>
-                                <td>22/22</td>
-                                <td>0945-678-901</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e);">林</div>
-                                        <div>
-                                            <div class="employee-name">林佳慧</div>
-                                            <div class="employee-id">EMP-042</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">🔧 生產部</span></td>
-                                <td>作業員</td>
-                                <td>2023-02-14</td>
-                                <td><span class="status-tag absent">✕ 缺勤</span></td>
-                                <td>19/22</td>
-                                <td>0956-789-012</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="employee-info">
-                                        <div class="employee-avatar" style="background: linear-gradient(135deg, #fab1a0, #e17055);">黃</div>
-                                        <div>
-                                            <div class="employee-name">黃建宏</div>
-                                            <div class="employee-id">EMP-005</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="dept-tag">🔧 生產部</span></td>
-                                <td>主管</td>
-                                <td>2018-05-01</td>
-                                <td><span class="status-tag onsite">📍 外勤</span></td>
-                                <td>20/22</td>
-                                <td>0967-890-123</td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                        </tbody>
+                <div class="tabs">
+                    <div class="tab active" data-tab="list">📋 員工列表</div>
+                    <div class="tab" data-tab="org">🏢 組織架構</div>
+                    <div class="tab" data-tab="attendance">📅 考勤記錄</div>
+                    <div class="tab" data-tab="payroll">💵 薪資管理</div>
+                </div>
+                <div class="tab-content active" id="tab-list">
+                    <table class="data-table">
+                        <thead><tr><th>工號</th><th>姓名</th><th>部門</th><th>職位</th><th>到職日</th><th>電話</th><th>狀態</th><th>操作</th></tr></thead>
+                        <tbody id="employee-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="tab-org">
+                    <h3 style="margin-bottom:20px">部門人數統計</h3>
+                    <div class="org-chart" id="org-chart"></div>
+                </div>
+                <div class="tab-content" id="tab-attendance">
+                    <div class="toolbar" style="margin-bottom:20px">
+                        <div style="display:flex;gap:12px;align-items:center">
+                            <span>日期範圍:</span>
+                            <input type="date" class="form-input" style="width:auto" id="att-start">
+                            <span>至</span>
+                            <input type="date" class="form-input" style="width:auto" id="att-end">
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('📅 考勤查詢功能開發中...')">查詢</button>
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>日期</th><th>工號</th><th>姓名</th><th>上班</th><th>下班</th><th>工時</th><th>狀態</th></tr></thead>
+                        <tbody id="attendance-body"></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="tab-payroll">
+                    <div class="stats-row">
+                        <div class="stat-card"><div class="label">本月薪資總額</div><div class="value">$485K</div></div>
+                        <div class="stat-card"><div class="label">平均薪資</div><div class="value">$18.5K</div></div>
+                        <div class="stat-card"><div class="label">加班費</div><div class="value">$32K</div></div>
+                        <div class="stat-card"><div class="label">獎金</div><div class="value">$15K</div></div>
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>工號</th><th>姓名</th><th>底薪</th><th>加班費</th><th>獎金</th><th>扣款</th><th>實發</th></tr></thead>
+                        <tbody id="payroll-body"></tbody>
                     </table>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title" id="modal-title">新增員工</h3><button class="modal-close" onclick="closeAddModal()">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">工號</label><input type="text" class="form-input" id="emp-id" readonly></div>
+                    <div class="form-group"><label class="form-label">姓名 *</label><input type="text" class="form-input" id="emp-name" placeholder="員工姓名"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">部門</label><select class="form-select" id="emp-dept"><option>生產部</option><option>品管部</option><option>採購部</option><option>倉庫部</option><option>業務部</option><option>管理部</option></select></div>
+                    <div class="form-group"><label class="form-label">職位</label><input type="text" class="form-input" id="emp-position" placeholder="職位"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">到職日</label><input type="date" class="form-input" id="emp-date"></div>
+                    <div class="form-group"><label class="form-label">電話</label><input type="text" class="form-input" id="emp-phone" placeholder="電話號碼"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">底薪</label><input type="number" class="form-input" id="emp-salary" placeholder="0"></div>
+                    <div class="form-group"><label class="form-label">身分證號</label><input type="text" class="form-input" id="emp-idcard" placeholder="身分證號"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAddModal()">取消</button><button class="btn btn-primary" onclick="saveEmployee()">儲存</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width:400px">
+            <div class="modal-header"><h3 class="modal-title">確認離職</h3><button class="modal-close" onclick="closeDeleteModal()">&times;</button></div>
+            <div class="modal-body"><input type="hidden" id="delete-index"><p>確定要將此員工設為離職嗎？</p><p id="delete-info" style="margin-top:12px;padding:12px;background:var(--bg-secondary);border-radius:6px"></p></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button><button class="btn btn-danger" onclick="confirmDelete()">確認離職</button></div>
+        </div>
+    </div>
+
+    <script src="api-connector.js"></script>
     <script>
-        function loadUserInfo() {
+        let employeeData = [];
+        const demoData = [
+            ['E001', 'Nguyễn Văn A', '生產部', '組長', '2020-03-15', '0901-234-567', '在職', 22000000],
+            ['E002', 'Trần Thị B', '品管部', '品管員', '2021-06-01', '0902-345-678', '在職', 18000000],
+            ['E003', 'Lê Văn C', '生產部', '作業員', '2022-01-10', '0903-456-789', '在職', 15000000],
+            ['E004', 'Phạm Thị D', '採購部', '採購員', '2021-09-20', '0904-567-890', '請假', 17000000],
+            ['E005', 'Hoàng Văn E', '倉庫部', '倉管員', '2023-02-01', '0905-678-901', '在職', 16000000],
+            ['E006', 'Võ Thị F', '業務部', '業務員', '2022-08-15', '0906-789-012', '在職', 20000000],
+            ['E007', 'Đặng Văn G', '生產部', '作業員', '2024-01-05', '0907-890-123', '在職', 14500000],
+            ['E008', 'Bùi Thị H', '管理部', '行政', '2020-11-01', '0908-901-234', '在職', 19000000]
+        ];
+        const deptStats = { '生產部': 120, '品管部': 25, '採購部': 8, '倉庫部': 15, '業務部': 5, '管理部': 12 };
+        const attendanceData = [
+            { date: '2026-03-11', empId: 'E001', name: 'Nguyễn Văn A', in: '07:28', out: '16:35', hours: '9.1', status: '正常' },
+            { date: '2026-03-11', empId: 'E002', name: 'Trần Thị B', in: '07:30', out: '16:30', hours: '9.0', status: '正常' },
+            { date: '2026-03-11', empId: 'E003', name: 'Lê Văn C', in: '07:45', out: '16:40', hours: '8.9', status: '遲到' },
+            { date: '2026-03-11', empId: 'E004', name: 'Phạm Thị D', in: '-', out: '-', hours: '-', status: '請假' }
+        ];
+        const payrollData = [
+            { empId: 'E001', name: 'Nguyễn Văn A', base: 22000000, ot: 3500000, bonus: 1000000, deduct: 500000, net: 26000000 },
+            { empId: 'E002', name: 'Trần Thị B', base: 18000000, ot: 2000000, bonus: 500000, deduct: 300000, net: 20200000 },
+            { empId: 'E003', name: 'Lê Văn C', base: 15000000, ot: 4000000, bonus: 0, deduct: 200000, net: 18800000 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            employeeData = demoData;
+            renderAll();
+            initTabs();
+            initSearch();
+            document.getElementById('emp-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('att-start').value = new Date().toISOString().split('T')[0];
+            document.getElementById('att-end').value = new Date().toISOString().split('T')[0];
+        });
+
+        function renderAll() { renderTable(); renderOrgChart(); renderAttendance(); renderPayroll(); updateStats(); }
+
+        function updateStats() {
+            const total = employeeData.length;
+            const active = employeeData.filter(e => e[6] === '在職').length;
+            const leave = employeeData.filter(e => e[6] === '請假').length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-active').textContent = active;
+            document.getElementById('stat-leave').textContent = leave;
+            document.getElementById('stat-new').textContent = '2';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('employee-table-body');
+            tbody.innerHTML = employeeData.map((emp, idx) => {
+                const [empId, name, dept, position, date, phone, status] = emp;
+                const statusClass = { '在職': 'status-active', '請假': 'status-leave', '離職': 'status-resigned' }[status] || 'status-active';
+                return `<tr>
+                    <td><strong>${empId}</strong></td>
+                    <td>${name}</td>
+                    <td>${dept}</td>
+                    <td>${position}</td>
+                    <td>${date}</td>
+                    <td>${phone}</td>
+                    <td><span class="status-tag ${statusClass}">${status}</span></td>
+                    <td><div class="dropdown"><button class="actions-btn" onclick="toggleDropdown(this)">⋯</button><div class="dropdown-content">
+                        <div class="dropdown-item" onclick="editEmployee(${idx})">✏️ 編輯</div>
+                        <div class="dropdown-item" onclick="showLeaveModal(${idx})">📅 請假</div>
+                        <div class="dropdown-item danger" onclick="showDeleteModal(${idx})">🚪 離職</div>
+                    </div></div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderOrgChart() {
+            const container = document.getElementById('org-chart');
+            container.innerHTML = Object.entries(deptStats).map(([name, count]) => `
+                <div class="dept-card">
+                    <div class="count">${count}</div>
+                    <div class="name">${name}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderAttendance() {
+            const tbody = document.getElementById('attendance-body');
+            tbody.innerHTML = attendanceData.map(a => `<tr>
+                <td>${a.date}</td>
+                <td>${a.empId}</td>
+                <td>${a.name}</td>
+                <td>${a.in}</td>
+                <td>${a.out}</td>
+                <td>${a.hours}</td>
+                <td><span class="status-tag ${a.status === '正常' ? 'status-active' : 'status-leave'}">${a.status}</span></td>
+            </tr>`).join('');
+        }
+
+        function renderPayroll() {
+            const tbody = document.getElementById('payroll-body');
+            tbody.innerHTML = payrollData.map(p => `<tr>
+                <td>${p.empId}</td>
+                <td>${p.name}</td>
+                <td>${formatVND(p.base)}</td>
+                <td>${formatVND(p.ot)}</td>
+                <td>${formatVND(p.bonus)}</td>
+                <td style="color:var(--error)">${formatVND(p.deduct)}</td>
+                <td><strong>${formatVND(p.net)}</strong></td>
+            </tr>`).join('');
+        }
+
+        function formatVND(n) { return new Intl.NumberFormat('vi-VN').format(n) + '₫'; }
+
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function initSearch() {
+            document.querySelector('.search-input')?.addEventListener('input', filterTable);
+            document.getElementById('dept-filter')?.addEventListener('change', filterTable);
+            document.getElementById('status-filter')?.addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const keyword = document.querySelector('.search-input')?.value.toLowerCase() || '';
+            const deptFilter = document.getElementById('dept-filter')?.value || '全部部門';
+            const statusFilter = document.getElementById('status-filter')?.value || '全部狀態';
+            document.querySelectorAll('#employee-table-body tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const dept = row.cells[2]?.textContent || '';
+                const status = row.querySelector('.status-tag')?.textContent || '';
+                const match = text.includes(keyword) && (deptFilter === '全部部門' || dept === deptFilter) && (statusFilter === '全部狀態' || status === statusFilter);
+                row.style.display = match ? '' : 'none';
+            });
+        }
+
+        function generateEmpId() { return `E${String(employeeData.length + 1).padStart(3, '0')}`; }
+
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = '新增員工';
+            document.getElementById('edit-index').value = -1;
+            document.getElementById('emp-id').value = generateEmpId();
+            ['emp-name', 'emp-position', 'emp-phone', 'emp-salary', 'emp-idcard'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('emp-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('add-modal').classList.add('show');
+        }
+
+        function closeAddModal() { document.getElementById('add-modal').classList.remove('show'); }
+
+        function editEmployee(idx) {
+            const emp = employeeData[idx];
+            if (!emp) return;
+            document.getElementById('modal-title').textContent = '編輯員工';
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('emp-id').value = emp[0];
+            document.getElementById('emp-name').value = emp[1];
+            document.getElementById('emp-dept').value = emp[2];
+            document.getElementById('emp-position').value = emp[3];
+            document.getElementById('emp-date').value = emp[4];
+            document.getElementById('emp-phone').value = emp[5];
+            document.getElementById('emp-salary').value = emp[7];
+            document.getElementById('add-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function saveEmployee() {
+            const idx = Number(document.getElementById('edit-index').value);
+            const empId = document.getElementById('emp-id').value;
+            const name = document.getElementById('emp-name').value;
+            const dept = document.getElementById('emp-dept').value;
+            const position = document.getElementById('emp-position').value;
+            const date = document.getElementById('emp-date').value;
+            const phone = document.getElementById('emp-phone').value;
+            const salary = Number(document.getElementById('emp-salary').value) || 0;
+            if (!name) { showToast('⚠️ 請填寫姓名'); return; }
+            const newEmp = [empId, name, dept, position, date, phone, '在職', salary];
+            if (idx >= 0) {
+                newEmp[6] = employeeData[idx][6];
+                employeeData[idx] = newEmp;
+                showToast('✅ 員工資料已更新');
+            } else {
+                employeeData.push(newEmp);
+                showToast('✅ 員工已新增');
+            }
+            renderAll(); closeAddModal();
+        }
+
+        function showLeaveModal(idx) { showToast('📅 請假功能開發中...'); closeAllDropdowns(); }
+
+        function showDeleteModal(idx) {
+            document.getElementById('delete-index').value = idx;
+            document.getElementById('delete-info').innerHTML = `<strong>${employeeData[idx][0]}</strong> - ${employeeData[idx][1]}<br>${employeeData[idx][2]} ${employeeData[idx][3]}`;
+            document.getElementById('delete-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('show'); }
+
+        function confirmDelete() {
+            const idx = Number(document.getElementById('delete-index').value);
+            if (idx >= 0 && employeeData[idx]) {
+                employeeData[idx][6] = '離職';
+                showToast('🚪 員工已設為離職');
+                renderAll();
+            }
+            closeDeleteModal();
+        }
+
+        function toggleDropdown(btn) { closeAllDropdowns(); btn.nextElementSibling.classList.toggle('show'); event.stopPropagation(); }
+        function closeAllDropdowns() { document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
+        document.addEventListener('click', closeAllDropdowns);
+
+        function exportData() {
+            let csv = '工號,姓名,部門,職位,到職日,電話,狀態,底薪\n';
+            employeeData.forEach(e => { csv += e.map(v => `"${v || ''}"`).join(',') + '\n'; });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `JCO-員工名冊-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+            showToast('📥 報表匯出成功');
+        }
+
+        function ensureModuleAccess() {
             const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-            if (session) {
-                const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-                if (nameEl) nameEl.textContent = session.name;
-            }
-        }
-        
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('JCO_ERP_SESSION');
+            if (!session) {
                 window.location.href = 'erp-login-notion.html';
+                return;
+            }
+            if (session.role !== 'admin' && !(session.allowedModules || []).includes('hr')) {
+                window.location.href = 'erp-dashboard-notion.html';
             }
         }
-        
-        loadUserInfo();
+
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        ensureModuleAccess();
     </script>
 </body>
 </html>

@@ -190,7 +190,7 @@
             </div>
             
             <form class="login-form" id="login-form">
-                <div id="error-msg" class="error-msg"></div>
+                <div id="error-msg" class="error-msg error-message alert-error" role="alert" aria-live="polite"></div>
                 
                 <div class="form-group">
                     <label class="form-label">帳號</label>
@@ -208,15 +208,15 @@
                     <h3>測試帳號</h3>
                     <div class="demo-account" onclick="fillAccount('admin', 'jco2026')">
                         <span><strong>admin</strong> / jco2026</span>
-                        <span class="role">管理員</span>
+                        <span class="role">admin</span>
                     </div>
-                    <div class="demo-account" onclick="fillAccount('sales_mgr', 'sales123')">
-                        <span><strong>sales_mgr</strong> / sales123</span>
-                        <span class="role">業務主管</span>
+                    <div class="demo-account" onclick="fillAccount('eddie', 'eddie2026')">
+                        <span><strong>eddie</strong> / eddie2026</span>
+                        <span class="role">manager（業務）</span>
                     </div>
-                    <div class="demo-account" onclick="fillAccount('dev_mgr', 'dev123')">
-                        <span><strong>dev_mgr</strong> / dev123</span>
-                        <span class="role">開發主管</span>
+                    <div class="demo-account" onclick="fillAccount('viewer_demo', 'viewer123')">
+                        <span><strong>viewer_demo</strong> / viewer123</span>
+                        <span class="role">viewer</span>
                     </div>
                 </div>
             </form>
@@ -230,25 +230,45 @@
     <script>
         const USERS_DB_KEY = 'JCO_ERP_USERS';
         
+        const ROLE_LABELS = {
+            admin: '系統管理員',
+            manager: '主管',
+            viewer: '檢視者'
+        };
+
         const defaultUsers = [
-            { id: 1, username: 'admin', password: 'jco2026', name: 'Jerry Boss', dept: 'admin', role: 'admin', permissions: ['all'] },
-            { id: 10, username: 'dev_mgr', password: 'dev123', name: '開發主管', dept: 'development', role: 'manager', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
-            { id: 11, username: 'dev_ast', password: 'dev123', name: '開發助手', dept: 'development', role: 'assistant', permissions: ['bom', 'cutting', 'hardware', 'todo'] },
-            { id: 20, username: 'sales_mgr', password: 'sales123', name: '業務主管', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'shipping', 'reports'] },
-            { id: 21, username: 'sales_1', password: 'sales123', name: '業務助手1', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
-            { id: 22, username: 'sales_2', password: 'sales123', name: '業務助手2', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
-            { id: 23, username: 'sales_3', password: 'sales123', name: '業務助手3', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
-            { id: 24, username: 'sales_4', password: 'sales123', name: '業務助手4', dept: 'sales', role: 'assistant', permissions: ['orders', 'customers'] },
-            { id: 30, username: 'proc_mgr', password: 'proc123', name: '採購組長', dept: 'procurement', role: 'manager', permissions: ['materials', 'suppliers', 'procurement', 'inventory'] },
-            { id: 31, username: 'wh_wood', password: 'wh123', name: '木料倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'materials'] },
-            { id: 32, username: 'wh_hw', password: 'wh123', name: '五金倉管', dept: 'procurement', role: 'warehouse', permissions: ['inventory', 'hardware'] },
-            { id: 40, username: 'qc_mgr', password: 'qc123', name: '品質主管', dept: 'quality', role: 'manager', permissions: ['qc', 'shipping', 'reports'] },
-            { id: 41, username: 'qc_ast', password: 'qc123', name: '文書助手', dept: 'quality', role: 'assistant', permissions: ['qc', 'documents'] },
+            { id: 1, username: 'admin', password: 'jco2026', name: 'Jerry Boss', dept: 'admin', role: 'admin', permissions: ['all'], allowedModules: ['dashboard', 'orders', 'customers', 'reports', 'cost', 'procurement', 'inventory', 'production', 'quality', 'hr', 'settings'] },
+            { id: 2, username: 'eddie', password: 'eddie2026', name: 'Eddie', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'reports'], allowedModules: ['dashboard', 'orders', 'customers', 'reports'] },
+            { id: 3, username: 'viewer_demo', password: 'viewer123', name: 'Viewer Demo', dept: 'sales', role: 'viewer', permissions: ['orders'], allowedModules: ['dashboard', 'orders'] },
+            { id: 10, username: 'dev_mgr', password: 'dev123', name: '開發主管', dept: 'development', role: 'manager', permissions: ['bom', 'cutting', 'hardware', 'todo'], allowedModules: ['dashboard', 'cost'] },
+            { id: 11, username: 'dev_ast', password: 'dev123', name: '開發助手', dept: 'development', role: 'viewer', permissions: ['bom', 'cutting', 'hardware', 'todo'], allowedModules: ['dashboard', 'cost'] },
+            { id: 20, username: 'sales_mgr', password: 'sales123', name: '業務主管', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'reports'], allowedModules: ['dashboard', 'orders', 'customers', 'reports'] },
+            { id: 21, username: 'sales_1', password: 'sales123', name: '業務助手1', dept: 'sales', role: 'viewer', permissions: ['orders', 'customers'], allowedModules: ['dashboard', 'orders', 'customers'] },
+            { id: 22, username: 'sales_2', password: 'sales123', name: '業務助手2', dept: 'sales', role: 'viewer', permissions: ['orders', 'customers'], allowedModules: ['dashboard', 'orders', 'customers'] },
+            { id: 23, username: 'sales_3', password: 'sales123', name: '業務助手3', dept: 'sales', role: 'viewer', permissions: ['orders', 'customers'], allowedModules: ['dashboard', 'orders', 'customers'] },
+            { id: 24, username: 'sales_4', password: 'sales123', name: '業務助手4', dept: 'sales', role: 'viewer', permissions: ['orders', 'customers'], allowedModules: ['dashboard', 'orders', 'customers'] },
+            { id: 30, username: 'proc_mgr', password: 'proc123', name: '採購組長', dept: 'procurement', role: 'manager', permissions: ['materials', 'suppliers', 'procurement', 'inventory'], allowedModules: ['dashboard', 'procurement', 'inventory'] },
+            { id: 31, username: 'wh_wood', password: 'wh123', name: '木料倉管', dept: 'procurement', role: 'viewer', permissions: ['inventory', 'materials'], allowedModules: ['dashboard', 'inventory'] },
+            { id: 32, username: 'wh_hw', password: 'wh123', name: '五金倉管', dept: 'procurement', role: 'viewer', permissions: ['inventory', 'hardware'], allowedModules: ['dashboard', 'inventory'] },
+            { id: 40, username: 'qc_mgr', password: 'qc123', name: '品質主管', dept: 'quality', role: 'manager', permissions: ['qc', 'shipping', 'reports'], allowedModules: ['dashboard', 'quality', 'reports'] },
+            { id: 41, username: 'qc_ast', password: 'qc123', name: '文書助手', dept: 'quality', role: 'viewer', permissions: ['qc', 'documents'], allowedModules: ['dashboard', 'quality'] },
         ];
 
         function initUsers() {
             const stored = localStorage.getItem(USERS_DB_KEY);
             if (!stored) {
+                localStorage.setItem(USERS_DB_KEY, JSON.stringify(defaultUsers));
+                return;
+            }
+
+            try {
+                const existing = JSON.parse(stored) || [];
+                const merged = defaultUsers.map(user => {
+                    const found = existing.find(item => item.username === user.username);
+                    return found ? { ...user, ...found } : user;
+                });
+                localStorage.setItem(USERS_DB_KEY, JSON.stringify(merged));
+            } catch (error) {
                 localStorage.setItem(USERS_DB_KEY, JSON.stringify(defaultUsers));
             }
         }
@@ -265,21 +285,31 @@
                 name: user.name,
                 dept: user.dept,
                 role: user.role,
-                permissions: user.permissions,
+                roleLabel: ROLE_LABELS[user.role] || user.role,
+                permissions: user.permissions || [],
+                allowedModules: user.allowedModules || ['dashboard'],
                 loginTime: Date.now()
             };
             localStorage.setItem('JCO_ERP_SESSION', JSON.stringify(session));
         }
 
-        function redirectByDept(dept) {
-            const routes = {
-                'admin': 'erp-dashboard-notion.html',
-                'sales': 'erp-order-center-notion.html',
-                'development': 'erp-cost-center-notion.html',
-                'procurement': 'erp-procurement-notion.html',
-                'quality': 'erp-quality-notion.html'
-            };
-            window.location.href = routes[dept] || 'erp-dashboard-notion.html';
+        function redirectByRole(user) {
+            if (user.role === 'admin') {
+                window.location.href = 'erp-dashboard-notion.html';
+                return;
+            }
+
+            if (user.allowedModules?.includes('dashboard')) {
+                window.location.href = 'erp-dashboard-notion.html';
+                return;
+            }
+
+            if (user.allowedModules?.includes('orders')) {
+                window.location.href = 'erp-order-center-notion.html';
+                return;
+            }
+
+            window.location.href = 'erp-dashboard-notion.html';
         }
 
         function fillAccount(username, password) {
@@ -302,12 +332,12 @@
                 if (window.AuditLogger) {
                     AuditLogger.logLogin();
                 }
-                errorMsg.className = 'error-msg success';
+                errorMsg.className = 'error-msg error-message success';
                 errorMsg.textContent = `✓ 歡迎回來，${user.name}！`;
                 errorMsg.style.display = 'block';
-                setTimeout(() => redirectByDept(user.dept), 800);
+                setTimeout(() => redirectByRole(user), 800);
             } else {
-                errorMsg.className = 'error-msg error';
+                errorMsg.className = 'error-msg error-message alert-error error';
                 errorMsg.textContent = '帳號或密碼錯誤';
                 errorMsg.style.display = 'block';
             }
@@ -317,7 +347,7 @@
         
         const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
         if (session) {
-            redirectByDept(session.dept);
+            redirectByRole(session);
         }
     </script>
 </body>

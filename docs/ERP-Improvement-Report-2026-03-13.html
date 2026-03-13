@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP 改善報告 - 2026-03-13</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; background:#f6f7fb; color:#1f2937; }
+    h1,h2,h3 { margin: 0 0 12px; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:20px 24px; margin-bottom:18px; box-shadow:0 6px 18px rgba(15,23,42,.05); }
+    .muted { color:#6b7280; }
+    .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+    .pill { display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+    .high { background:#fee2e2; color:#b91c1c; }
+    .mid { background:#fef3c7; color:#92400e; }
+    .low { background:#dcfce7; color:#166534; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; padding:12px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+    th { background:#f9fafb; }
+    ul { margin:8px 0 0 20px; }
+    code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>JCO ERP 持續改善報告</h1>
+    <div class="muted">日期：2026-03-13｜範圍：登入、儀表板、訂單中心、測試流程、模組入口完整性</div>
+  </div>
+
+  <div class="card">
+    <h2>1. 模組盤點</h2>
+    <div class="grid">
+      <div>
+        <h3>核心模組</h3>
+        <ul>
+          <li>儀表板</li>
+          <li>訂單中心</li>
+          <li>成本中心</li>
+          <li>採購中心</li>
+        </ul>
+      </div>
+      <div>
+        <h3>營運模組</h3>
+        <ul>
+          <li>庫存中心</li>
+          <li>生產中心</li>
+          <li>品質中心</li>
+          <li>人事中心</li>
+        </ul>
+      </div>
+      <div>
+        <h3>系統/支援</h3>
+        <ul>
+          <li>登入系統</li>
+          <li>API Connector</li>
+          <li>Audit Logger</li>
+          <li>Playwright 測試套件</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 改善清單（優先級排序）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>優先級</th>
+          <th>改善項目</th>
+          <th>問題</th>
+          <th>建議</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pill high">P1</span></td>
+          <td>儀表板缺少營運圖表與主管摘要</td>
+          <td>首頁有 KPI，但缺乏一眼判斷趨勢的視覺總覽。</td>
+          <td>新增圖表區與今日焦點面板，提升晨會/主管巡檢效率。</td>
+        </tr>
+        <tr>
+          <td><span class="pill high">P1</span></td>
+          <td>手機/窄螢幕體驗不足</td>
+          <td>儀表板 4 欄固定，手機/小螢幕可讀性弱。</td>
+          <td>加入 responsive breakpoint，讓 KPI、模組卡、雙欄自適應。</td>
+        </tr>
+        <tr>
+          <td><span class="pill high">P1</span></td>
+          <td>登入錯誤回饋不夠標準化</td>
+          <td>使用者知道失敗，但測試與無障礙訊息不夠穩定。</td>
+          <td>統一錯誤提示 class 與 ARIA alert，提升 UX 與自動測試穩定性。</td>
+        </tr>
+        <tr>
+          <td><span class="pill mid">P2</span></td>
+          <td>訂單中心搜尋/篩選體驗仍可再強化</td>
+          <td>已有功能，但測試自動化互動仍不穩定。</td>
+          <td>後續改成更明確 selector、狀態列、結果計數與空狀態提示。</td>
+        </tr>
+        <tr>
+          <td><span class="pill mid">P2</span></td>
+          <td>測試腳本缺少 npm 快捷指令</td>
+          <td>每次測試要手敲 node 指令，不利交付前檢查。</td>
+          <td>補上 <code>npm test</code> 與 headless 模式。</td>
+        </tr>
+        <tr>
+          <td><span class="pill low">P3</span></td>
+          <td>主控台與 HTML 版 dashboard 模組入口不一致</td>
+          <td>Notion 版入口完整，HTML 版主控台仍只有 3 個模組。</td>
+          <td>下一輪統一兩套 dashboard 的模組清單與權限邏輯。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>3. 本輪已實作的 3 項重點</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th>內容</th>
+          <th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>儀表板營運總覽</td>
+          <td>新增「6 週營運總覽」圖表區與「今日焦點」面板，主管進首頁就能抓重點。</td>
+          <td>✅ 完成</td>
+        </tr>
+        <tr>
+          <td>儀表板響應式優化</td>
+          <td>加入 1100px / 720px breakpoint，改善 KPI、模組卡、雙欄在小螢幕的閱讀體驗。</td>
+          <td>✅ 完成</td>
+        </tr>
+        <tr>
+          <td>登入與測試流程穩定化</td>
+          <td>登入錯誤訊息補上標準 class + aria-live；<code>package.json</code> 新增 <code>npm test</code> / <code>npm run test:headless</code>。</td>
+          <td>✅ 完成</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. 測試結果</h2>
+    <ul>
+      <li>執行：<code>ERP_HEADLESS=1 node tests/erp-full-test.js</code></li>
+      <li>結果：<strong>17 pass / 0 fail / 100% 通過</strong></li>
+      <li>修正後確認：登入錯誤提示與儀表板圖表區已通過測試。</li>
+      <li>已知剩餘觀察：訂單中心搜尋/篩選在 Playwright 互動上仍有 warning，但不影響整體通過率。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. 下一輪建議</h2>
+    <ol>
+      <li>統一 HTML 版與 Notion 版 dashboard 模組入口與權限邏輯</li>
+      <li>把訂單中心搜尋/篩選改成更可測試的可控元件</li>
+      <li>補一份 ERP 模組 smoke test checklist，交付前固定跑</li>
+    </ol>
+  </div>
+</body>
+</html>

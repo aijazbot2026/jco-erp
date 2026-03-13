@@ -6,707 +6,334 @@
     <title>成本中心 - JCO ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f7f6f3;
-            --bg-hover: #efefef;
-            --text-primary: #37352f;
-            --text-secondary: #787774;
-            --text-light: #9b9a97;
-            --border: #e9e9e7;
-            --accent: #2383e2;
-            --accent-light: #e8f4fd;
-            --success: #0f7b6c;
-            --warning: #d9730d;
-            --error: #e03e3e;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.5;
-            font-size: 14px;
-        }
-        
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 240px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-        
-        .sidebar-header {
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .sidebar-header .logo {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #2383e2, #0f7b6c);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 12px;
-        }
-        
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            padding: 8px;
-            flex: 1;
-        }
-        
-        .nav-section {
-            margin-bottom: 16px;
-        }
-        
-        .nav-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 8px 4px;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.15s;
-            color: var(--text-secondary);
-            text-decoration: none;
-        }
-        
-        .nav-item:hover {
-            background: var(--bg-hover);
-        }
-        
-        .nav-item.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .nav-item .icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: var(--bg-primary);
-        }
-        
-        .page-header {
-            padding: 40px 60px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title .emoji {
-            font-size: 36px;
-        }
-        
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .page-body {
-            padding: 24px 60px 60px;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px 20px;
-            min-width: 140px;
-            flex: 1;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
-        .stat-card.primary .value { color: var(--accent); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg-primary: #ffffff; --bg-secondary: #f7f6f3; --bg-hover: #efefef; --text-primary: #37352f; --text-secondary: #787774; --text-light: #9b9a97; --border: #e9e9e7; --accent: #2383e2; --accent-light: #e8f4fd; --success: #0f7b6c; --warning: #d9730d; --error: #e03e3e; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; font-size: 14px; }
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .sidebar-header .logo { width: 24px; height: 24px; background: linear-gradient(135deg, #2383e2, #0f7b6c); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; }
+        .sidebar-nav { padding: 8px; flex: 1; }
+        .nav-section { margin-bottom: 16px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; padding: 8px 8px 4px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--text-secondary); text-decoration: none; }
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); font-weight: 500; }
+        .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+        .main-content { flex: 1; overflow-y: auto; }
+        .page-header { padding: 40px 60px 24px; border-bottom: 1px solid var(--border); }
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .page-body { padding: 24px 60px 60px; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px 20px; min-width: 160px; flex: 1; }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
         .stat-card.success .value { color: var(--success); }
         .stat-card.warning .value { color: var(--warning); }
         .stat-card.error .value { color: var(--error); }
-        
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 240px;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a6fc4;
-        }
-        
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-        }
-        
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .item-id {
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        .amount {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .amount.negative {
-            color: var(--error);
-        }
-        
-        .amount.positive {
-            color: var(--success);
-        }
-        
-        .status-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-tag.complete {
-            background: #dbeddb;
-            color: #0f7b6c;
-        }
-        
-        .status-tag.pending {
-            background: #fdecc8;
-            color: #d9730d;
-        }
-        
-        .status-tag.draft {
-            background: #e9e9e7;
-            color: #787774;
-        }
-        
-        .status-tag.high {
-            background: #ffe2dd;
-            color: #e03e3e;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--text-light);
-        }
-        
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .user-info:hover {
-            background: var(--bg-hover);
-        }
-        .logout-btn {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            opacity: 0.7;
-            transition: all 0.15s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logout-btn:hover {
-            background: #fee2e2;
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
-        }
-        
-        .tab:hover {
-            color: var(--text-primary);
-        }
-        
-        .tab.active {
-            color: var(--text-primary);
-            font-weight: 500;
-            border-bottom-color: var(--text-primary);
-        }
-        
-        .category-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #e8f4fd;
-            color: #2383e2;
-        }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 14px; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .data-table th { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-secondary); }
+        .data-table tr:hover { background: var(--bg-secondary); }
+        .cost-card { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .cost-card h3 { margin-bottom: 12px; }
+        .cost-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .cost-item { background: white; padding: 16px; border-radius: 6px; }
+        .cost-item .label { font-size: 12px; color: var(--text-secondary); }
+        .cost-item .value { font-size: 20px; font-weight: 700; }
+        .chart-container { background: var(--bg-secondary); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding: 20px; }
+        .bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px; min-width: 40px; }
+        .bar .value { color: white; font-weight: 600; font-size: 12px; }
+        .bar-label { text-align: center; padding-top: 8px; font-size: 12px; color: var(--text-secondary); }
+        .pie-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #37352f; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999; }
+        .user-info { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+        .trend-up { color: var(--error); }
+        .trend-down { color: var(--success); }
     </style>
-    <script src="audit-logger.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">J</div>
-                <span class="title">JCO ERP</span>
-            </div>
-            
+        <div class="sidebar">
+            <div class="sidebar-header"><div class="logo">J</div><div class="title">JCO ERP</div></div>
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">主要功能</div>
-                    <a href="erp-dashboard-notion.html" class="nav-item">
-                        <span class="icon">🏠</span>
-                        <span>儀表板</span>
-                    </a>
-                    <a href="erp-order-center-notion.html" class="nav-item">
-                        <span class="icon">📦</span>
-                        <span>訂單中心</span>
-                    </a>
-                    <a href="erp-cost-center-notion.html" class="nav-item active">
-                        <span class="icon">💰</span>
-                        <span>成本中心</span>
-                    </a>
-                    <a href="erp-procurement-center-notion.html" class="nav-item">
-                        <span class="icon">🛒</span>
-                        <span>採購管理</span>
-                    </a>
-                    <a href="erp-inventory-center-notion.html" class="nav-item">
-                        <span class="icon">📊</span>
-                        <span>庫存中心</span>
-                    </a>
+                    <div class="nav-section-title">主選單</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item"><span class="icon">🏠</span>儀表板</a>
+                    <a href="erp-order-center-notion.html" class="nav-item"><span class="icon">📦</span>訂單中心</a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item"><span class="icon">🛒</span>採購中心</a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item"><span class="icon">📊</span>庫存中心</a>
                 </div>
-                
                 <div class="nav-section">
                     <div class="nav-section-title">生產管理</div>
-                    <a href="erp-production-center-notion.html" class="nav-item">
-                        <span class="icon">🏭</span>
-                        <span>生產中心</span>
-                    </a>
-                    <a href="erp-quality-center-notion.html" class="nav-item">
-                        <span class="icon">🔍</span>
-                        <span>品質中心</span>
-                    </a>
+                    <a href="erp-production-center-notion.html" class="nav-item"><span class="icon">🏭</span>生產中心</a>
+                    <a href="erp-quality-center-notion.html" class="nav-item"><span class="icon">🔍</span>品質中心</a>
                 </div>
-                
                 <div class="nav-section">
-                    <div class="nav-section-title">系統</div>
-                    <a href="erp-hr-center-notion.html" class="nav-item">
-                        <span class="icon">👥</span>
-                        <span>人事中心</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <span class="icon">⚙️</span>
-                        <span>設定</span>
-                    </a>
+                    <div class="nav-section-title">管理</div>
+                    <a href="erp-cost-center-notion.html" class="nav-item active"><span class="icon">💰</span>成本中心</a>
+                    <a href="erp-hr-center-notion.html" class="nav-item"><span class="icon">👥</span>人事中心</a>
                 </div>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">--</div>
-                    <span class="user-name" id="user-name">載入中...</span>
-                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
-                </div>
+            <div class="user-info"><div class="user-avatar">財</div><div><div style="font-size:13px">財務主管</div><div style="font-size:11px;color:var(--text-secondary)">財務部</div></div></div>
+        </div>
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><span style="font-size:36px">💰</span>成本中心</h1>
+                <p style="color:var(--text-secondary)">管理產品成本、費用分析和財務報表</p>
             </div>
-        </aside>
-        
-        <main class="main-content">
-            <header class="page-header">
-                <h1 class="page-title">
-                    <span class="emoji">💰</span>
-                    成本中心
-                </h1>
-                <p class="page-subtitle">櫥櫃成本計算、BOM 管理、報價分析</p>
-            </header>
-            
             <div class="page-body">
                 <div class="stats-row">
-                    <div class="stat-card primary">
-                        <div class="label">本月總成本</div>
-                        <div class="value">$128,500</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">材料成本</div>
-                        <div class="value">$85,200</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">人工成本</div>
-                        <div class="value">$32,800</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="label">待報價項目</div>
-                        <div class="value">12</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="label">平均毛利率</div>
-                        <div class="value">18.5%</div>
-                    </div>
+                    <div class="stat-card"><div class="label">本月營收</div><div class="value">$850K</div><div style="font-size:12px;margin-top:4px" class="trend-up">↑ 12% vs 上月</div></div>
+                    <div class="stat-card"><div class="label">本月成本</div><div class="value">$680K</div><div style="font-size:12px;margin-top:4px" class="trend-down">↓ 3% vs 上月</div></div>
+                    <div class="stat-card success"><div class="label">毛利</div><div class="value">$170K</div></div>
+                    <div class="stat-card warning"><div class="label">毛利率</div><div class="value">20%</div></div>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active">📋 待辦清單</div>
-                    <div class="tab">🗄️ 櫥櫃成本</div>
-                    <div class="tab">📦 抽屜盒報價</div>
-                    <div class="tab">🪵 材料成本</div>
-                    <div class="tab">🔩 五金清單</div>
-                    <div class="tab">🪚 板材切割</div>
-                    <div class="tab">📊 BOM計算</div>
-                    <div class="tab">📈 成本報表</div>
-                </div>
-                
                 <div class="toolbar">
-                    <div class="toolbar-left">
-                        <input type="text" class="search-input" placeholder="搜尋產品、材料...">
-                        <select class="filter-select">
-                            <option>全部類別</option>
-                            <option>櫥櫃</option>
-                            <option>抽屜盒</option>
-                            <option>五金</option>
-                            <option>板材</option>
-                        </select>
+                    <div style="display:flex;gap:12px">
+                        <select class="filter-select" id="period-filter"><option>本月</option><option>上月</option><option>本季</option><option>本年</option></select>
+                        <select class="filter-select" id="product-filter"><option>全部產品</option><option>B36 Base</option><option>W3030 Wall</option><option>VB36 Vanity</option></select>
                     </div>
-                    <div class="toolbar-right">
-                        <button class="btn btn-secondary">📤 匯出報表</button>
-                        <button class="btn btn-primary">+ 新增成本項目</button>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-secondary" onclick="exportData()">📥 匯出</button>
+                        <button class="btn btn-primary" onclick="showAddModal()">+ 新增成本項</button>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>項目</th>
-                                <th>類別</th>
-                                <th>材料成本</th>
-                                <th>人工成本</th>
-                                <th>總成本</th>
-                                <th>建議售價</th>
-                                <th>毛利率</th>
-                                <th>狀態</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="item-id">B36</span></td>
-                                <td><span class="category-tag">🗄️ 櫥櫃</span></td>
-                                <td><span class="amount">$45.80</span></td>
-                                <td><span class="amount">$12.50</span></td>
-                                <td><span class="amount">$58.30</span></td>
-                                <td><span class="amount">$78.00</span></td>
-                                <td><span class="amount positive">25.3%</span></td>
-                                <td><span class="status-tag complete">✓ 已確認</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">W3030</span></td>
-                                <td><span class="category-tag">🗄️ 櫥櫃</span></td>
-                                <td><span class="amount">$38.20</span></td>
-                                <td><span class="amount">$10.80</span></td>
-                                <td><span class="amount">$49.00</span></td>
-                                <td><span class="amount">$65.00</span></td>
-                                <td><span class="amount positive">24.6%</span></td>
-                                <td><span class="status-tag complete">✓ 已確認</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">DB-15x21x6</span></td>
-                                <td><span class="category-tag">📦 抽屜盒</span></td>
-                                <td><span class="amount">$8.50</span></td>
-                                <td><span class="amount">$2.80</span></td>
-                                <td><span class="amount">$11.30</span></td>
-                                <td><span class="amount">$12.00</span></td>
-                                <td><span class="amount warning">5.8%</span></td>
-                                <td><span class="status-tag pending">◐ 待審核</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">VB36</span></td>
-                                <td><span class="category-tag">🗄️ 櫥櫃</span></td>
-                                <td><span class="amount">$52.00</span></td>
-                                <td><span class="amount">$15.00</span></td>
-                                <td><span class="amount">$67.00</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="status-tag draft">○ 草稿</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">SB36</span></td>
-                                <td><span class="category-tag">🗄️ 櫥櫃</span></td>
-                                <td><span class="amount">$62.50</span></td>
-                                <td><span class="amount">$18.00</span></td>
-                                <td><span class="amount">$80.50</span></td>
-                                <td><span class="amount">$110.00</span></td>
-                                <td><span class="amount positive">26.8%</span></td>
-                                <td><span class="status-tag complete">✓ 已確認</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">白樺膠合板 18mm</span></td>
-                                <td><span class="category-tag">🪵 板材</span></td>
-                                <td><span class="amount">$28.00/張</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="amount">$28.00</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="status-tag complete">✓ 已更新</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">DTC 滑軌 18"</span></td>
-                                <td><span class="category-tag">🔩 五金</span></td>
-                                <td><span class="amount">$3.20/組</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="amount">$3.20</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="amount">—</span></td>
-                                <td><span class="status-tag complete">✓ 已更新</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                        </tbody>
+                <div class="tabs">
+                    <div class="tab active" data-tab="overview">📊 成本總覽</div>
+                    <div class="tab" data-tab="products">📦 產品成本</div>
+                    <div class="tab" data-tab="analysis">📈 成本分析</div>
+                    <div class="tab" data-tab="records">📋 成本記錄</div>
+                </div>
+                <div class="tab-content active" id="tab-overview">
+                    <div class="cost-card">
+                        <h3>成本結構</h3>
+                        <div class="cost-breakdown">
+                            <div class="cost-item"><div class="label">直接材料</div><div class="value">$408K</div><div style="font-size:12px;color:var(--text-secondary)">60%</div></div>
+                            <div class="cost-item"><div class="label">直接人工</div><div class="value">$136K</div><div style="font-size:12px;color:var(--text-secondary)">20%</div></div>
+                            <div class="cost-item"><div class="label">製造費用</div><div class="value">$102K</div><div style="font-size:12px;color:var(--text-secondary)">15%</div></div>
+                            <div class="cost-item"><div class="label">管銷費用</div><div class="value">$34K</div><div style="font-size:12px;color:var(--text-secondary)">5%</div></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 style="margin-bottom:16px">月度成本趨勢</h3>
+                        <div class="bar-chart" id="trend-chart"></div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-products">
+                    <table class="data-table">
+                        <thead><tr><th>產品</th><th>材料成本</th><th>人工成本</th><th>製造費用</th><th>總成本</th><th>售價</th><th>毛利</th><th>毛利率</th></tr></thead>
+                        <tbody id="product-cost-body"></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="tab-analysis">
+                    <div class="cost-card">
+                        <h3>成本佔比分析</h3>
+                        <div style="display:flex;gap:40px;align-items:center;padding:20px 0">
+                            <div style="width:200px;height:200px;border-radius:50%;background:conic-gradient(var(--accent) 0% 60%, var(--success) 60% 80%, var(--warning) 80% 95%, var(--error) 95% 100%)"></div>
+                            <div class="pie-legend">
+                                <div class="legend-item"><div class="legend-color" style="background:var(--accent)"></div>材料 60%</div>
+                                <div class="legend-item"><div class="legend-color" style="background:var(--success)"></div>人工 20%</div>
+                                <div class="legend-item"><div class="legend-color" style="background:var(--warning)"></div>製造 15%</div>
+                                <div class="legend-item"><div class="legend-color" style="background:var(--error)"></div>管銷 5%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cost-card">
+                        <h3>成本優化建議</h3>
+                        <div style="padding:16px 0">
+                            <div style="padding:12px;background:var(--accent-light);border-radius:6px;margin-bottom:12px">💡 <strong>材料採購</strong> — 膠合板採購量增加 20% 可獲得 5% 折扣，預估年省 $24K</div>
+                            <div style="padding:12px;background:#fef3c7;border-radius:6px;margin-bottom:12px">⚡ <strong>人工效率</strong> — 塗裝線效率低於標準 15%，建議檢討工序</div>
+                            <div style="padding:12px;background:#dcfce7;border-radius:6px">✅ <strong>良品率</strong> — 本月良品率 96.5%，優於目標 95%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-records">
+                    <table class="data-table">
+                        <thead><tr><th>日期</th><th>類型</th><th>項目</th><th>金額</th><th>備註</th><th>操作</th></tr></thead>
+                        <tbody id="cost-records-body"></tbody>
                     </table>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">新增成本項</h3><button class="modal-close" onclick="closeAddModal()">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="cost-date"></div>
+                    <div class="form-group"><label class="form-label">類型</label><select class="form-select" id="cost-type"><option>直接材料</option><option>直接人工</option><option>製造費用</option><option>管銷費用</option></select></div>
+                </div>
+                <div class="form-group"><label class="form-label">項目說明</label><input type="text" class="form-input" id="cost-item" placeholder="成本項目"></div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">金額</label><input type="number" class="form-input" id="cost-amount" placeholder="0"></div>
+                    <div class="form-group"><label class="form-label">關聯單號</label><input type="text" class="form-input" id="cost-ref" placeholder="WO-/PO-"></div>
+                </div>
+                <div class="form-group"><label class="form-label">備註</label><textarea class="form-textarea" id="cost-notes" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px"></textarea></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAddModal()">取消</button><button class="btn btn-primary" onclick="saveCost()">儲存</button></div>
+        </div>
+    </div>
+
+    <script src="api-connector.js"></script>
     <script>
-        function loadUserInfo() {
+        const productCosts = [
+            { name: 'B36 Base Cabinet', material: 45, labor: 15, overhead: 12, total: 72, price: 98, margin: 26 },
+            { name: 'W3030 Wall Cabinet', material: 32, labor: 12, overhead: 8, total: 52, price: 75, margin: 23 },
+            { name: 'VB36 Vanity Base', material: 55, labor: 18, overhead: 15, total: 88, price: 120, margin: 32 },
+            { name: 'SB36 Sink Base', material: 48, labor: 16, overhead: 13, total: 77, price: 110, margin: 33 },
+            { name: 'Drawer Box', material: 8, labor: 4, overhead: 3, total: 15, price: 22, margin: 7 }
+        ];
+        const costRecords = [
+            { date: '2026-03-11', type: '直接材料', item: '白樺膠合板採購', amount: 150000, ref: 'PR-2026-001', notes: '100張' },
+            { date: '2026-03-10', type: '直接人工', item: '3月上旬工資', amount: 45000, ref: '', notes: '裁板組' },
+            { date: '2026-03-08', type: '製造費用', item: '設備維護', amount: 8500, ref: '', notes: '塗裝線保養' },
+            { date: '2026-03-05', type: '直接材料', item: 'DTC五金採購', amount: 25000, ref: 'PR-2026-002', notes: '滑軌+鉸鏈' },
+            { date: '2026-03-01', type: '管銷費用', item: '電費', amount: 12000, ref: '', notes: '2月份' }
+        ];
+        const monthlyData = [
+            { month: '10月', cost: 620 },
+            { month: '11月', cost: 650 },
+            { month: '12月', cost: 710 },
+            { month: '1月', cost: 690 },
+            { month: '2月', cost: 700 },
+            { month: '3月', cost: 680 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+            initTabs();
+            document.getElementById('cost-date').value = new Date().toISOString().split('T')[0];
+        });
+
+        function renderAll() {
+            renderTrendChart();
+            renderProductCosts();
+            renderCostRecords();
+        }
+
+        function renderTrendChart() {
+            const chart = document.getElementById('trend-chart');
+            const maxVal = Math.max(...monthlyData.map(d => d.cost));
+            chart.innerHTML = monthlyData.map(d => {
+                const height = (d.cost / maxVal) * 150;
+                return `<div style="flex:1;text-align:center">
+                    <div class="bar" style="height:${height}px"><span class="value">$${d.cost}K</span></div>
+                    <div class="bar-label">${d.month}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderProductCosts() {
+            const tbody = document.getElementById('product-cost-body');
+            tbody.innerHTML = productCosts.map(p => {
+                const marginRate = ((p.margin / p.price) * 100).toFixed(0);
+                const marginClass = marginRate >= 30 ? 'trend-down' : marginRate >= 20 ? '' : 'trend-up';
+                return `<tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>$${p.material}</td>
+                    <td>$${p.labor}</td>
+                    <td>$${p.overhead}</td>
+                    <td><strong>$${p.total}</strong></td>
+                    <td>$${p.price}</td>
+                    <td>$${p.margin}</td>
+                    <td><span class="${marginClass}">${marginRate}%</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderCostRecords() {
+            const tbody = document.getElementById('cost-records-body');
+            tbody.innerHTML = costRecords.map((r, idx) => `<tr>
+                <td>${r.date}</td>
+                <td>${r.type}</td>
+                <td>${r.item}</td>
+                <td>$${r.amount.toLocaleString()}</td>
+                <td>${r.notes || '-'}</td>
+                <td><button class="btn btn-secondary" style="padding:4px 8px;font-size:12px" onclick="editRecord(${idx})">編輯</button></td>
+            </tr>`).join('');
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function showAddModal() { document.getElementById('add-modal').classList.add('show'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.remove('show'); }
+
+        function saveCost() {
+            const date = document.getElementById('cost-date').value;
+            const type = document.getElementById('cost-type').value;
+            const item = document.getElementById('cost-item').value;
+            const amount = Number(document.getElementById('cost-amount').value) || 0;
+            const ref = document.getElementById('cost-ref').value;
+            const notes = document.getElementById('cost-notes').value;
+            if (!item || !amount) { showToast('⚠️ 請填寫項目和金額'); return; }
+            costRecords.unshift({ date, type, item, amount, ref, notes });
+            renderCostRecords();
+            showToast('✅ 成本項已新增');
+            closeAddModal();
+        }
+
+        function editRecord(idx) { showToast('📝 編輯功能開發中...'); }
+
+        function exportData() {
+            let csv = '日期,類型,項目,金額,關聯單號,備註\n';
+            costRecords.forEach(r => { csv += `${r.date},${r.type},${r.item},${r.amount},${r.ref},${r.notes}\n`; });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `JCO-成本報表-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+            showToast('📥 報表匯出成功');
+        }
+
+        function ensureModuleAccess() {
             const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-            if (session) {
-                const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-                if (nameEl) nameEl.textContent = session.name;
-            }
-        }
-        
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('JCO_ERP_SESSION');
+            if (!session) {
                 window.location.href = 'erp-login-notion.html';
+                return;
+            }
+            if (session.role !== 'admin' && !(session.allowedModules || []).includes('cost')) {
+                window.location.href = 'erp-dashboard-notion.html';
             }
         }
-        
-        loadUserInfo();
+
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        ensureModuleAccess();
     </script>
 </body>
 </html>

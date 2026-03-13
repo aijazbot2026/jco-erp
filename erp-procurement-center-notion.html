@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>採購管理 - JCO ERP</title>
+    <title>採購中心 - JCO ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f7f6f3;
@@ -26,7 +21,6 @@
             --warning: #d9730d;
             --error: #e03e3e;
         }
-        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-primary);
@@ -34,12 +28,7 @@
             line-height: 1.5;
             font-size: 14px;
         }
-        
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
+        .app-container { display: flex; height: 100vh; }
         .sidebar {
             width: 240px;
             background: var(--bg-secondary);
@@ -48,7 +37,6 @@
             flex-direction: column;
             flex-shrink: 0;
         }
-        
         .sidebar-header {
             padding: 12px 14px;
             display: flex;
@@ -56,7 +44,6 @@
             gap: 10px;
             border-bottom: 1px solid var(--border);
         }
-        
         .sidebar-header .logo {
             width: 24px;
             height: 24px;
@@ -69,21 +56,9 @@
             font-weight: 700;
             font-size: 12px;
         }
-        
-        .sidebar-header .title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            padding: 8px;
-            flex: 1;
-        }
-        
-        .nav-section {
-            margin-bottom: 16px;
-        }
-        
+        .sidebar-header .title { font-weight: 600; font-size: 14px; }
+        .sidebar-nav { padding: 8px; flex: 1; }
+        .nav-section { margin-bottom: 16px; }
         .nav-section-title {
             font-size: 11px;
             font-weight: 600;
@@ -92,7 +67,6 @@
             letter-spacing: 0.5px;
             padding: 8px 8px 4px;
         }
-        
         .nav-item {
             display: flex;
             align-items: center;
@@ -104,625 +78,1131 @@
             color: var(--text-secondary);
             text-decoration: none;
         }
-        
-        .nav-item:hover {
-            background: var(--bg-hover);
-        }
-        
-        .nav-item.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .nav-item .icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: var(--bg-primary);
-        }
-        
-        .page-header {
-            padding: 40px 60px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .page-title .emoji {
-            font-size: 36px;
-        }
-        
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .page-body {
-            padding: 24px 60px 60px;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px 20px;
-            min-width: 140px;
-            flex: 1;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
+        .nav-item:hover { background: var(--bg-hover); }
+        .nav-item.active { background: var(--bg-hover); color: var(--text-primary); font-weight: 500; }
+        .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+        .main-content { flex: 1; overflow-y: auto; background: var(--bg-primary); }
+        .page-header { padding: 40px 60px 24px; border-bottom: 1px solid var(--border); }
+        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .page-title .emoji { font-size: 36px; }
+        .page-subtitle { color: var(--text-secondary); font-size: 14px; }
+        .page-body { padding: 24px 60px 60px; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px 20px; min-width: 140px; flex: 1; }
+        .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; }
         .stat-card.primary .value { color: var(--accent); }
         .stat-card.success .value { color: var(--success); }
         .stat-card.warning .value { color: var(--warning); }
         .stat-card.error .value { color: var(--error); }
-        
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 240px;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        
-        .search-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            outline: none;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a6fc4;
-        }
-        
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-        }
-        
-        .table-container {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .item-id {
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        .amount {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .status-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .status-tag.complete {
-            background: #dbeddb;
-            color: #0f7b6c;
-        }
-        
-        .status-tag.pending {
-            background: #fdecc8;
-            color: #d9730d;
-        }
-        
-        .status-tag.draft {
-            background: #e9e9e7;
-            color: #787774;
-        }
-        
-        .status-tag.active {
-            background: #d3e5ef;
-            color: #0b6bcb;
-        }
-        
-        .action-btn {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .action-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--text-light);
-        }
-        
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        
-        .user-info:hover {
-            background: var(--bg-hover);
-        }
-        .logout-btn {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            opacity: 0.7;
-            transition: all 0.15s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logout-btn:hover {
-            background: #fee2e2;
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        
-        .logout-btn:active {
-            transform: scale(0.95);
-        }
-
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
-        }
-        
-        .tab:hover {
-            color: var(--text-primary);
-        }
-        
-        .tab.active {
-            color: var(--text-primary);
-            font-weight: 500;
-            border-bottom-color: var(--text-primary);
-        }
-        
-        .supplier-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .supplier-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #74b9ff, #a29bfe);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 600;
-            color: white;
-        }
-        
-        .trend-up {
-            color: var(--error);
-        }
-        
-        .trend-down {
-            color: var(--success);
-        }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; gap: 12px; align-items: center; }
+        .toolbar-right { display: flex; gap: 8px; }
+        .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border-radius: 6px; padding: 8px 12px; }
+        .search-input { border: none; background: transparent; outline: none; font-size: 14px; width: 200px; }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 14px; cursor: pointer; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #1a73d4; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .btn-danger { background: var(--error); color: white; }
+        .btn-danger:hover { background: #c93030; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 10px 16px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .data-table th { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-secondary); }
+        .data-table tr:hover { background: var(--bg-secondary); }
+        .status-tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-draft { background: #f1f1ef; color: #787774; }
+        .status-pending { background: #fdecc8; color: #9a6700; }
+        .status-approved { background: #dbeddb; color: #0d7377; }
+        .status-ordered { background: #d3e5ef; color: #2383e2; }
+        .status-received { background: #ddedea; color: #0f7b6c; }
+        .status-stocked { background: #e8deee; color: #6940a5; }
+        .actions-btn { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+        .actions-btn:hover { background: var(--bg-hover); }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; background: white; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-radius: 8px; z-index: 100; overflow: hidden; }
+        .dropdown-content.show { display: block; }
+        .dropdown-item { display: block; padding: 10px 16px; cursor: pointer; transition: background 0.15s; }
+        .dropdown-item:hover { background: var(--bg-secondary); }
+        .dropdown-item.danger { color: var(--error); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #37352f; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .kanban-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; min-height: 500px; }
+        .kanban-column { background: var(--bg-secondary); border-radius: 8px; padding: 12px; }
+        .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px; font-weight: 600; }
+        .kanban-header .count { background: var(--bg-hover); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .kanban-cards { min-height: 200px; }
+        .kanban-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 8px; cursor: grab; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .kanban-card .card-title { font-weight: 600; margin-bottom: 4px; }
+        .kanban-card .card-meta { font-size: 12px; color: var(--text-secondary); }
+        .drag-over { background: var(--accent-light); }
+        .user-info { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+        .user-name { font-size: 13px; }
+        .user-role { font-size: 11px; color: var(--text-secondary); }
+        .progress-bar { height: 6px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        .progress-fill.blue { background: var(--accent); }
+        .progress-fill.green { background: var(--success); }
+        .progress-fill.orange { background: var(--warning); }
     </style>
-    <script src="audit-logger.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
+        <!-- Sidebar -->
+        <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">J</div>
-                <span class="title">JCO ERP</span>
+                <div class="title">JCO ERP</div>
             </div>
-            
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">主要功能</div>
-                    <a href="erp-dashboard-notion.html" class="nav-item">
-                        <span class="icon">🏠</span>
-                        <span>儀表板</span>
-                    </a>
-                    <a href="erp-order-center-notion.html" class="nav-item">
-                        <span class="icon">📦</span>
-                        <span>訂單中心</span>
-                    </a>
-                    <a href="erp-cost-center-notion.html" class="nav-item">
-                        <span class="icon">💰</span>
-                        <span>成本中心</span>
-                    </a>
-                    <a href="erp-procurement-center-notion.html" class="nav-item active">
-                        <span class="icon">🛒</span>
-                        <span>採購管理</span>
-                    </a>
-                    <a href="erp-inventory-center-notion.html" class="nav-item">
-                        <span class="icon">📊</span>
-                        <span>庫存中心</span>
-                    </a>
+                    <div class="nav-section-title">主選單</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item"><span class="icon">🏠</span>儀表板</a>
+                    <a href="erp-order-center-notion.html" class="nav-item"><span class="icon">📦</span>訂單中心</a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item active"><span class="icon">🛒</span>採購中心</a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item"><span class="icon">📊</span>庫存中心</a>
                 </div>
-                
                 <div class="nav-section">
                     <div class="nav-section-title">生產管理</div>
-                    <a href="erp-production-center-notion.html" class="nav-item">
-                        <span class="icon">🏭</span>
-                        <span>生產中心</span>
-                    </a>
-                    <a href="erp-quality-center-notion.html" class="nav-item">
-                        <span class="icon">🔍</span>
-                        <span>品質中心</span>
-                    </a>
+                    <a href="erp-production-center-notion.html" class="nav-item"><span class="icon">🏭</span>生產中心</a>
+                    <a href="erp-quality-center-notion.html" class="nav-item"><span class="icon">🔍</span>品質中心</a>
                 </div>
-                
                 <div class="nav-section">
-                    <div class="nav-section-title">系統</div>
-                    <a href="erp-hr-center-notion.html" class="nav-item">
-                        <span class="icon">👥</span>
-                        <span>人事中心</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <span class="icon">⚙️</span>
-                        <span>設定</span>
-                    </a>
+                    <div class="nav-section-title">管理</div>
+                    <a href="erp-cost-center-notion.html" class="nav-item"><span class="icon">💰</span>成本中心</a>
+                    <a href="erp-hr-center-notion.html" class="nav-item"><span class="icon">👥</span>人事中心</a>
                 </div>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">--</div>
-                    <span class="user-name" id="user-name">載入中...</span>
-                    <button class="logout-btn" onclick="logout()" title="登出">🚪</button>
+            <div class="user-info">
+                <div class="user-avatar">採</div>
+                <div>
+                    <div class="user-name">採購專員</div>
+                    <div class="user-role">採購部</div>
                 </div>
             </div>
-        </aside>
-        
-        <main class="main-content">
-            <header class="page-header">
-                <h1 class="page-title">
-                    <span class="emoji">🛒</span>
-                    採購管理
-                </h1>
-                <p class="page-subtitle">供應商管理、價格追蹤、採購單處理</p>
-            </header>
-            
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title"><span class="emoji">🛒</span>採購中心</h1>
+                <p class="page-subtitle">管理採購申請、供應商和進貨追蹤</p>
+            </div>
+
             <div class="page-body">
+                <!-- Stats -->
                 <div class="stats-row">
                     <div class="stat-card primary">
-                        <div class="label">本月採購額</div>
-                        <div class="value">$86,500</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="label">供應商數量</div>
-                        <div class="value">12</div>
+                        <div class="label">總採購單</div>
+                        <div class="value" id="stat-total">0</div>
                     </div>
                     <div class="stat-card warning">
-                        <div class="label">待處理採購單</div>
-                        <div class="value">8</div>
+                        <div class="label">待審核</div>
+                        <div class="value" id="stat-pending">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">已下單</div>
+                        <div class="value" id="stat-ordered">0</div>
                     </div>
                     <div class="stat-card success">
-                        <div class="label">已完成</div>
-                        <div class="value">45</div>
+                        <div class="label">已入庫</div>
+                        <div class="value" id="stat-stocked">0</div>
                     </div>
                     <div class="stat-card error">
-                        <div class="label">價格異常</div>
-                        <div class="value">3</div>
+                        <div class="label">本月金額</div>
+                        <div class="value" id="stat-amount">$0</div>
                     </div>
                 </div>
-                
-                <div class="tabs">
-                    <div class="tab active">💵 價格管理</div>
-                    <div class="tab">🏢 供應商</div>
-                    <div class="tab">📈 價格歷史</div>
-                    <div class="tab">📝 採購單</div>
-                </div>
-                
+
+                <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <input type="text" class="search-input" placeholder="搜尋材料、供應商...">
-                        <select class="filter-select">
+                        <div class="search-box">
+                            <span>🔍</span>
+                            <input type="text" class="search-input" placeholder="搜尋採購單...">
+                        </div>
+                        <select class="filter-select" id="status-filter">
+                            <option>全部狀態</option>
+                            <option>待審核</option>
+                            <option>已審核</option>
+                            <option>已下單</option>
+                            <option>已到貨</option>
+                            <option>已入庫</option>
+                        </select>
+                        <select class="filter-select" id="supplier-filter">
                             <option>全部供應商</option>
-                            <option>皇家</option>
-                            <option>廷茂</option>
-                            <option>德森</option>
-                            <option>萬鑫</option>
+                            <option>皇家膠合板</option>
+                            <option>興盛膠合板</option>
+                            <option>格林膠合板</option>
+                            <option>銘龍膠合板</option>
+                            <option>堅江 MDF</option>
+                            <option>大可 MDF</option>
+                            <option>綠洲 MDF</option>
+                            <option>VECO PB板</option>
+                            <option>皇通橡膠木</option>
+                            <option>廷茂五金</option>
+                            <option>萬鑫五金</option>
+                            <option>祝南五金</option>
+                            <option>德森油漆</option>
+                            <option>合興油漆</option>
                         </select>
                     </div>
                     <div class="toolbar-right">
-                        <button class="btn btn-secondary">📥 匯入報價</button>
-                        <button class="btn btn-primary">+ 新增採購單</button>
+                        <button class="btn btn-secondary" onclick="exportData()">📥 匯出</button>
+                        <button class="btn btn-primary" onclick="showAddModal()">+ 新增採購單</button>
                     </div>
                 </div>
-                
-                <div class="table-container">
-                    <table>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" data-tab="list">📋 採購列表</div>
+                    <div class="tab" data-tab="kanban">📊 看板視圖</div>
+                    <div class="tab" data-tab="suppliers">🏢 供應商管理</div>
+                    <div class="tab" data-tab="reports">📈 採購報表</div>
+                </div>
+
+                <!-- Tab: List -->
+                <div class="tab-content active" id="tab-list">
+                    <table class="data-table">
                         <thead>
                             <tr>
-                                <th>材料名稱</th>
+                                <th>採購單號</th>
                                 <th>供應商</th>
-                                <th>規格</th>
-                                <th>單價</th>
-                                <th>趨勢</th>
-                                <th>最後更新</th>
+                                <th>品項</th>
+                                <th>數量</th>
+                                <th>金額</th>
+                                <th>申請日期</th>
+                                <th>預計到貨</th>
                                 <th>狀態</th>
-                                <th></th>
+                                <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="item-id">白樺膠合板</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">皇</div>
-                                        <span>皇家</span>
-                                    </div>
-                                </td>
-                                <td>18mm / 4x8</td>
-                                <td><span class="amount">$28.00/張</span></td>
-                                <td><span class="trend-up">↑ +5%</span></td>
-                                <td>2026-03-08</td>
-                                <td><span class="status-tag active">● 有效</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">MDF 板</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">堅</div>
-                                        <span>堅江</span>
-                                    </div>
-                                </td>
-                                <td>12mm / 4x8</td>
-                                <td><span class="amount">$15.50/張</span></td>
-                                <td><span class="trend-down">↓ -2%</span></td>
-                                <td>2026-03-05</td>
-                                <td><span class="status-tag active">● 有效</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">DTC 滑軌</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">廷</div>
-                                        <span>廷茂</span>
-                                    </div>
-                                </td>
-                                <td>18" / 全開</td>
-                                <td><span class="amount">$3.20/組</span></td>
-                                <td><span style="color: var(--text-light)">— 持平</span></td>
-                                <td>2026-03-01</td>
-                                <td><span class="status-tag active">● 有效</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">AC 漆</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">德</div>
-                                        <span>德森</span>
-                                    </div>
-                                </td>
-                                <td>白色 / 5L</td>
-                                <td><span class="amount">$45.00/桶</span></td>
-                                <td><span class="trend-up">↑ +8%</span></td>
-                                <td>2026-03-07</td>
-                                <td><span class="status-tag pending">◐ 待確認</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">螺絲組合包</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">萬</div>
-                                        <span>萬鑫</span>
-                                    </div>
-                                </td>
-                                <td>混合 / 1000pcs</td>
-                                <td><span class="amount">$12.00/包</span></td>
-                                <td><span style="color: var(--text-light)">— 持平</span></td>
-                                <td>2026-02-28</td>
-                                <td><span class="status-tag active">● 有效</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
-                            <tr>
-                                <td><span class="item-id">橡膠木毛料</span></td>
-                                <td>
-                                    <div class="supplier-tag">
-                                        <div class="supplier-avatar">皇</div>
-                                        <span>皇通</span>
-                                    </div>
-                                </td>
-                                <td>4/4 FAS</td>
-                                <td><span class="amount">$2.80/BF</span></td>
-                                <td><span class="trend-up">↑ +12%</span></td>
-                                <td>2026-03-09</td>
-                                <td><span class="status-tag pending">◐ 待確認</span></td>
-                                <td><button class="action-btn">⋯</button></td>
-                            </tr>
+                        <tbody id="procurement-table-body">
+                            <!-- Dynamic content -->
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Tab: Kanban -->
+                <div class="tab-content" id="tab-kanban">
+                    <div class="kanban-board">
+                        <div class="kanban-column" data-status="待審核">
+                            <div class="kanban-header">待審核 <span class="count">0</span></div>
+                            <div class="kanban-cards" id="kanban-pending"></div>
+                        </div>
+                        <div class="kanban-column" data-status="已審核">
+                            <div class="kanban-header">已審核 <span class="count">0</span></div>
+                            <div class="kanban-cards" id="kanban-approved"></div>
+                        </div>
+                        <div class="kanban-column" data-status="已下單">
+                            <div class="kanban-header">已下單 <span class="count">0</span></div>
+                            <div class="kanban-cards" id="kanban-ordered"></div>
+                        </div>
+                        <div class="kanban-column" data-status="已到貨">
+                            <div class="kanban-header">已到貨 <span class="count">0</span></div>
+                            <div class="kanban-cards" id="kanban-received"></div>
+                        </div>
+                        <div class="kanban-column" data-status="已入庫">
+                            <div class="kanban-header">已入庫 <span class="count">0</span></div>
+                            <div class="kanban-cards" id="kanban-stocked"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Suppliers -->
+                <div class="tab-content" id="tab-suppliers">
+                    <div class="toolbar" style="margin-bottom: 20px;">
+                        <h3>供應商清單</h3>
+                        <button class="btn btn-primary" onclick="showAddSupplierModal()">+ 新增供應商</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>供應商名稱</th>
+                                <th>分類</th>
+                                <th>聯絡人</th>
+                                <th>電話</th>
+                                <th>累計採購</th>
+                                <th>評分</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplier-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab: Reports -->
+                <div class="tab-content" id="tab-reports">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="label">本月採購金額</div>
+                            <div class="value" id="report-month-amount">$0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">本月採購單數</div>
+                            <div class="value" id="report-month-count">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">平均交貨天數</div>
+                            <div class="value" id="report-avg-days">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="label">供應商數量</div>
+                            <div class="value" id="report-supplier-count">0</div>
+                        </div>
+                    </div>
+                    <h3 style="margin: 24px 0 16px;">採購趨勢</h3>
+                    <div id="trend-chart" style="height: 200px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: flex-end; padding: 20px; gap: 8px;"></div>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">新增採購單</h3>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">採購單號</label>
+                        <input type="text" class="form-input" id="pr-number" placeholder="自動生成" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">申請日期</label>
+                        <input type="date" class="form-input" id="pr-date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">供應商 *</label>
+                    <select class="form-select" id="pr-supplier" required>
+                        <option value="">選擇供應商</option>
+                        <optgroup label="膠合板">
+                            <option value="皇家膠合板">皇家膠合板</option>
+                            <option value="興盛膠合板">興盛膠合板</option>
+                            <option value="格林膠合板">格林膠合板</option>
+                            <option value="銘龍膠合板">銘龍膠合板</option>
+                        </optgroup>
+                        <optgroup label="人造板">
+                            <option value="堅江 MDF">堅江 MDF/HDF</option>
+                            <option value="大可 MDF">大可 MDF/HDF</option>
+                            <option value="綠洲 MDF">綠洲 MDF/HDF</option>
+                            <option value="VECO PB板">VECO PB板（刨花板）</option>
+                        </optgroup>
+                        <optgroup label="實木">
+                            <option value="皇通橡膠木">皇通橡膠木</option>
+                        </optgroup>
+                        <optgroup label="五金">
+                            <option value="廷茂五金">廷茂公司（DTC滑軌鉸鏈）</option>
+                            <option value="萬鑫五金">萬鑫五金（螺絲連結件）</option>
+                            <option value="祝南五金">祝南公司（小五金角碼）</option>
+                        </optgroup>
+                        <optgroup label="油漆">
+                            <option value="德森油漆">德森公司（AC漆UV漆）</option>
+                            <option value="合興油漆">合興公司（UV專線）</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">品項/材料 *</label>
+                    <input type="text" class="form-input" id="pr-item" placeholder="例: 白樺膠合板 18mm">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">數量 *</label>
+                        <input type="number" class="form-input" id="pr-qty" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">單位</label>
+                        <select class="form-select" id="pr-unit">
+                            <option value="張">張</option>
+                            <option value="片">片</option>
+                            <option value="才">才</option>
+                            <option value="公斤">公斤</option>
+                            <option value="桶">桶</option>
+                            <option value="組">組</option>
+                            <option value="個">個</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">單價</label>
+                        <input type="number" class="form-input" id="pr-price" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">總金額</label>
+                        <input type="text" class="form-input" id="pr-total" placeholder="自動計算" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">預計到貨日</label>
+                        <input type="date" class="form-input" id="pr-eta">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">申請人</label>
+                        <input type="text" class="form-input" id="pr-requester" value="採購專員">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備註</label>
+                    <textarea class="form-textarea" id="pr-notes" rows="2" placeholder="採購備註..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveProcurement()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Change Modal -->
+    <div class="modal-overlay" id="status-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">變更狀態</h3>
+                <button class="modal-close" onclick="closeStatusModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="status-index">
+                <div class="form-group">
+                    <label class="form-label">目前狀態</label>
+                    <div id="current-status" style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">變更為</label>
+                    <select class="form-select" id="new-status">
+                        <option value="待審核">待審核</option>
+                        <option value="已審核">已審核</option>
+                        <option value="已下單">已下單</option>
+                        <option value="已到貨">已到貨</option>
+                        <option value="已入庫">已入庫</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeStatusModal()">取消</button>
+                <button class="btn btn-primary" onclick="updateStatus()">確認變更</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">確認刪除</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="delete-index">
+                <p>確定要刪除此採購單嗎？此操作無法復原。</p>
+                <p id="delete-info" style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px;"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Detail Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">採購單詳情</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detail-content">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">關閉</button>
+                <button class="btn btn-primary" onclick="printDetail()">🖨️ 列印</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api-connector.js"></script>
+    <script src="audit-logger.js"></script>
     <script>
-        function loadUserInfo() {
+        // Data
+        let procurementData = [];
+        let supplierData = [
+            ['皇家膠合板', '膠合板', '王先生', '0912-345-678', 1500000, 4.5],
+            ['興盛膠合板', '膠合板', '李先生', '0923-456-789', 1200000, 4.2],
+            ['格林膠合板', '膠合板', '張先生', '0934-567-890', 800000, 4.0],
+            ['銘龍膠合板', '膠合板', '陳先生', '0945-678-901', 600000, 3.8],
+            ['堅江 MDF', '人造板', '林先生', '0956-789-012', 900000, 4.3],
+            ['大可 MDF', '人造板', '黃先生', '0967-890-123', 700000, 4.1],
+            ['VECO PB板', '人造板', '吳先生', '0978-901-234', 500000, 3.9],
+            ['皇通橡膠木', '實木', '周先生', '0989-012-345', 2000000, 4.6],
+            ['廷茂五金', '五金', '張進先生', '0990-123-456', 400000, 4.4],
+            ['萬鑫五金', '五金', '鄭先生', '0901-234-567', 350000, 4.0],
+            ['祝南五金', '五金', '許先生', '0912-345-670', 200000, 3.7],
+            ['德森油漆', '油漆', '劉先生', '0923-456-780', 1100000, 4.5],
+            ['合興油漆', '油漆', '楊先生', '0934-567-891', 450000, 4.2]
+        ];
+        
+        // Demo data
+        const demoData = [
+            ['PR-2026-001', '皇家膠合板', '白樺膠合板 18mm', 100, 150000, '2026-03-01', '2026-03-10', '已入庫', '採購專員', ''],
+            ['PR-2026-002', '廷茂五金', 'DTC滑軌 450mm', 500, 25000, '2026-03-05', '2026-03-12', '已到貨', '採購專員', ''],
+            ['PR-2026-003', '德森油漆', 'AC底漆 20L', 50, 75000, '2026-03-08', '2026-03-15', '已下單', '採購專員', ''],
+            ['PR-2026-004', '堅江 MDF', 'MDF 15mm', 200, 180000, '2026-03-10', '2026-03-18', '已審核', '採購專員', ''],
+            ['PR-2026-005', '皇通橡膠木', '橡膠木指接板', 80, 240000, '2026-03-11', '2026-03-20', '待審核', '採購專員', '急件']
+        ];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Try load from API
+            if (window.erpApi) {
+                try {
+                    const apiData = await erpApi.getSheetData('procurement');
+                    if (apiData && apiData.length > 0) {
+                        procurementData = apiData;
+                    } else {
+                        procurementData = demoData;
+                    }
+                } catch (e) {
+                    console.log('API 載入失敗，使用示範資料');
+                    procurementData = demoData;
+                }
+            } else {
+                procurementData = demoData;
+            }
+            
+            renderAll();
+            initTabs();
+            initSearch();
+            initAutoCalc();
+            setDefaultDates();
+        });
+
+        function renderAll() {
+            renderTable();
+            renderKanban();
+            renderSuppliers();
+            renderReports();
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = procurementData.length;
+            const pending = procurementData.filter(p => p[7] === '待審核').length;
+            const ordered = procurementData.filter(p => p[7] === '已下單').length;
+            const stocked = procurementData.filter(p => p[7] === '已入庫').length;
+            const amount = procurementData.reduce((sum, p) => sum + (Number(p[4]) || 0), 0);
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-ordered').textContent = ordered;
+            document.getElementById('stat-stocked').textContent = stocked;
+            document.getElementById('stat-amount').textContent = '$' + amount.toLocaleString();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('procurement-table-body');
+            if (!tbody) return;
+            
+            if (procurementData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">尚無採購單資料</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = procurementData.map((pr, idx) => {
+                const [prNo, supplier, item, qty, amount, date, eta, status] = pr;
+                const statusClass = {
+                    '待審核': 'status-pending',
+                    '已審核': 'status-approved',
+                    '已下單': 'status-ordered',
+                    '已到貨': 'status-received',
+                    '已入庫': 'status-stocked'
+                }[status] || 'status-draft';
+                
+                return `<tr>
+                    <td><strong>${prNo || ''}</strong></td>
+                    <td>${supplier || ''}</td>
+                    <td>${item || ''}</td>
+                    <td>${qty || 0}</td>
+                    <td>$${Number(amount || 0).toLocaleString()}</td>
+                    <td>${date || ''}</td>
+                    <td>${eta || ''}</td>
+                    <td><span class="status-tag ${statusClass}">${status || '待審核'}</span></td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="actions-btn" onclick="toggleDropdown(this)">⋯</button>
+                            <div class="dropdown-content">
+                                <div class="dropdown-item" onclick="viewDetail(${idx})">👁️ 查看詳情</div>
+                                <div class="dropdown-item" onclick="editProcurement(${idx})">✏️ 編輯</div>
+                                <div class="dropdown-item" onclick="showStatusModal(${idx})">🔄 變更狀態</div>
+                                <div class="dropdown-item danger" onclick="showDeleteModal(${idx})">🗑️ 刪除</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderKanban() {
+            const statusMap = {
+                '待審核': 'kanban-pending',
+                '已審核': 'kanban-approved',
+                '已下單': 'kanban-ordered',
+                '已到貨': 'kanban-received',
+                '已入庫': 'kanban-stocked'
+            };
+            
+            // Clear all columns
+            Object.values(statusMap).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '';
+            });
+            
+            // Add cards
+            procurementData.forEach((pr, idx) => {
+                const [prNo, supplier, item, qty, amount, date, eta, status] = pr;
+                const containerId = statusMap[status] || 'kanban-pending';
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                
+                const card = document.createElement('div');
+                card.className = 'kanban-card';
+                card.draggable = true;
+                card.dataset.index = idx;
+                card.innerHTML = `
+                    <div class="card-title">${prNo}</div>
+                    <div class="card-meta">${supplier} · ${item}</div>
+                    <div class="card-meta">數量: ${qty} · $${Number(amount || 0).toLocaleString()}</div>
+                    <div class="card-meta">到貨: ${eta || '-'}</div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Update counts
+            Object.entries(statusMap).forEach(([status, id]) => {
+                const container = document.getElementById(id);
+                const count = container ? container.children.length : 0;
+                const header = container?.parentElement?.querySelector('.count');
+                if (header) header.textContent = count;
+            });
+            
+            initKanbanDrag();
+        }
+
+        function renderSuppliers() {
+            const tbody = document.getElementById('supplier-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = supplierData.map((s, idx) => {
+                const [name, category, contact, phone, total, rating] = s;
+                const stars = '⭐'.repeat(Math.round(rating));
+                return `<tr>
+                    <td><strong>${name}</strong></td>
+                    <td>${category}</td>
+                    <td>${contact}</td>
+                    <td>${phone}</td>
+                    <td>$${Number(total).toLocaleString()}</td>
+                    <td>${stars} (${rating})</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editSupplier(${idx})">編輯</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderReports() {
+            const monthAmount = procurementData.reduce((sum, p) => sum + (Number(p[4]) || 0), 0);
+            const monthCount = procurementData.length;
+            const avgDays = 7; // Demo value
+            const supplierCount = supplierData.length;
+            
+            document.getElementById('report-month-amount').textContent = '$' + monthAmount.toLocaleString();
+            document.getElementById('report-month-count').textContent = monthCount;
+            document.getElementById('report-avg-days').textContent = avgDays + ' 天';
+            document.getElementById('report-supplier-count').textContent = supplierCount;
+            
+            // Trend chart
+            const chart = document.getElementById('trend-chart');
+            if (chart) {
+                const months = ['1月', '2月', '3月'];
+                const values = [450000, 380000, monthAmount];
+                const maxVal = Math.max(...values);
+                chart.innerHTML = values.map((v, i) => `
+                    <div style="flex:1; text-align:center;">
+                        <div style="height: ${(v/maxVal)*150}px; background: var(--accent); border-radius: 4px 4px 0 0; margin: 0 8px;"></div>
+                        <div style="padding-top: 8px; font-size: 12px; color: var(--text-secondary);">${months[i]}</div>
+                        <div style="font-weight: 600;">$${(v/1000).toFixed(0)}K</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Tab switching
+        function initTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        // Search & Filter
+        function initSearch() {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTable);
+            }
+            
+            document.getElementById('status-filter')?.addEventListener('change', filterTable);
+            document.getElementById('supplier-filter')?.addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const keyword = document.querySelector('.search-input')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('status-filter')?.value || '全部狀態';
+            const supplierFilter = document.getElementById('supplier-filter')?.value || '全部供應商';
+            
+            const rows = document.querySelectorAll('#procurement-table-body tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const status = row.querySelector('.status-tag')?.textContent || '';
+                const supplier = row.cells[1]?.textContent || '';
+                
+                const matchKeyword = text.includes(keyword);
+                const matchStatus = statusFilter === '全部狀態' || status === statusFilter;
+                const matchSupplier = supplierFilter === '全部供應商' || supplier.includes(supplierFilter.split(' ')[0]);
+                
+                row.style.display = (matchKeyword && matchStatus && matchSupplier) ? '' : 'none';
+            });
+        }
+
+        // Auto calculate total
+        function initAutoCalc() {
+            const qtyInput = document.getElementById('pr-qty');
+            const priceInput = document.getElementById('pr-price');
+            
+            [qtyInput, priceInput].forEach(input => {
+                input?.addEventListener('input', () => {
+                    const qty = Number(qtyInput?.value) || 0;
+                    const price = Number(priceInput?.value) || 0;
+                    document.getElementById('pr-total').value = '$' + (qty * price).toLocaleString();
+                });
+            });
+        }
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pr-date').value = today;
+            
+            const eta = new Date();
+            eta.setDate(eta.getDate() + 7);
+            document.getElementById('pr-eta').value = eta.toISOString().split('T')[0];
+        }
+
+        function generatePRNumber() {
+            const year = new Date().getFullYear();
+            const num = String(procurementData.length + 1).padStart(3, '0');
+            return `PR-${year}-${num}`;
+        }
+
+        // Modal functions
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = '新增採購單';
+            document.getElementById('edit-index').value = -1;
+            document.getElementById('pr-number').value = generatePRNumber();
+            setDefaultDates();
+            clearForm();
+            document.getElementById('add-modal').classList.add('show');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.remove('show');
+        }
+
+        function clearForm() {
+            ['pr-supplier', 'pr-item', 'pr-qty', 'pr-price', 'pr-total', 'pr-notes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('pr-unit').value = '張';
+            document.getElementById('pr-requester').value = '採購專員';
+        }
+
+        function editProcurement(idx) {
+            const pr = procurementData[idx];
+            if (!pr) return;
+            
+            document.getElementById('modal-title').textContent = '編輯採購單';
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('pr-number').value = pr[0];
+            document.getElementById('pr-supplier').value = pr[1];
+            document.getElementById('pr-item').value = pr[2];
+            document.getElementById('pr-qty').value = pr[3];
+            document.getElementById('pr-price').value = pr[4] / (pr[3] || 1);
+            document.getElementById('pr-total').value = '$' + Number(pr[4]).toLocaleString();
+            document.getElementById('pr-date').value = pr[5];
+            document.getElementById('pr-eta').value = pr[6];
+            document.getElementById('pr-requester').value = pr[8] || '採購專員';
+            document.getElementById('pr-notes').value = pr[9] || '';
+            
+            document.getElementById('add-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        async function saveProcurement() {
+            const idx = Number(document.getElementById('edit-index').value);
+            const prNo = document.getElementById('pr-number').value;
+            const supplier = document.getElementById('pr-supplier').value;
+            const item = document.getElementById('pr-item').value;
+            const qty = Number(document.getElementById('pr-qty').value) || 0;
+            const price = Number(document.getElementById('pr-price').value) || 0;
+            const total = qty * price;
+            const date = document.getElementById('pr-date').value;
+            const eta = document.getElementById('pr-eta').value;
+            const requester = document.getElementById('pr-requester').value;
+            const notes = document.getElementById('pr-notes').value;
+            
+            if (!supplier || !item) {
+                showToast('⚠️ 請填寫供應商和品項');
+                return;
+            }
+            
+            const newPR = [prNo, supplier, item, qty, total, date, eta, '待審核', requester, notes];
+            
+            if (idx >= 0) {
+                // Keep original status when editing
+                newPR[7] = procurementData[idx][7];
+                procurementData[idx] = newPR;
+                showToast('✅ 採購單已更新');
+                if (window.AuditLogger) AuditLogger.logUpdate('procurement', `更新採購單 ${prNo}`);
+            } else {
+                procurementData.push(newPR);
+                showToast('✅ 採購單已新增');
+                if (window.AuditLogger) AuditLogger.logCreate('procurement', `新增採購單 ${prNo}`);
+            }
+            
+            // Sync to API
+            if (window.erpApi && !erpApi.forceOffline) {
+                try {
+                    if (idx >= 0) {
+                        await erpApi.updateSheetRow('procurement', idx + 2, newPR);
+                    } else {
+                        await erpApi.appendSheetRow('procurement', newPR);
+                    }
+                } catch (e) {
+                    console.log('API 同步失敗');
+                }
+            }
+            
+            renderAll();
+            closeAddModal();
+        }
+
+        // Status modal
+        function showStatusModal(idx) {
+            const pr = procurementData[idx];
+            if (!pr) return;
+            
+            document.getElementById('status-index').value = idx;
+            document.getElementById('current-status').textContent = pr[7] || '待審核';
+            document.getElementById('new-status').value = pr[7] || '待審核';
+            document.getElementById('status-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').classList.remove('show');
+        }
+
+        async function updateStatus() {
+            const idx = Number(document.getElementById('status-index').value);
+            const newStatus = document.getElementById('new-status').value;
+            
+            if (idx >= 0 && procurementData[idx]) {
+                const oldStatus = procurementData[idx][7];
+                procurementData[idx][7] = newStatus;
+                
+                showToast(`✅ 狀態已更新: ${oldStatus} → ${newStatus}`);
+                if (window.AuditLogger) {
+                    AuditLogger.logUpdate('procurement', `${procurementData[idx][0]} 狀態 ${oldStatus} → ${newStatus}`);
+                }
+                
+                // Sync to API
+                if (window.erpApi && !erpApi.forceOffline) {
+                    try {
+                        await erpApi.updateSheetRow('procurement', idx + 2, procurementData[idx]);
+                    } catch (e) {
+                        console.log('API 同步失敗');
+                    }
+                }
+                
+                renderAll();
+            }
+            closeStatusModal();
+        }
+
+        // Delete modal
+        function showDeleteModal(idx) {
+            const pr = procurementData[idx];
+            if (!pr) return;
+            
+            document.getElementById('delete-index').value = idx;
+            document.getElementById('delete-info').innerHTML = `
+                <strong>${pr[0]}</strong><br>
+                ${pr[1]} · ${pr[2]}<br>
+                金額: $${Number(pr[4]).toLocaleString()}
+            `;
+            document.getElementById('delete-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('show');
+        }
+
+        async function confirmDelete() {
+            const idx = Number(document.getElementById('delete-index').value);
+            
+            if (idx >= 0 && procurementData[idx]) {
+                const prNo = procurementData[idx][0];
+                procurementData.splice(idx, 1);
+                
+                showToast('🗑️ 採購單已刪除');
+                if (window.AuditLogger) AuditLogger.logDelete('procurement', `刪除採購單 ${prNo}`);
+                
+                // Sync to API
+                if (window.erpApi && !erpApi.forceOffline) {
+                    try {
+                        await erpApi.deleteSheetRow('procurement', idx + 2);
+                    } catch (e) {
+                        console.log('API 同步失敗');
+                    }
+                }
+                
+                renderAll();
+            }
+            closeDeleteModal();
+        }
+
+        // View detail modal
+        function viewDetail(idx) {
+            const pr = procurementData[idx];
+            if (!pr) return;
+            
+            const [prNo, supplier, item, qty, amount, date, eta, status, requester, notes] = pr;
+            
+            document.getElementById('detail-content').innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">採購單號</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-weight: 600;">${prNo}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">狀態</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">
+                            <span class="status-tag status-${status === '待審核' ? 'pending' : status === '已審核' ? 'approved' : status === '已下單' ? 'ordered' : status === '已到貨' ? 'received' : 'stocked'}">${status}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">供應商</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${supplier}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">品項</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${item}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">數量</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${qty}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">金額</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; font-weight: 600; color: var(--accent);">$${Number(amount).toLocaleString()}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">申請日期</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${date}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">預計到貨</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${eta}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">申請人</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${requester || '-'}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">備註</label>
+                        <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px;">${notes || '-'}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detail-modal').classList.add('show');
+            closeAllDropdowns();
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('show');
+        }
+
+        function printDetail() {
+            window.print();
+        }
+
+        // Kanban drag & drop
+        function initKanbanDrag() {
+            const cards = document.querySelectorAll('.kanban-card');
+            const columns = document.querySelectorAll('.kanban-cards');
+            
+            cards.forEach(card => {
+                card.addEventListener('dragstart', (e) => {
+                    card.style.opacity = '0.5';
+                    e.dataTransfer.setData('text/plain', card.dataset.index);
+                });
+                
+                card.addEventListener('dragend', () => {
+                    card.style.opacity = '1';
+                    columns.forEach(col => col.classList.remove('drag-over'));
+                });
+            });
+            
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    column.classList.add('drag-over');
+                });
+                
+                column.addEventListener('dragleave', () => {
+                    column.classList.remove('drag-over');
+                });
+                
+                column.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    column.classList.remove('drag-over');
+                    
+                    const idx = Number(e.dataTransfer.getData('text/plain'));
+                    const newStatus = column.parentElement.dataset.status;
+                    
+                    if (procurementData[idx] && newStatus) {
+                        const oldStatus = procurementData[idx][7];
+                        procurementData[idx][7] = newStatus;
+                        
+                        showToast(`✅ ${procurementData[idx][0]} → ${newStatus}`);
+                        if (window.AuditLogger) {
+                            AuditLogger.logUpdate('procurement', `${procurementData[idx][0]} 狀態 ${oldStatus} → ${newStatus}`);
+                        }
+                        
+                        // Sync to API
+                        if (window.erpApi && !erpApi.forceOffline) {
+                            try {
+                                await erpApi.updateSheetRow('procurement', idx + 2, procurementData[idx]);
+                            } catch (e) {
+                                console.log('API 同步失敗');
+                            }
+                        }
+                        
+                        renderAll();
+                    }
+                });
+            });
+        }
+
+        // Dropdown
+        function toggleDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
+            closeAllDropdowns();
+            dropdown.classList.toggle('show');
+            event.stopPropagation();
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+        }
+
+        document.addEventListener('click', closeAllDropdowns);
+
+        // Export
+        function exportData() {
+            let csv = '採購單號,供應商,品項,數量,金額,申請日期,預計到貨,狀態,申請人,備註\n';
+            procurementData.forEach(pr => {
+                csv += pr.map(v => `"${v || ''}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `JCO-採購報表-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showToast('📥 報表匯出成功');
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Supplier functions
+        function showAddSupplierModal() {
+            showToast('📝 供應商管理功能開發中...');
+        }
+
+        function editSupplier(idx) {
+            showToast('📝 供應商編輯功能開發中...');
+        }
+
+        function ensureModuleAccess() {
             const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-            if (session) {
-                const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-                if (nameEl) nameEl.textContent = session.name;
-            }
-        }
-        
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('JCO_ERP_SESSION');
+            if (!session) {
                 window.location.href = 'erp-login-notion.html';
+                return;
+            }
+            if (session.role !== 'admin' && !(session.allowedModules || []).includes('procurement')) {
+                window.location.href = 'erp-dashboard-notion.html';
             }
         }
-        
-        loadUserInfo();
+
+        ensureModuleAccess();
     </script>
 </body>
 </html>
