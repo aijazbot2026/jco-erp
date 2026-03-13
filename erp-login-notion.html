@@ -210,8 +210,8 @@
                         <span><strong>admin</strong> / jco2026</span>
                         <span class="role">admin</span>
                     </div>
-                    <div class="demo-account" onclick="fillAccount('eddie', 'eddie2026')">
-                        <span><strong>eddie</strong> / eddie2026</span>
+                    <div class="demo-account" onclick="fillAccount('eddie', 'eddie123')">
+                        <span><strong>eddie</strong> / eddie123</span>
                         <span class="role">manager（業務）</span>
                     </div>
                     <div class="demo-account" onclick="fillAccount('viewer_demo', 'viewer123')">
@@ -238,7 +238,7 @@
 
         const defaultUsers = [
             { id: 1, username: 'admin', password: 'jco2026', name: 'Jerry Boss', dept: 'admin', role: 'admin', permissions: ['all'], allowedModules: ['dashboard', 'orders', 'customers', 'reports', 'cost', 'procurement', 'inventory', 'production', 'quality', 'hr', 'settings'] },
-            { id: 2, username: 'eddie', password: 'eddie2026', name: 'Eddie', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'reports'], allowedModules: ['dashboard', 'orders', 'customers', 'reports'] },
+            { id: 2, username: 'eddie', password: 'eddie123', name: 'Eddie', dept: 'sales', role: 'manager', permissions: ['orders', 'customers', 'reports'], allowedModules: ['dashboard', 'orders', 'customers', 'reports'] },
             { id: 3, username: 'viewer_demo', password: 'viewer123', name: 'Viewer Demo', dept: 'sales', role: 'viewer', permissions: ['orders'], allowedModules: ['dashboard', 'orders'] },
             { id: 10, username: 'dev_mgr', password: 'dev123', name: '開發主管', dept: 'development', role: 'manager', permissions: ['bom', 'cutting', 'hardware', 'todo'], allowedModules: ['dashboard', 'cost'] },
             { id: 11, username: 'dev_ast', password: 'dev123', name: '開發助手', dept: 'development', role: 'viewer', permissions: ['bom', 'cutting', 'hardware', 'todo'], allowedModules: ['dashboard', 'cost'] },
