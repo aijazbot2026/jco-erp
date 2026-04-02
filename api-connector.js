@@ -9,7 +9,7 @@ class JCOApiConnector {
         this.apiUrl = 'https://script.google.com/macros/s/AKfycbzJxOa28fnw81S8o9xLamXxOguVngVB-0n4evvtmleoYA-wqU3r1wvUAtBVYbeJ1H_s/exec';
         this.isOnline = false;
         this.fallbackToLocal = true;
-        this.forceOffline = true;  // 🔧 改為 false，啟用線上模式
+        this.forceOffline = false;  // 🔧 改為 false，啟用線上模式
         this.loadingElements = new Set();
         this.loadingTimeout = null;
         this.maxLoadingTime = 5000;  // 最長載入時間 5 秒
