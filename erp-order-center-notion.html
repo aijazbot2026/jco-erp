@@ -882,14 +882,17 @@
                         </div>
                     </td>
                     <td class="py-3 px-4" onclick="event.stopPropagation()">
-                        <select class="text-xs border rounded px-2 py-1" onchange="updateStatus(${o.id}, this.value)">
-                            <option value="draft" ${o.status === 'draft' ? 'selected' : ''}>草稿</option>
-                            <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>已確認</option>
-                            <option value="production" ${o.status === 'production' ? 'selected' : ''}>生產中</option>
-                            <option value="qc" ${o.status === 'qc' ? 'selected' : ''}>待驗貨</option>
-                            <option value="packing" ${o.status === 'packing' ? 'selected' : ''}>裝箱中</option>
-                            <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>已出貨</option>
-                        </select>
+                        <div class="flex items-center gap-2">
+                            <select class="text-xs border rounded px-2 py-1" onchange="updateStatus(${o.id}, this.value)">
+                                <option value="draft" ${o.status === 'draft' ? 'selected' : ''}>草稿</option>
+                                <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>已確認</option>
+                                <option value="production" ${o.status === 'production' ? 'selected' : ''}>生產中</option>
+                                <option value="qc" ${o.status === 'qc' ? 'selected' : ''}>待驗貨</option>
+                                <option value="packing" ${o.status === 'packing' ? 'selected' : ''}>裝箱中</option>
+                                <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>已出貨</option>
+                            </select>
+                            <button onclick="deleteOrder(${o.id})" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50" title="刪除訂單">🗑️</button>
+                        </div>
                     </td>
                 </tr>
             `}).join('');
@@ -1453,7 +1456,7 @@
                 { id: 5, product: 'SB36', length: 120, width: 65, height: 90, pcsPerBox: 2, weight: 60, desc: 'Sink Base 36"' },
                 { id: 6, product: 'Drawer Box', length: 60, width: 50, height: 40, pcsPerBox: 10, weight: 25, desc: '抽屜盒' },
             ];
-            await savePackagingSpecs();
+            savePackagingSpecs();  // 🔧 Cowork fix: removed top-level await (SyntaxError)
         }
 
         // 貨櫃尺寸 (內部尺寸 cm)
