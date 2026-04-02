@@ -161,108 +161,6 @@
             gap: 16px;
             margin-bottom: 32px;
         }
-
-        .insights-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .chart-card,
-        .quick-panel {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .chart-card-header,
-        .quick-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .chart-title,
-        .quick-panel-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .chart-subtitle,
-        .quick-panel-subtitle {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .bar-chart {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            align-items: end;
-            min-height: 220px;
-        }
-
-        .bar-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bar {
-            width: 100%;
-            min-height: 24px;
-            border-radius: 10px 10px 4px 4px;
-            background: linear-gradient(180deg, #2383e2 0%, #0f7b6c 100%);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
-        }
-
-        .bar-value {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .bar-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .metric-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 14px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.72);
-        }
-
-        .metric-row strong {
-            display: block;
-            font-size: 14px;
-        }
-
-        .metric-row span {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .metric-pill {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: var(--accent-light);
-            color: var(--accent);
-        }
         
         .kpi-card {
             background: var(--bg-secondary);
@@ -542,61 +440,27 @@
             font-size: 13px;
             font-weight: 500;
         }
-
-        @media (max-width: 1100px) {
-            .page-header {
-                padding: 28px 24px 20px;
-            }
-
-            .page-body {
-                padding: 20px 24px 40px;
-            }
-
-            .kpi-grid,
-            .module-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .insights-grid,
-            .two-columns {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 720px) {
-            .app-container {
-                flex-direction: column;
-                height: auto;
-            }
-
-            .sidebar {
-                width: 100%;
-            }
-
-            .sidebar-nav {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-            .nav-section {
-                margin-bottom: 8px;
-            }
-
-            .kpi-grid,
-            .module-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .page-title {
-                font-size: 24px;
-            }
-
-            .bar-chart {
-                gap: 8px;
-            }
-        }
+    
+    /* 🔧 通知動畫 (2026-03-14 新增) */
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    /* 🔧 載入動畫 */
+    .loading-pulse {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
     </style>
+    <script src="api-connector.js"></script>
     <script src="audit-logger.js"></script>
 </head>
 <body>
@@ -607,7 +471,55 @@
                 <span class="title">JCO ERP</span>
             </div>
             
-            <nav class="sidebar-nav" id="sidebar-nav"></nav>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">主要功能</div>
+                    <a href="erp-dashboard-notion.html" class="nav-item active">
+                        <span class="icon">🏠</span>
+                        <span>儀表板</span>
+                    </a>
+                    <a href="erp-order-center-notion.html" class="nav-item">
+                        <span class="icon">📦</span>
+                        <span>訂單中心</span>
+                    </a>
+                    <a href="erp-cost-center-notion.html" class="nav-item">
+                        <span class="icon">💰</span>
+                        <span>成本中心</span>
+                    </a>
+                    <a href="erp-procurement-center-notion.html" class="nav-item">
+                        <span class="icon">🛒</span>
+                        <span>採購管理</span>
+                    </a>
+                    <a href="erp-inventory-center-notion.html" class="nav-item">
+                        <span class="icon">📊</span>
+                        <span>庫存中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">生產管理</div>
+                    <a href="erp-production-center-notion.html" class="nav-item">
+                        <span class="icon">🏭</span>
+                        <span>生產中心</span>
+                    </a>
+                    <a href="erp-quality-center-notion.html" class="nav-item">
+                        <span class="icon">🔍</span>
+                        <span>品質中心</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">系統</div>
+                    <a href="erp-hr-center-notion.html" class="nav-item">
+                        <span class="icon">👥</span>
+                        <span>人事中心</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">⚙️</span>
+                        <span>設定</span>
+                    </a>
+                </div>
+            </nav>
             
             <div class="sidebar-footer">
                 <div class="user-info">
@@ -656,85 +568,50 @@
                     </div>
                 </div>
                 
-                <!-- KPI Insights -->
-                <div class="insights-grid">
-                    <div class="chart-card chart-container">
-                        <div class="chart-card-header">
-                            <div>
-                                <div class="chart-title">📈 6 週營運總覽</div>
-                                <div class="chart-subtitle">訂單、出貨、良率一眼看懂，方便主管晨會快速判斷</div>
-                            </div>
-                            <div class="metric-pill">每週更新</div>
-                        </div>
-                        <div class="bar-chart" aria-label="營運總覽圖表">
-                            <div class="bar-col">
-                                <div class="bar-value">82%</div>
-                                <div class="bar" style="height: 48%"></div>
-                                <div class="bar-label">W1</div>
-                            </div>
-                            <div class="bar-col">
-                                <div class="bar-value">88%</div>
-                                <div class="bar" style="height: 58%"></div>
-                                <div class="bar-label">W2</div>
-                            </div>
-                            <div class="bar-col">
-                                <div class="bar-value">91%</div>
-                                <div class="bar" style="height: 66%"></div>
-                                <div class="bar-label">W3</div>
-                            </div>
-                            <div class="bar-col">
-                                <div class="bar-value">86%</div>
-                                <div class="bar" style="height: 54%"></div>
-                                <div class="bar-label">W4</div>
-                            </div>
-                            <div class="bar-col">
-                                <div class="bar-value">94%</div>
-                                <div class="bar" style="height: 74%"></div>
-                                <div class="bar-label">W5</div>
-                            </div>
-                            <div class="bar-col">
-                                <div class="bar-value">97%</div>
-                                <div class="bar" style="height: 84%"></div>
-                                <div class="bar-label">本週</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="quick-panel">
-                        <div class="quick-panel-header">
-                            <div>
-                                <div class="quick-panel-title">🎯 今日焦點</div>
-                                <div class="quick-panel-subtitle">主管優先處理順序</div>
-                            </div>
-                        </div>
-                        <div class="metric-list">
-                            <div class="metric-row">
-                                <div>
-                                    <strong>交期風險</strong>
-                                    <span>2 張訂單需今天追蹤</span>
-                                </div>
-                                <div class="metric-pill">高</div>
-                            </div>
-                            <div class="metric-row">
-                                <div>
-                                    <strong>補貨壓力</strong>
-                                    <span>DTC 鉸鏈、白樺板低於安全量</span>
-                                </div>
-                                <div class="metric-pill">中</div>
-                            </div>
-                            <div class="metric-row">
-                                <div>
-                                    <strong>品質回報</strong>
-                                    <span>1 件色差、1 件五金異常待判定</span>
-                                </div>
-                                <div class="metric-pill">中</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Module Entry -->
-                <h2 class="section-title" id="module-section-title">🚀 快速入口</h2>
-                <div class="module-grid" id="module-grid"></div>
+                <h2 class="section-title">🚀 快速入口</h2>
+                <div class="module-grid">
+                    <a href="erp-order-center-notion.html" class="module-card">
+                        <div class="icon">📦</div>
+                        <div class="name">訂單中心</div>
+                        <div class="count">5 筆訂單</div>
+                    </a>
+                    <a href="erp-cost-center-notion.html" class="module-card">
+                        <div class="icon">💰</div>
+                        <div class="name">成本中心</div>
+                        <div class="count">12 項待報價</div>
+                    </a>
+                    <a href="erp-procurement-center-notion.html" class="module-card">
+                        <div class="icon">🛒</div>
+                        <div class="name">採購管理</div>
+                        <div class="count">8 單待處理</div>
+                    </a>
+                    <a href="erp-inventory-center-notion.html" class="module-card">
+                        <div class="icon">📊</div>
+                        <div class="name">庫存中心</div>
+                        <div class="count">6 項緊急</div>
+                    </a>
+                    <a href="erp-production-center-notion.html" class="module-card">
+                        <div class="icon">🏭</div>
+                        <div class="name">生產中心</div>
+                        <div class="count">12 工單進行中</div>
+                    </a>
+                    <a href="erp-quality-center-notion.html" class="module-card">
+                        <div class="icon">🔍</div>
+                        <div class="name">品質中心</div>
+                        <div class="count">8 問題待處理</div>
+                    </a>
+                    <a href="erp-hr-center-notion.html" class="module-card">
+                        <div class="icon">👥</div>
+                        <div class="name">人事中心</div>
+                        <div class="count">256 位員工</div>
+                    </a>
+                    <a href="#" class="module-card">
+                        <div class="icon">⚙️</div>
+                        <div class="name">系統設定</div>
+                        <div class="count">管理配置</div>
+                    </a>
+                </div>
                 
                 <!-- Two Column -->
                 <div class="two-columns">
@@ -832,82 +709,14 @@
     </div>
 
     <script>
-        const MODULE_DEFS = {
-            dashboard: { icon: '🏠', name: '儀表板', href: 'erp-dashboard-notion.html', group: '主要功能', count: '總覽' },
-            orders: { icon: '📦', name: '訂單管理', href: 'erp-order-center-notion.html', group: '業務模組', count: '訂單進度 / 出貨追蹤' },
-            customers: { icon: '🤝', name: '客戶管理', href: 'erp-customer-center-notion.html', group: '業務模組', count: '客戶名單 / 跟進紀錄' },
-            reports: { icon: '📈', name: '報表', href: 'erp-sales-reports-notion.html', group: '業務模組', count: '銷售摘要 / KPI' },
-            cost: { icon: '💰', name: '成本中心', href: 'erp-cost-center-notion.html', group: '營運模組', count: '成本計算' },
-            procurement: { icon: '🛒', name: '採購管理', href: 'erp-procurement-center-notion.html', group: '營運模組', count: '採購 / 供應商' },
-            inventory: { icon: '📊', name: '庫存中心', href: 'erp-inventory-center-notion.html', group: '營運模組', count: '庫存與補貨' },
-            production: { icon: '🏭', name: '生產中心', href: 'erp-production-center-notion.html', group: '生產管理', count: '工單與進度' },
-            quality: { icon: '🔍', name: '品質中心', href: 'erp-quality-center-notion.html', group: '生產管理', count: 'QC 與異常追蹤' },
-            hr: { icon: '👥', name: '人事中心', href: 'erp-hr-center-notion.html', group: '系統', count: '員工 / 帳號' },
-            settings: { icon: '⚙️', name: '系統設定', href: '#', group: '系統', count: '權限與配置' }
-        };
-
-        function getSession() {
-            return JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
-        }
-
-        function ensureAuth() {
-            const session = getSession();
-            if (!session) {
-                window.location.href = 'erp-login-notion.html';
-                return null;
+        function loadUserInfo() {
+            const session = JSON.parse(localStorage.getItem('JCO_ERP_SESSION') || 'null');
+            if (session) {
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
+                if (nameEl) nameEl.textContent = session.name;
             }
-            return session;
-        }
-
-        function loadUserInfo(session) {
-            const avatarEl = document.getElementById('user-avatar');
-            const nameEl = document.getElementById('user-name');
-            if (avatarEl) avatarEl.textContent = session.name.substring(0, 2);
-            if (nameEl) nameEl.textContent = `${session.name} · ${session.roleLabel || session.role}`;
-        }
-
-        function renderSidebar(session) {
-            const nav = document.getElementById('sidebar-nav');
-            const allowed = session.allowedModules || ['dashboard'];
-            const groups = {};
-
-            ['dashboard', ...allowed.filter(key => key !== 'dashboard')].forEach(key => {
-                const def = MODULE_DEFS[key];
-                if (!def) return;
-                if (!groups[def.group]) groups[def.group] = [];
-                groups[def.group].push(key);
-            });
-
-            nav.innerHTML = Object.entries(groups).map(([group, keys]) => `
-                <div class="nav-section">
-                    <div class="nav-section-title">${group}</div>
-                    ${keys.map(key => {
-                        const def = MODULE_DEFS[key];
-                        const active = key === 'dashboard' ? 'active' : '';
-                        return `<a href="${def.href}" class="nav-item ${active}"><span class="icon">${def.icon}</span><span>${def.name}</span></a>`;
-                    }).join('')}
-                </div>
-            `).join('');
-        }
-
-        function renderModules(session) {
-            const grid = document.getElementById('module-grid');
-            const title = document.getElementById('module-section-title');
-            const allowed = (session.allowedModules || []).filter(key => key !== 'dashboard');
-            if (session.role === 'manager' && session.dept === 'sales') {
-                title.textContent = '🚀 Eddie 專屬業務入口';
-            }
-            grid.innerHTML = allowed.map(key => {
-                const def = MODULE_DEFS[key];
-                if (!def) return '';
-                return `
-                    <a href="${def.href}" class="module-card">
-                        <div class="icon">${def.icon}</div>
-                        <div class="name">${def.name}</div>
-                        <div class="count">${def.count}</div>
-                    </a>
-                `;
-            }).join('');
         }
         
         function logout() {
@@ -916,13 +725,8 @@
                 window.location.href = 'erp-login-notion.html';
             }
         }
-
-        const session = ensureAuth();
-        if (session) {
-            loadUserInfo(session);
-            renderSidebar(session);
-            renderModules(session);
-        }
+        
+        loadUserInfo();
     </script>
 </body>
 </html>

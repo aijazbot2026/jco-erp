@@ -9,7 +9,7 @@ class JCOApiConnector {
         this.apiUrl = 'https://script.google.com/macros/s/AKfycbzJxOa28fnw81S8o9xLamXxOguVngVB-0n4evvtmleoYA-wqU3r1wvUAtBVYbeJ1H_s/exec';
         this.isOnline = false;
         this.fallbackToLocal = true;
-        this.forceOffline = false;  // 🔧 改為 false，啟用線上模式
+        this.forceOffline = true;  // 🔧 改為 false，啟用線上模式
         this.loadingElements = new Set();
         this.loadingTimeout = null;
         this.maxLoadingTime = 5000;  // 最長載入時間 5 秒
@@ -26,6 +26,19 @@ class JCOApiConnector {
             'logs': '工作表1'         // 日誌（暫共用）
         };
         
+
+        // 🔧 智能重試配置 (2026-03-14 優化)
+        this.retryConfig = {
+            maxRetries: 3,
+            baseDelay: 1000,
+            maxDelay: 10000,
+            backoffMultiplier: 2
+        };
+        
+        // 🔧 API 回應快取 (2026-03-14 優化)
+        this.responseCache = new Map();
+        this.cacheExpiry = 60000;
+        
         this.init();
     }
     
@@ -36,7 +49,7 @@ class JCOApiConnector {
         // 🔧 如果強制離線，立即顯示離線狀態，不等待
         if (this.forceOffline) {
             this.updateConnectionStatus(false);
-            console.log('JCO ERP: 強制離線模式');
+            // [DEBUG] console.log('JCO ERP: 強制離線模式');
             return;
         }
         
@@ -45,7 +58,7 @@ class JCOApiConnector {
         this.updateConnectionStatus(online);
         
         if (!online) {
-            console.log('JCO ERP: API 無法連線，使用離線模式');
+            // [DEBUG] console.log('JCO ERP: API 無法連線，使用離線模式');
         }
         
         this.startHeartbeat();
@@ -120,7 +133,7 @@ class JCOApiConnector {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout);
             
-            const response = await fetch(`${this.apiUrl}?action=read&sheet=訂單`, {
+            const response = await fetch(`${this.apiUrl}?action=read&sheet=${encodeURIComponent('工作表1')}`, {
                 method: 'GET',
                 signal: controller.signal
             });
@@ -404,7 +417,7 @@ class JCOApiConnector {
                         sheet: this.sheetMap[sheet],
                         data: JSON.stringify(localData)
                     });
-                    console.log(`已同步 ${sheet} 到雲端`);
+                    // [DEBUG] console.log(`已同步 ${sheet} 到雲端`);
                 } catch (e) {
                     console.error(`同步 ${sheet} 失敗:`, e);
                 }
@@ -424,6 +437,98 @@ class JCOApiConnector {
             });
         }
     }
+    
+    // 🔧 帶重試的 fetch (2026-03-14 大師級優化)
+    async fetchWithRetry(url, options = {}, retryCount = 0) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            return response;
+            
+        } catch (error) {
+            if (retryCount < this.retryConfig.maxRetries) {
+                const delay = Math.min(
+                    this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffMultiplier, retryCount),
+                    this.retryConfig.maxDelay
+                );
+                // [DEBUG] console.log(`API 重試 ${retryCount + 1}/${this.retryConfig.maxRetries}，等待 ${delay}ms`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return this.fetchWithRetry(url, options, retryCount + 1);
+            }
+            throw error;
+        }
+    }
+    
+    // 🔧 友善錯誤訊息 (2026-03-14 大師級優化)
+    getErrorMessage(error) {
+        const errorMessages = {
+            'Failed to fetch': '網路連線失敗，請檢查網路狀態',
+            'NetworkError': '網路錯誤，正在嘗試重新連線...',
+            'AbortError': '請求超時，伺服器回應過慢',
+            'TypeError': '資料格式錯誤，請聯繫技術支援',
+            '404': '找不到資料，請確認工作表名稱',
+            '500': '伺服器錯誤，請稍後再試',
+            '403': '權限不足，請確認帳號權限'
+        };
+        
+        for (const [key, msg] of Object.entries(errorMessages)) {
+            if (error.toString().includes(key)) return msg;
+        }
+        return '發生未知錯誤: ' + error.message;
+    }
+    
+    // 🔧 顯示使用者通知 (2026-03-14 大師級優化)
+    showNotification(message, type = 'info') {
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+        
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: ${colors[type]};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            font-size: 14px;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // 🔧 快取讀取 (2026-03-14 大師級優化)
+    getCachedResponse(key) {
+        const cached = this.responseCache.get(key);
+        if (cached && Date.now() - cached.timestamp < this.cacheExpiry) {
+            // [DEBUG] console.log('使用快取:', key);
+            return cached.data;
+        }
+        return null;
+    }
+    
+    setCachedResponse(key, data) {
+        this.responseCache.set(key, { data, timestamp: Date.now() });
+    }
 }
 
 // 全域 API 實例
@@ -435,4 +540,26 @@ window.JCO_DEBUG = {
     setOffline: () => window.JCO_API.setOfflineMode(true),
     syncToCloud: () => window.JCO_API.forceSyncToCloud(),
     getStatus: () => ({ online: window.JCO_API.isOnline, forceOffline: window.JCO_API.forceOffline })
+};
+
+// 🔧 顯示資料更新時間 (2026-03-14 專家討論後新增)
+// 滿足 UX 設計師要求：使用者需要知道資料的新鮮度
+JCOApiConnector.prototype.showLastUpdateTime = function() {
+    let indicator = document.getElementById('last-update-indicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'last-update-indicator';
+        indicator.style.cssText = 'position:fixed;bottom:16px;left:16px;padding:8px 12px;background:rgba(0,0,0,0.7);color:#fff;border-radius:6px;font-size:11px;z-index:9998;';
+        document.body.appendChild(indicator);
+    }
+    
+    const now = new Date();
+    indicator.innerHTML = '📊 資料更新: ' + now.toLocaleTimeString('zh-TW') + ' <button onclick="window.JCO_API.forceRefresh()" style="margin-left:8px;padding:2px 8px;cursor:pointer;border:none;background:#3b82f6;color:#fff;border-radius:4px;">🔄 刷新</button>';
+};
+
+// 🔧 強制刷新（清除快取）
+JCOApiConnector.prototype.forceRefresh = function() {
+    this.responseCache.clear();
+    this.showNotification('快取已清除，重新載入中...', 'info');
+    location.reload();
 };
